@@ -1,0 +1,14 @@
+{
+  "name": "map-discoverer",
+  "version": "0.0.1",
+  "description": "A small web application to 'discover' maps",
+  "author": "Esteban Manchado Velázquez <emanchado@demiurgo.org>",
+  "scripts": {
+    "watch": "babel -w --modules ignore -o public/js/map-discoverer.js src"
+  },
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "typescript": "^1.8.10"
+  },
+  "license": "MIT"
+}
