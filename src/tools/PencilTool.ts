@@ -1,6 +1,4 @@
 export default class PencilTool {
-    private ctx: CanvasRenderingContext2D;
-    private uiHintsLayer: HTMLCanvasElement;
     private uiHintsCtx: CanvasRenderingContext2D;
     private started: boolean;
     private lastX: number;
@@ -9,26 +7,25 @@ export default class PencilTool {
     private static img: string = "pencil.png";
     private static accessKey: string = "p";
 
-    constructor(canvas, uiHintsLayer) {
-        this.ctx = canvas.getContext('2d');
+    constructor(private uiHintsLayer: HTMLCanvasElement) {
         this.uiHintsLayer = uiHintsLayer;
         this.uiHintsCtx = this.uiHintsLayer.getContext('2d');
         this.started = false;
     }
 
-    onStart({offsetX, offsetY}) {
+    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
         this.started = true;
 
-        this.ctx.fillStyle = "rgba(0,0,0,1)";
-        this.ctx.beginPath();
-        this.ctx.arc(offsetX,
+        ctx.fillStyle = "rgba(0,0,0,1)";
+        ctx.beginPath();
+        ctx.arc(offsetX,
                      offsetY,
                      20,
                      (Math.PI/180)*0,
                      (Math.PI/180)*360,
                      false);
-        this.ctx.fill();
-        this.ctx.closePath();
+        ctx.fill();
+        ctx.closePath();
 
         this.clearUiHints();
 
@@ -36,15 +33,15 @@ export default class PencilTool {
         this.lastY = offsetY;
     }
 
-    onMove({offsetX, offsetY}) {
+    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
         if (this.started) {
-            this.ctx.lineCap = 'round';
-            this.ctx.lineWidth = 40;
-            this.ctx.beginPath();
-            this.ctx.moveTo(this.lastX, this.lastY);
-            this.ctx.lineTo(offsetX, offsetY);
-            this.ctx.stroke();
-            this.ctx.closePath();
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 40;
+            ctx.beginPath();
+            ctx.moveTo(this.lastX, this.lastY);
+            ctx.lineTo(offsetX, offsetY);
+            ctx.stroke();
+            ctx.closePath();
 
             this.lastX = offsetX;
             this.lastY = offsetY;
@@ -54,7 +51,7 @@ export default class PencilTool {
         }
     }
 
-    onStop({offsetX, offsetY}) {
+    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
         this.started = false;
 
         this.drawCircleHint(offsetX, offsetY);

@@ -4,7 +4,7 @@
   "description": "A small web application to 'discover' maps",
   "author": "Esteban Manchado Velázquez <emanchado@demiurgo.org>",
   "scripts": {
-    "watch": "babel -w --modules ignore -o public/js/map-discoverer.js src"
+    "watch": "tsc -w -p src --outFile public/js/compiled/map-discoverer.js"
   },
   "devDependencies": {
     "babel": "^5.8.23",

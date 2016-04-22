@@ -1,5 +1,4 @@
 export default class Toolbox {
-    private canvas: HTMLCanvasElement;
     private uiHints: HTMLCanvasElement;
     private toolsDiv: HTMLElement;
     private tools: Array<any>;
@@ -12,14 +11,13 @@ export default class Toolbox {
         }
     }
 
-    install(canvas, uiHints, toolsDiv) {
-        this.canvas = canvas;
+    install(uiHints, toolsDiv) {
         this.uiHints = uiHints;
         this.toolsDiv = toolsDiv;
 
         this.tools = []; this.toolButtons = [];
         for (let toolClass of this.toolList) {
-            let tool = new toolClass(this.canvas, this.uiHints),
+            let tool = new toolClass(this.uiHints),
                 buttonEl = this.createToolButton(tool);
 
             this.tools.push(tool);

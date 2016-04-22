@@ -21,30 +21,6 @@ body {
     margin-top: 2ex;
 }
 
-#orig-map {
-    position: relative;
-    top: 0;
-    left: 0;
-}
-
-#overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    opacity: 0.7;
-
-    cursor: crosshair;
-}
-
-#ui-hints {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    pointer-events: none;
-}
-
 button.active {
     background-color: #666;
     color: #ddd;

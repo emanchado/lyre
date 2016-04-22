@@ -1,6 +1,4 @@
 export default class RectangleTool {
-    private ctx: CanvasRenderingContext2D;
-    private uiHintsLayer: HTMLCanvasElement;
     private uiHintsCtx: CanvasRenderingContext2D;
     private started: boolean;
     private initialX: number;
@@ -9,20 +7,18 @@ export default class RectangleTool {
     private static img: string = "rectangle.png";
     private static accessKey: string = "r";
 
-    constructor(canvas, uiHintsLayer) {
-        this.ctx = canvas.getContext("2d");
-        this.uiHintsLayer = uiHintsLayer;
+    constructor(private uiHintsLayer: HTMLCanvasElement) {
         this.uiHintsCtx = uiHintsLayer.getContext("2d");
         this.started = false;
     }
 
-    onStart({offsetX, offsetY}) {
+    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
         [this.initialX, this.initialY] = [offsetX, offsetY];
         this.clearUiHints();
         this.started = true;
     }
 
-    onMove({offsetX, offsetY}) {
+    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
         this.clearUiHints();
 
         if (this.started) {
@@ -40,15 +36,15 @@ export default class RectangleTool {
         }
     }
 
-    onStop({offsetX, offsetY}) {
+    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
         this.clearUiHints();
 
-        this.ctx.lineWidth = 1;
-        this.ctx.beginPath();
-        this.ctx.rect(this.initialX, this.initialY,
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.rect(this.initialX, this.initialY,
                       offsetX - this.initialX, offsetY - this.initialY);
-        this.ctx.fill();
-        this.ctx.stroke();
+        ctx.fill();
+        ctx.stroke();
 
         this.started = false;
     }
