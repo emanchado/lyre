@@ -3,18 +3,79 @@ import RectangleTool from "./tools/RectangleTool";
 import ToggleButton from "./ToggleButton";
 import Toolbox from "./Toolbox";
 
+class DiscoverableMap {
+    private containerEl;
+    private overlayEl;
+    private stateIndex: number;
+    private undoActions: Array<ImageData>;
+
+    constructor() {}
+
+    init() {
+        this.containerEl = document.createElement("div");
+
+        const mapImageEl = document.createElement("img");
+        mapImageEl.style.position = "relative";
+        mapImageEl.style.top = "0";
+        mapImageEl.style.left = "0";
+        const overlayEl = document.createElement("canvas");
+        overlayEl.style.position = "absolute";
+        overlayEl.style.top = "0";
+        overlayEl.style.left = "0";
+        overlayEl.style.opacity = "0.7";
+        overlayEl.style.cursor = "crosshair";
+
+        this.containerEl.appendChild(mapImageEl);
+        this.containerEl.appendChild(overlayEl);
+
+        this.addImageLoadHandler(mapImageEl);
+    }
+
+    addImageLoadHandler(imgEl, fn) {
+        imgEl.addEventListener("load", () => {
+            this.overlayEl.height = imgEl.height;
+            this.overlayEl.width = imgEl.width;
+            let ctx = this.overlayEl.getContext("2d");
+            ctx.fillRect(0, 0, this.overlayEl.width, this.overlayEl.height);
+
+            this.stateIndex = 0;
+            this.undoActions = [ctx.getImageData(0,
+                                                 0,
+                                                 this.overlayEl.width,
+                                                 this.overlayEl.height)];
+            imgEl.style.visibility = "";
+
+            this.opacityToggle.disable();
+            this.coverToggle.disable();
+
+            fn(width, height);
+            this.uiHintsEl.height = imgEl.height;
+            this.uiHintsEl.width = imgEl.width;
+            let uiHintsCtx = this.uiHintsEl.getContext("2d");
+            uiHintsCtx.clearRect(0, 0, this.uiHintsEl.width, this.uiHintsEl.height);
+        });
+    }
+
+    loadImage(imageUrl) {
+        this.mapImg.style.visibility = "hidden";
+        // Setting "src" will load the image, and the "load" event
+        // will take care of the rest
+        this.mapImg.src = imageUrl;
+    }
+}
+
 export default class MapDiscoverer {
-    private canvasEl: HTMLCanvasElement;
+    private overlayEl: HTMLCanvasElement;
     private uiHintsEl: HTMLCanvasElement;
     private undoActions: Array<ImageData>;
     private stateIndex: number;
     private opacityToggle: ToggleButton;
     private coverToggle: ToggleButton;
     private toolbox;
-    
-    constructor(private mapImg: HTMLImageElement, toolsDiv: HTMLElement, overlay: HTMLCanvasElement, uiHintsOverlay: HTMLCanvasElement) {
+
+    constructor(toolsDiv: HTMLElement, uiHintsOverlay: HTMLCanvasElement) {
         this.mapImg = mapImg;
-        this.canvasEl = overlay;
+        this.overlayEl = overlay;
         this.uiHintsEl = uiHintsOverlay;
         this.undoActions = [];
         this.stateIndex = -1;
@@ -31,16 +92,15 @@ export default class MapDiscoverer {
         toolsDiv.appendChild(this.coverToggle.domElement);
         toolsDiv.appendChild(undoButton);
         toolsDiv.appendChild(redoButton);
-        this.toolbox.install(this.canvasEl, this.uiHintsEl, toolsDiv);
+        this.toolbox.install(this.overlayEl, this.uiHintsEl, toolsDiv);
 
-        this.addCanvasHandlers(this.canvasEl);
-        this.addImageLoadHandler(this.mapImg);
+        this.addCanvasHandlers(this.overlayEl);
 
         this.loadImage("img/default-map.png");
     }
 
     createUndoButton() {
-        let ctx = this.canvasEl.getContext("2d");
+        let ctx = this.overlayEl.getContext("2d");
 
         return this.createButton("Undo", "img/undo.png", "z", () => {
             if (this.stateIndex > 0) {
@@ -51,7 +111,7 @@ export default class MapDiscoverer {
     }
 
     createRedoButton() {
-        let ctx = this.canvasEl.getContext("2d");
+        let ctx = this.overlayEl.getContext("2d");
 
         return this.createButton("Redo", "img/redo.png", "y", () => {
             if (this.stateIndex + 1 < this.undoActions.length) {
@@ -66,15 +126,15 @@ export default class MapDiscoverer {
                                 "img/transparency.png",
                                 "o",
                                 () => {
-                                    this.canvasEl.style.opacity = "1";
+                                    this.overlayEl.style.opacity = "1";
                                 },
                                 () => {
-                                    this.canvasEl.style.opacity = "";
+                                    this.overlayEl.style.opacity = "";
                                 });
     }
 
     createCoverToggleButton() {
-        let ctx = this.canvasEl.getContext("2d");
+        let ctx = this.overlayEl.getContext("2d");
 
         return new ToggleButton(
             ["Uncover Mode", "Cover Mode"],
@@ -100,25 +160,25 @@ export default class MapDiscoverer {
         return button;
     }
 
-    addCanvasHandlers(canvasEl) {
-        let ctx = this.canvasEl.getContext("2d"),
+    addCanvasHandlers(overlayEl) {
+        let ctx = this.overlayEl.getContext("2d"),
             uiHintsCtx = this.uiHintsEl.getContext("2d");
 
-        canvasEl.addEventListener("mousedown", evt => {
+        overlayEl.addEventListener("mousedown", evt => {
             this.toolbox.currentTool.onStart(evt);
         }, false);
-        canvasEl.addEventListener("mouseup", evt => {
+        overlayEl.addEventListener("mouseup", evt => {
             this.toolbox.currentTool.onStop(evt);
-            // Take a snapshot of the canvasEl for undo purposes
+            // Take a snapshot of the overlayEl for undo purposes
             this.stateIndex++;
             this.undoActions = this.undoActions.slice(0, this.stateIndex);
             this.undoActions[this.stateIndex] =
-                ctx.getImageData(0, 0, canvasEl.width, canvasEl.height);
+                ctx.getImageData(0, 0, overlayEl.width, overlayEl.height);
         }, false);
-        canvasEl.addEventListener("mousemove", evt => {
+        overlayEl.addEventListener("mousemove", evt => {
             this.toolbox.currentTool.onMove(evt);
         }, false);
-        canvasEl.addEventListener("mouseout", () => {
+        overlayEl.addEventListener("mouseout", () => {
             uiHintsCtx.clearRect(0,
                                  0,
                                  this.uiHintsEl.width,
@@ -126,34 +186,4 @@ export default class MapDiscoverer {
         });
     }
 
-    addImageLoadHandler(imgEl) {
-        imgEl.addEventListener("load", () => {
-            this.canvasEl.height = imgEl.height;
-            this.canvasEl.width = imgEl.width;
-            let ctx = this.canvasEl.getContext("2d");
-            ctx.fillRect(0, 0, this.canvasEl.width, this.canvasEl.height);
-
-            this.uiHintsEl.height = imgEl.height;
-            this.uiHintsEl.width = imgEl.width;
-            let uiHintsCtx = this.uiHintsEl.getContext("2d");
-            uiHintsCtx.clearRect(0, 0, this.uiHintsEl.width, this.uiHintsEl.height);
-
-            this.stateIndex = 0;
-            this.undoActions = [ctx.getImageData(0,
-                                                 0,
-                                                 this.canvasEl.width,
-                                                 this.canvasEl.height)];
-            imgEl.style.visibility = "";
-
-            this.opacityToggle.disable();
-            this.coverToggle.disable();
-        });
-    }
-
-    loadImage(imageUrl) {
-        this.mapImg.style.visibility = "hidden";
-        // Setting "src" will load the image, and the "load" event
-        // will take care of the rest
-        this.mapImg.src = imageUrl;
-    }
 }
