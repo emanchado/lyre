@@ -47,6 +47,11 @@ export default class MapDiscoverer {
             this.containerEl.removeChild(this.currentMap.containerEl);
         }
 
+        // TODO: Check how long the URL is when loading locally. It
+        // seems to be the whole file as a data URI. In that case,
+        // this needs to be profiled for memory usage and maybe get a
+        // simple checksum as the loadedMaps key, instead of the whole
+        // thing.
         if (!(url in this.loadedMaps)) {
             const map = new DiscoverableMap(url);
             map.init((width, height) => {
@@ -64,13 +69,13 @@ export default class MapDiscoverer {
     }
 
     createUndoButton() {
-        return this.createButton("Undo", "img/undo.png", "z", () => {
+        return this.createButton("Undo", "/img/undo.png", "z", () => {
             this.currentMap.undo();
         });
     }
 
     createRedoButton() {
-        return this.createButton("Redo", "img/redo.png", "y", () => {
+        return this.createButton("Redo", "/img/redo.png", "y", () => {
             this.currentMap.redo();
         });
     }
@@ -78,7 +83,7 @@ export default class MapDiscoverer {
     createCoverToggleButton() {
         return new ToggleButton(
             ["Uncover Mode", "Cover Mode"],
-            "img/eraser.png",
+            "/img/eraser.png",
             "c",
             () => {
                 this.compositeOperation = "source-over";

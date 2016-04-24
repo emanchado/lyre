@@ -2,3 +2,4 @@ node_modules/
 npm-debug.log
 public/js/compiled/
 *.js.map
+build/

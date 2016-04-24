@@ -1,0 +1,75 @@
+<div class="row">
+  <div class="col-md-6">
+    <h1><%= title %></h1>
+  </div>
+
+  <div class="col-md-6">
+    <button>Start scenario</button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h2>Images</h2>
+
+        <% if (images.length) { %>
+          <% images.forEach(function(image) { %>
+            <%= image %>
+          <% }); %>
+        <% } else { %>
+          <em>No images</em>
+        <% } %>
+
+        <h3>Upload</h3>
+        <form method="post" action="/scenarios/images">
+          <input type="submit" value="Upload" />
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h2>Playlists</h2>
+
+        <% if (playlists.length) { %>
+          <% playlists.forEach(function(image) { %>
+            <%= image %>
+          <% }); %>
+        <% } else { %>
+          <em>No playlists</em>
+        <% } %>
+
+        <h3>Upload</h3>
+        <form method="post" action="/scenarios/playlists">
+          <input type="submit" value="Upload" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <h2>Maps</h2>
+
+        <% if (maps.length) { %>
+          <% maps.forEach(function(image) { %>
+            <%= image %>
+          <% }); %>
+        <% } else { %>
+          <em>No maps</em>
+        <% } %>
+
+        <h3>Upload</h3>
+        <form method="post" action="/scenarios/maps">
+          <input type="submit" value="Upload" />
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

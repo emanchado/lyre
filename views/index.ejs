@@ -1,0 +1,22 @@
+<div class="row">
+  <div class="col-md-12">
+    <h1>Scenarios</h1>
+
+    <% if (scenarios.length) { %>
+      <% scenarios.forEach(function(scenario) { %>
+        <div class="col-md-12">
+          <a href="/scenarios/<%= scenario.id %>">
+            <div class="panel panel-default">
+              <div class="panel-body">
+                <%= scenario.title %>
+                <div class="scenario-details">(15 images, 2 maps, 5 playlists)</div>
+              </div>
+            </div>
+          </a>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <em>No scenarios.</em>
+    <% } %>
+  </div>
+</div>

@@ -12,4 +12,4 @@ document.getElementById("new-map-file").addEventListener("change", evt => {
     reader.readAsDataURL(file);
 }, false);
 
-app.loadMap("img/default-map.png");
+app.loadMap("/img/default-map.png");

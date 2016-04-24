@@ -1,14 +1,31 @@
 {
-  "name": "map-discoverer",
+  "name": "lyre",
   "version": "0.0.1",
-  "description": "A small web application to 'discover' maps",
+  "description": "A web application to help storytellers",
   "author": "Esteban Manchado Velázquez <emanchado@demiurgo.org>",
   "scripts": {
-    "watch": "tsc -w -p src --outFile public/js/compiled/map-discoverer.js"
+    "watchfe": "tsc -w -p frontend --outFile public/js/compiled/map-discoverer.js",
+    "watchbe": "babel -w --modules common -d build/ backend/"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "cookie-parser": "^1.4.1",
+    "ejs": "^2.4.1",
+    "express": "^4.13.4",
+    "express-layout": "^0.1.0",
+    "express-session": "^1.13.0",
+    "formidable": "^1.0.17",
+    "nodemon": "^1.9.1",
+    "q": "^1.4.1"
   },
   "devDependencies": {
-    "babel": "^5.8.23",
+    "babel-cli": "^6.7.5",
+    "babel-preset-es2015": "^6.6.0",
     "typescript": "^1.8.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emanchado/lyre.git"
   },
   "license": "MIT"
 }

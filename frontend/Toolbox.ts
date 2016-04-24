@@ -34,7 +34,7 @@ export default class Toolbox {
             toolIconEl = document.createElement("img"),
             self = this;
 
-        toolIconEl.src = "img/" + toolClass.img;
+        toolIconEl.src = "/img/" + toolClass.img;
         toolIconEl.alt = "";
 
         buttonDomEl.accessKey = toolClass.accessKey;

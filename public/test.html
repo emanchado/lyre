@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Lyre - Narrator's Helper</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/lyre.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-9">
+          &#8592; Back
+
+          <div id="top-header">
+            <div id="map-loader">
+              New map: <input type="file" id="new-map-file" />
+            </div>
+
+            <div id="tools"></div>
+          </div>
+
+          <div id="map-container">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <h2>Audience view</h2>
+            </div>
+          </div>
+
+          <div class="panel panel-default">
+            <div class="panel-body">
+              <h2>Playlists</h2>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></footer>
+
+    <script type="text/javascript" src="js/require.js"></script>
+    <script type="text/javascript" src="js/compiled/map-discoverer.js"></script>
+    <script type="text/javascript">
+      require(["map-discoverer"], function(md) {});
+    </script>
+  </body>
+</html>
