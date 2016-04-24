@@ -37,6 +37,7 @@ export default class MapDiscoverer {
         uiLayer.style.position = "absolute";
         uiLayer.style.top = "0";
         uiLayer.style.left = "0";
+        uiLayer.style.border = "5px solid #55f";
         uiLayer.style.zIndex = "1000"; // Make sure it's above everything
 
         return uiLayer;
@@ -59,6 +60,9 @@ export default class MapDiscoverer {
                 this.uiHintsEl.height = height;
             });
             this.loadedMaps[url] = map;
+            map.containerEl.style.position = "relative";
+            map.containerEl.style.top = "5px";
+            map.containerEl.style.left = "5px";
             this.coverToggle.disable();
         } else {
             this.uiHintsEl.width = this.loadedMaps[url].width;
