@@ -5,8 +5,12 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import expressSession from "express-session";
 import expressLayout from "express-layout";
+import http from "http";
+import {Server as WebSocketServer} from "ws";
 
-const app = express();
+const app = express(),
+      httpServer = http.Server(app),
+      wsServer = WebSocketServer({server: httpServer});
 
 // Application configuration
 var configuration = {
@@ -41,4 +45,8 @@ app.all("/", authMiddleware, endpoints.index);
 app.all("/scenarios/view/:id", authMiddleware, endpoints.scenarioView);
 app.all("/scenarios/narrate/:id", authMiddleware, endpoints.scenarioNarrate);
 
-app.listen(3000);
+wsServer.on("connection", endpoints.wsConnection);
+
+httpServer.listen(3000, function() {
+    console.log("Listening on http://localhost:3000");
+});

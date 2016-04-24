@@ -69,7 +69,7 @@ export default class DiscoverableMap {
     }
 
     saveCheckpoint() {
-        let ctx = this.overlayEl.getContext("2d");
+        let ctx = this.getContext();
 
         // Clear up "future" redo actions
         this.checkpoints = this.checkpoints.slice(0, this.checkpointIndex + 1);
@@ -101,6 +101,74 @@ export default class DiscoverableMap {
                 0
             );
         }
+    }
+
+    /**
+     * Given a canvas element, it returns the coordinates of the top-left
+     * and bottom-right corners of the smallest rectangle that contains
+     * all of the transparent pixels in the given canvas.
+     */
+    rectangleCoords(): Array<number> {
+        var ctx = this.getContext(),
+        data = ctx.getImageData(0, 0, this.width, this.height).data,
+        coords = [this.width - 1, this.height - 1, 0, 0];
+
+        for (var j = 0, h = this.height; j < h; j++) {
+            for (var i = 0, w = this.width; i < w; i++) {
+                // Each coordinate is four numbers (RGBA), we're only
+                // interested in the last one, the alpha channel
+                var dataIndex = (j * w + i) * 4 + 3;
+
+                if (!data[dataIndex]) {
+                    coords[0] = Math.min(coords[0], i);
+                    coords[1] = Math.min(coords[1], j);
+                    coords[2] = Math.max(coords[2], i);
+                    coords[3] = Math.max(coords[3], j);
+                }
+            }
+        }
+
+        if (coords[0] > coords[2] || coords[1] > coords[3]) {
+            return [0, 0, 0, 0];
+        }
+        return coords;
+    }
+
+    calculateDiscoveredMapArea(): [Array<number>, ImageData] {
+        let rCoords = this.rectangleCoords();
+
+        if (rCoords.every((c) => c === 0)) {
+            return [rCoords, null];
+        }
+
+        let mapImgCanvas = document.createElement("canvas");
+        mapImgCanvas.style.display = "none";
+        document.body.appendChild(mapImgCanvas);
+        mapImgCanvas.width = this.width;
+        mapImgCanvas.height = this.height;
+        let mapImgCanvasCtx = mapImgCanvas.getContext("2d");
+        mapImgCanvasCtx.drawImage(this.mapImageEl, 0, 0);
+        let rectangleImageData = mapImgCanvasCtx.getImageData(
+            rCoords[0],
+            rCoords[1],
+            rCoords[2] - rCoords[0],
+            rCoords[3] - rCoords[1]
+        );
+        let filterImageData = this.getContext().getImageData(
+            rCoords[0],
+            rCoords[1],
+            rCoords[2] - rCoords[0],
+            rCoords[3] - rCoords[1]
+        );
+        for (var i = 3, len = filterImageData.data.length; i < len; i += 4) {
+            if (filterImageData.data[i]) {
+                rectangleImageData.data[i-3] = 0;
+                rectangleImageData.data[i-2] = 0;
+                rectangleImageData.data[i-1] = 0;
+            }
+        }
+
+        return [rCoords, rectangleImageData];
     }
 
     getContext() {

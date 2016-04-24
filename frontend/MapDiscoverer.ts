@@ -4,6 +4,8 @@ import ToggleButton from "./ToggleButton";
 import Toolbox from "./Toolbox";
 import DiscoverableMap from "./DiscoverableMap";
 
+const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
+
 export default class MapDiscoverer {
     private uiHintsEl: HTMLCanvasElement;
     private coverToggle: ToggleButton;
@@ -11,15 +13,29 @@ export default class MapDiscoverer {
     private loadedMaps;
     private currentMap: DiscoverableMap;
     private compositeOperation: string;
+    private socket: WebSocket;
 
     constructor(toolsDiv: HTMLElement, private containerEl: HTMLElement) {
         this.loadedMaps = {};
+        this.socket = new WebSocket(WEBSOCKET_URL);
+        this.socket.binaryType = "arraybuffer";
+        this.socket.onmessage = (message) => {
+            console.log("Received", message.data);
+        };
+        this.socket.onclose = () => {
+            this.socket = null;
+            setTimeout(() => {
+                this.socket = new WebSocket(WEBSOCKET_URL);
+                this.socket.binaryType = "arraybuffer";
+            }, 5000);
+        };
 
         // Create UI
         this.uiHintsEl = this.createUiHintsLayer();
         this.addUiEventHandlers();
         let undoButton = this.createUndoButton(),
-            redoButton = this.createRedoButton();
+            redoButton = this.createRedoButton(),
+            sendButton = this.createSendButton();
         this.coverToggle = this.createCoverToggleButton();
         this.toolbox = new Toolbox([PencilTool, RectangleTool]);
 
@@ -27,6 +43,7 @@ export default class MapDiscoverer {
         toolsDiv.appendChild(this.coverToggle.domElement);
         toolsDiv.appendChild(undoButton);
         toolsDiv.appendChild(redoButton);
+        toolsDiv.appendChild(sendButton);
         this.toolbox.install(this.uiHintsEl, toolsDiv);
 
         this.containerEl.appendChild(this.uiHintsEl);
@@ -81,6 +98,26 @@ export default class MapDiscoverer {
     createRedoButton() {
         return this.createButton("Redo", "/img/redo.png", "y", () => {
             this.currentMap.redo();
+        });
+    }
+
+    createSendButton() {
+        return this.createButton("Send to audience", "/img/rectangle.png", "s", () => {
+            let [coords, imageData] = this.currentMap.calculateDiscoveredMapArea();
+
+            if (this.socket && imageData) {
+                this.socket.send(JSON.stringify({
+                    type: "map-metadata",
+                    width: coords[2] - coords[0],
+                    height: coords[3] - coords[1]
+                }));
+
+                const binary = new Uint8Array(imageData.data.length);
+                for (var i = 0, len = imageData.data.length; i < len; i++) {
+                    binary[i] = imageData.data[i];
+                }
+                this.socket.send(binary.buffer);
+            }
         });
     }
 
