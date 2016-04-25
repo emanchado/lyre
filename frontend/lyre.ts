@@ -1,15 +1,51 @@
+/// <reference path="riot-ts.d.ts" />
+
+import FileLister from "./FileLister";
 import MapDiscoverer from "./MapDiscoverer";
 
-let app = new MapDiscoverer(document.getElementById("tools"),
-                            document.getElementById("map-container"));
+const files = [
+    {title: "Robert Greene",
+     url: "/catalog/Robert%20Greene.png",
+     type: "image"},
+    {title: "Robert Greene photograph",
+     url: "/catalog/Robert%20Greene%20photograph.jpg",
+     type: "image"},
+    {title: "Caves",
+     url: "/catalog/kubickas-roots-grid-small.jpg",
+     type: "map"},
+    {title: "Divide",
+     url: "/catalog/kemps-divide-grid-small.jpg",
+     type: "map"},
+    {title: "Circles of Madness",
+     url: "/catalog/froehlichs-circles-of-madness-grid-small.jpg",
+     type: "map"}
+];
 
-document.getElementById("new-map-file").addEventListener("change", evt => {
-    let file = evt.target["files"][0];
-    let reader = new FileReader();
-    reader.onload = evt => {
-        app.loadMap(evt.target["result"]);
-    };
-    reader.readAsDataURL(file);
-}, false);
+const mappingApp = new MapDiscoverer(document.getElementById("tools"),
+                                     document.getElementById("map-container")),
+      fileListerApp = new FileLister(document.getElementById("file-list"),
+                                     mappingApp,
+                                     files);
 
-app.loadMap("/img/default-map.png");
+
+const playlistApp = riot.mount('playlist-app', {
+    playlists: [
+        {title: "Intro",
+         tracks: [
+             {url: "/catalog/audio/Jessica%20Curry%20-%20Dear%20Esther%20-%2008%20Standing%20Stones.mp3",
+              title: "Standing Stones"}
+         ]},
+        {title: "Action",
+         tracks: [
+             {url: "/catalog/audio/suitor-attacks-preview.mp3",
+              title: "Suitor Attacks"},
+             {url: "/catalog/audio/Cthulhus_Rising.mp3",
+              title: "Cthulhu's Rising"}
+         ]},
+        {title: "Ritual",
+         tracks: [
+             {url: "/catalog/audio/Raise_Dead_Ritual.mp3",
+              title: "Raise Dead Ritual"}
+         ]}
+    ]
+});

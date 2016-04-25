@@ -24,7 +24,8 @@ function showPictures(pictures) {
 
 window.addEventListener("load", function() {
     var content = document.getElementById("content"),
-        picture = document.getElementById("picture");
+        picture = document.getElementById("picture"),
+        pictures = document.getElementById("pictures");
 
     var socket = new WebSocket("ws://localhost:3000/audience/ws");
     socket.binaryType = "arraybuffer";
@@ -39,10 +40,13 @@ window.addEventListener("load", function() {
 
                 if (data.type === 'map-metadata') {
                     picture.style.display = 'none';
+                    pictures.style.display = 'none';
                     content.style.display = '';
                     content.width = data.width;
                     content.height = data.height;
                 } else if (data.type === 'pictures') {
+                    picture.style.display = '';
+                    pictures.style.display = '';
                     content.style.display = 'none';
                     showPictures(data.pictures);
                 }

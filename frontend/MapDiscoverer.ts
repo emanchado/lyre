@@ -102,7 +102,7 @@ export default class MapDiscoverer {
     }
 
     createSendButton() {
-        return this.createButton("Send to audience", "/img/rectangle.png", "s", () => {
+        return this.createButton("Send to audience", "/img/projector.png", "s", () => {
             let [coords, imageData] = this.currentMap.calculateDiscoveredMapArea();
 
             if (this.socket && imageData) {

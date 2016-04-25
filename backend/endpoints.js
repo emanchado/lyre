@@ -37,7 +37,7 @@ function scenarioNarrate(req, res) {
 }
 
 function scenarioListen(req, res) {
-    res.render("scenario-listen", {});
+    res.render("scenario-listen", {layout: false});
 }
 
 function wsConnection(ws) {
