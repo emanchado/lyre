@@ -1,5 +1,6 @@
 import * as endpoints from "./endpoints";
 import * as middlewares from "./middlewares";
+import config from "config";
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
@@ -8,25 +9,15 @@ import expressLayout from "express-layout";
 import http from "http";
 import {Server as WebSocketServer} from "ws";
 
-const app = express(),
-      httpServer = http.Server(app),
-      wsServer = WebSocketServer({server: httpServer});
+let app = express(),
+    httpServer = http.Server(app),
+    wsServer = WebSocketServer({server: httpServer});
 
-// Application configuration
-var configuration = {
-    secretPassphrase: process.env.npm_package_config__passphrase,
-    storeDirectory:   process.env.npm_package_config_store_directory,
-    sessionSecret:   process.env.npm_package_config_session_secret
-};
-
-if (configuration.secretPassphrase === undefined) {
+if (!config.secretPassphrase) {
     throw new Error("Misconfigured app, no secret passphrase");
 }
-if (configuration.storeDirectory === undefined) {
-    throw new Error("Misconfigured app, no store directory");
-}
 
-const authMiddleware = middlewares.getAuthMiddleware(configuration);
+const authMiddleware = middlewares.getAuthMiddleware(config);
 
 // General Express configuration
 app.set("views", __dirname + "/../views");
@@ -36,7 +27,7 @@ app.use(cookieParser());
 app.use(expressSession({
     resave: false,
     saveUninitialized: false,
-    secret: configuration.sessionSecret || "we have the BEST secrets"
+    secret: config.sessionSecret || "we have the BEST secrets"
 }));
 app.use(express.static(__dirname + "/../public"));
 app.use(expressLayout());

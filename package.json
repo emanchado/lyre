@@ -4,11 +4,14 @@
   "description": "A web application to help storytellers",
   "author": "Esteban Manchado Velázquez <emanchado@demiurgo.org>",
   "scripts": {
+    "start": "node build/index.js",
+    "startdev": "cd build/ && nodemon index.js",
     "watchfe": "tsc -w -p frontend --outFile public/js/compiled/lyre.js",
     "watchbe": "babel -w --modules common -d build/ backend/"
   },
   "dependencies": {
     "body-parser": "^1.15.0",
+    "config": "^1.20.1",
     "cookie-parser": "^1.4.1",
     "ejs": "^2.4.1",
     "express": "^4.13.4",
