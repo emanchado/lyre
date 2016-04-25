@@ -42,7 +42,7 @@ app.use(express.static(__dirname + "/../public"));
 app.use(expressLayout());
 
 app.all("/", authMiddleware, endpoints.index);
-app.all("/scenarios/view/:id", authMiddleware, endpoints.scenarioView);
+app.all("/scenarios/manage/:id", authMiddleware, endpoints.scenarioManage);
 app.all("/scenarios/narrate/:id", authMiddleware, endpoints.scenarioNarrate);
 
 wsServer.on("connection", endpoints.wsConnection);

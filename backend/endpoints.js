@@ -22,8 +22,8 @@ function index(req, res) {
     });
 }
 
-function scenarioView(req, res) {
-    res.render("scenario-view", {
+function scenarioManage(req, res) {
+    res.render("scenario-manage", {
         id: 1,
         title: "Suffragettes",
         images: [],
@@ -48,4 +48,4 @@ function wsConnection(ws) {
     webSockets[webSocketType].push(ws);
 }
 
-export { index, scenarioView, scenarioNarrate, wsConnection };
+export { index, scenarioManage, scenarioNarrate, wsConnection };
