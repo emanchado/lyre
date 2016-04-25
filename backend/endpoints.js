@@ -36,6 +36,10 @@ function scenarioNarrate(req, res) {
     res.render("scenario-narrate", {});
 }
 
+function scenarioListen(req, res) {
+    res.render("scenario-listen", {});
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -48,4 +52,4 @@ function wsConnection(ws) {
     webSockets[webSocketType].push(ws);
 }
 
-export { index, scenarioManage, scenarioNarrate, wsConnection };
+export { index, scenarioManage, scenarioNarrate, scenarioListen, wsConnection };
