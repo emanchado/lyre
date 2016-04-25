@@ -4,7 +4,7 @@
   "description": "A web application to help storytellers",
   "author": "Esteban Manchado Velázquez <emanchado@demiurgo.org>",
   "scripts": {
-    "watchfe": "tsc -w -p frontend --outFile public/js/compiled/map-discoverer.js",
+    "watchfe": "tsc -w -p frontend --outFile public/js/compiled/lyre.js",
     "watchbe": "babel -w --modules common -d build/ backend/"
   },
   "dependencies": {
