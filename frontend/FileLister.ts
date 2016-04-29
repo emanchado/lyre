@@ -3,13 +3,14 @@ import MapDiscoverer from "./MapDiscoverer";
 const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
 
 export default class FileLister {
-    private imageContainer: HTMLDivElement;
-    private mapContainer: HTMLDivElement;
+    private imageListContainer: HTMLDivElement;
+    private mapListContainer: HTMLDivElement;
     private socket: WebSocket;
 
     constructor(private container: HTMLElement, private mappingApp: MapDiscoverer, files) {
-        this.imageContainer = document.createElement("div");
-        this.mapContainer = document.createElement("div");
+        this.imageListContainer = document.createElement("div");
+        this.mapListContainer = document.createElement("div");
+
         this.socket = new WebSocket(WEBSOCKET_URL);
         this.socket.binaryType = "arraybuffer";
         this.socket.onmessage = (message) => {
@@ -28,22 +29,20 @@ export default class FileLister {
                 const fileEl = document.createElement("li");
                 fileEl.textContent = fileInfo.title;
                 fileEl.onclick = () => {
-                    console.log("Clicked on image", fileInfo.title);
                     this.socket.send(JSON.stringify({
                         type: "pictures",
                         pictures: [{originalUrl: fileInfo.url,
                                     thumbnailUrl: fileInfo.url}]
                     }));
                 };
-                this.imageContainer.appendChild(fileEl);
+                this.imageListContainer.appendChild(fileEl);
             } else {
                 const fileEl = document.createElement("li");
                 fileEl.textContent = fileInfo.title;
                 fileEl.onclick = () => {
                     this.mappingApp.loadMap(fileInfo.url);
-                    console.log("Clicked on map", fileInfo.title);
                 };
-                this.mapContainer.appendChild(fileEl);
+                this.mapListContainer.appendChild(fileEl);
             }
         });
 
@@ -55,10 +54,10 @@ export default class FileLister {
         mapsTitle.textContent = "Maps";
 
         container.appendChild(imagesTitle);
-        imagesList.appendChild(this.imageContainer);
+        imagesList.appendChild(this.imageListContainer);
         container.appendChild(imagesList);
         container.appendChild(mapsTitle);
-        mapsList.appendChild(this.mapContainer);
+        mapsList.appendChild(this.mapListContainer);
         container.appendChild(mapsList);
     }
 }
