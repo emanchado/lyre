@@ -1,0 +1,22 @@
+<mapdiscoverer-app>
+  <div id="top-header">
+    <div id="tools">
+      <button accesskey="z" onclick={ undo }>
+        <img src="/img/undo.png" /> Undo
+      </button>
+      <button accesskey="y" onclick={ redo }>
+        <img src="/img/redo.png" /> Redo
+      </button>
+      <button accesskey="s" onclick={ sendToAudience }>
+        <img src="/img/projector.png" /> Send to audience
+      </button>
+      <button accesskey="c" onclick={ coverUncover }>
+        <img src="/img/eraser.png" /> Uncover mode
+      </button>
+    </div>
+  </div>
+
+  <div id="map-container">
+    <canvas style="position: absolute; top: 0; left: 0; border: 5px solid #55f; zindex: 1000"></canvas>
+  </div>
+</mapdiscoverer-app>

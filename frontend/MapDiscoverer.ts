@@ -1,3 +1,5 @@
+/// <reference path="riot-ts.d.ts" />
+
 import PencilTool from "./tools/PencilTool";
 import RectangleTool from "./tools/RectangleTool";
 import ToggleButton from "./ToggleButton";
@@ -5,6 +7,10 @@ import Toolbox from "./Toolbox";
 import DiscoverableMap from "./DiscoverableMap";
 
 const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
+
+@template("/templates/filelister.html")
+class MapDiscovererApp {
+}
 
 export default class MapDiscoverer {
     private uiHintsEl: HTMLCanvasElement;
