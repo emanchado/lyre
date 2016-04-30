@@ -45,5 +45,14 @@ const apiResponse = {
 const mappingApp = new MapDiscoverer(document.getElementById("tools"),
                                      document.getElementById("map-container"));
 
+// TODO:
+// * Move mapping app to FileLister (create there?)
+// * Convert FileLister into Riot?
+// * Make FileLister show mapping app only when necessary, and store the
+//   current "mode" (list or mapping), and show the Back link and whatever
+//   when in mapping mode
+// * Redo icons in the toolbox, they don't have to be all the same width
+
 riot.mount('playlist-app', {playlists: apiResponse.playlists});
-riot.mount('filelister-app', {files: apiResponse.files});
+riot.mount('filelister-app', {files: apiResponse.files,
+                              mappingApp: mappingApp});

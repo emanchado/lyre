@@ -11,6 +11,7 @@ class FileListerApp extends Riot.Element
     private maps;
     private socket: WebSocket;
     private mode: FileListerAppModes;
+    private mappingApp;
 
     constructor() {
         super();
@@ -22,6 +23,7 @@ class FileListerApp extends Riot.Element
             return file.type === "map";
         });
 
+        this.mappingApp = this.opts.mappingApp;
         this.mode = FileListerAppModes.FileList;
 
         this.socket = new WebSocket(WEBSOCKET_URL);
@@ -38,6 +40,10 @@ class FileListerApp extends Riot.Element
         };
     }
 
+    switchToFileListMode() {
+        this.mode = FileListerAppModes.FileList;
+    }
+
     fileListMode() {
         return this.mode === FileListerAppModes.FileList;
     }
@@ -48,8 +54,6 @@ class FileListerApp extends Riot.Element
 
     sendImageHandler(imageProps) {
         return (e) => {
-            console.log("this.socket =", this.socket);
-            console.log("Sending image", imageProps);
             this.socket.send(JSON.stringify({
                 type: "pictures",
                 pictures: [{originalUrl: imageProps.url,
@@ -60,8 +64,9 @@ class FileListerApp extends Riot.Element
 
     openMapHandler(mapProps) {
         return function(e) {
-            console.log("Loading map... (don't know how to, yet)");
+            console.log("Loading map", mapProps.url);
             this.mode = FileListerAppModes.Map;
+            this.mappingApp.loadMap(mapProps.url);
         }.bind(this.parent);
     }
 }
