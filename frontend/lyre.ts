@@ -1,34 +1,26 @@
 /// <reference path="riot-ts.d.ts" />
 
-import FileLister from "./FileLister";
 import MapDiscoverer from "./MapDiscoverer";
 
-const files = [
-    {title: "Robert Greene",
-     url: "/catalog/Robert%20Greene.png",
-     type: "image"},
-    {title: "Robert Greene photograph",
-     url: "/catalog/Robert%20Greene%20photograph.jpg",
-     type: "image"},
-    {title: "Caves",
-     url: "/catalog/kubickas-roots-grid-small.jpg",
-     type: "map"},
-    {title: "Divide",
-     url: "/catalog/kemps-divide-grid-small.jpg",
-     type: "map"},
-    {title: "Circles of Madness",
-     url: "/catalog/froehlichs-circles-of-madness-grid-small.jpg",
-     type: "map"}
-];
+const apiResponse = {
+    files: [
+        {title: "Robert Greene",
+         url: "/catalog/Robert%20Greene.png",
+         type: "image"},
+        {title: "Robert Greene photograph",
+         url: "/catalog/Robert%20Greene%20photograph.jpg",
+         type: "image"},
+        {title: "Caves",
+         url: "/catalog/kubickas-roots-grid-small.jpg",
+         type: "map"},
+        {title: "Divide",
+         url: "/catalog/kemps-divide-grid-small.jpg",
+         type: "map"},
+        {title: "Circles of Madness",
+         url: "/catalog/froehlichs-circles-of-madness-grid-small.jpg",
+         type: "map"}
+    ],
 
-const mappingApp = new MapDiscoverer(document.getElementById("tools"),
-                                     document.getElementById("map-container")),
-      fileListerApp = new FileLister(document.getElementById("file-list"),
-                                     mappingApp,
-                                     files);
-
-
-const playlistApp = riot.mount('playlist-app', {
     playlists: [
         {title: "Intro",
          tracks: [
@@ -48,4 +40,10 @@ const playlistApp = riot.mount('playlist-app', {
               title: "Raise Dead Ritual"}
          ]}
     ]
-});
+};
+
+const mappingApp = new MapDiscoverer(document.getElementById("tools"),
+                                     document.getElementById("map-container"));
+
+riot.mount('playlist-app', {playlists: apiResponse.playlists});
+riot.mount('filelister-app', {files: apiResponse.files});

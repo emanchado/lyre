@@ -1,15 +1,28 @@
-import MapDiscoverer from "./MapDiscoverer";
+/// <reference path="riot-ts.d.ts" />
 
 const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
 
-export default class FileLister {
-    private imageListContainer: HTMLDivElement;
-    private mapListContainer: HTMLDivElement;
-    private socket: WebSocket;
+const enum FileListerAppModes { FileList, Map };
 
-    constructor(private container: HTMLElement, private mappingApp: MapDiscoverer, files) {
-        this.imageListContainer = document.createElement("div");
-        this.mapListContainer = document.createElement("div");
+@template("/templates/filelister.html")
+class FileListerApp extends Riot.Element
+{
+    private images;
+    private maps;
+    private socket: WebSocket;
+    private mode: FileListerAppModes;
+
+    constructor() {
+        super();
+
+        this.images = this.opts.files.filter((file) => {
+            return file.type === "image";
+        });
+        this.maps = this.opts.files.filter((file) => {
+            return file.type === "map";
+        });
+
+        this.mode = FileListerAppModes.FileList;
 
         this.socket = new WebSocket(WEBSOCKET_URL);
         this.socket.binaryType = "arraybuffer";
@@ -23,41 +36,32 @@ export default class FileLister {
                 this.socket.binaryType = "arraybuffer";
             }, 5000);
         };
+    }
 
-        files.forEach((fileInfo) => {
-            if (fileInfo.type === "image") {
-                const fileEl = document.createElement("li");
-                fileEl.textContent = fileInfo.title;
-                fileEl.onclick = () => {
-                    this.socket.send(JSON.stringify({
-                        type: "pictures",
-                        pictures: [{originalUrl: fileInfo.url,
-                                    thumbnailUrl: fileInfo.url}]
-                    }));
-                };
-                this.imageListContainer.appendChild(fileEl);
-            } else {
-                const fileEl = document.createElement("li");
-                fileEl.textContent = fileInfo.title;
-                fileEl.onclick = () => {
-                    this.mappingApp.loadMap(fileInfo.url);
-                };
-                this.mapListContainer.appendChild(fileEl);
-            }
-        });
+    fileListMode() {
+        return this.mode === FileListerAppModes.FileList;
+    }
 
-        const imagesTitle = document.createElement("h1"),
-              mapsTitle = document.createElement("h1"),
-              imagesList = document.createElement("ul"),
-              mapsList = document.createElement("ul");
-        imagesTitle.textContent = "Images";
-        mapsTitle.textContent = "Maps";
+    mapMode() {
+        return this.mode === FileListerAppModes.Map;
+    }
 
-        container.appendChild(imagesTitle);
-        imagesList.appendChild(this.imageListContainer);
-        container.appendChild(imagesList);
-        container.appendChild(mapsTitle);
-        mapsList.appendChild(this.mapListContainer);
-        container.appendChild(mapsList);
+    sendImageHandler(imageProps) {
+        return (e) => {
+            console.log("this.socket =", this.socket);
+            console.log("Sending image", imageProps);
+            this.socket.send(JSON.stringify({
+                type: "pictures",
+                pictures: [{originalUrl: imageProps.url,
+                            thumbnailUrl: imageProps.url}]
+            }));
+        };
+    }
+
+    openMapHandler(mapProps) {
+        return function(e) {
+            console.log("Loading map... (don't know how to, yet)");
+            this.mode = FileListerAppModes.Map;
+        }.bind(this.parent);
     }
 }

@@ -1,0 +1,25 @@
+<filelister-app>
+  <div show={ fileListMode() }>
+    <h1>Images</h1>
+    <ul>
+      <li each={ image in images } onclick={ sendImageHandler(image) }>
+        { image.title }
+      </li>
+    </ul>
+
+    <h1>Maps</h1>
+    <ul>
+      <li each={ map in maps } onclick={ openMapHandler(map) }>
+        { map.title }
+      </li>
+    </ul>
+  </div>
+
+  <div show={ mapMode() }>
+    <div onclick={ switchToFileListMode }>
+      &#8592; Back
+    </div>
+
+    <yield/>
+  </div>
+</filelister-app>
