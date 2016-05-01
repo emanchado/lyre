@@ -15,12 +15,18 @@ class MapDiscovererApp extends Riot.Element
     private loadedMaps;
     private uiHints: HTMLCanvasElement;
     private mapContainer: HTMLElement;
+    private paintMode: string;
+    private paintTools: Array<any>;
+    private currentPaintTool;
 
     constructor(opts) {
         super();
 
         this.loadedMaps = {};
         this.currentMapUrl = null;
+        this.paintMode = "uncover";
+        this.paintTools = [new PencilTool(), new RectangleTool()];
+        this.currentPaintTool = this.paintTools[0];
     }
 
     mounted() {
@@ -40,9 +46,7 @@ class MapDiscovererApp extends Riot.Element
                 this.uiHints.height = height;
             });
             this.loadedMaps[url] = map;
-            map.containerEl.style.position = "relative";
-            map.containerEl.style.top = "5px";
-            map.containerEl.style.left = "5px";
+            map.containerEl.className = "map-img";
             // TODO: put this back
             // this.coverToggle.disable();
         } else {
@@ -51,6 +55,58 @@ class MapDiscovererApp extends Riot.Element
         }
         this.currentMapUrl = url;
         this.mapContainer.appendChild(this.loadedMaps[this.currentMapUrl].containerEl);
+    }
+
+    coverUncover(evt) {
+        this.paintMode = this.paintMode === "uncover" ? "cover" : "uncover";
+    }
+
+    compositeOperationForMode(paintMode) {
+        return paintMode === "uncover" ? "destination-out" : "source-over";
+    }
+
+    onmousedown(evt) {
+        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
+              uiHintsCtx = this.uiHints.getContext("2d");
+        ctx.save();
+        ctx.globalCompositeOperation = this.compositeOperationForMode(this.paintMode);
+        this.currentPaintTool.onStart(evt, ctx, uiHintsCtx);
+        ctx.restore();
+    }
+
+    onmouseup(evt) {
+        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
+              uiHintsCtx = this.uiHints.getContext("2d");
+        ctx.save();
+        ctx.globalCompositeOperation = this.compositeOperationForMode(this.paintMode);
+        this.currentPaintTool.onStop(evt, ctx, uiHintsCtx);
+        ctx.restore();
+        // Take a snapshot of the map for undo purposes
+        this.loadedMaps[this.currentMapUrl].saveCheckpoint();
+    }
+
+    onmousemove(evt) {
+        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
+              uiHintsCtx = this.uiHints.getContext("2d");
+        ctx.save();
+        ctx.globalCompositeOperation = this.compositeOperationForMode(this.paintMode);
+        this.currentPaintTool.onMove(evt, ctx, uiHintsCtx);
+        ctx.restore();
+    }
+
+    onmouseout(evt) {
+        const uiHintsCtx = this.uiHints.getContext("2d");
+        uiHintsCtx.clearRect(0, 0, this.uiHints.width, this.uiHints.height);
+    }
+
+    paintToolClass(tool) {
+        return this.currentPaintTool === tool ? "active" : "";
+    }
+
+    onPaintToolClickHandler(tool) {
+        return function(e) {
+            this.currentPaintTool = tool;
+        }.bind(this.parent);
     }
 }
 

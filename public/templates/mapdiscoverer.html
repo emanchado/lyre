@@ -1,5 +1,16 @@
 <mapdiscoverer>
   <style scoped>
+    button {
+      height: 30px;
+    }
+    button img {
+      vertical-align: middle;
+    }
+    button.active {
+      background-color: #666;
+      color: #ddd;
+    }
+
     .map-container {
       position: relative;
       left: 0;
@@ -12,12 +23,19 @@
       top: 0;
       left: 0;
       border: 5px solid #55f;
-      zindex: 1000;
+      z-index: 1000;
+    }
+
+    .map-img {
+      position: relative;
+      top: 5px;
+      left: 5px;
+      pointer-events: none;
     }
   </style>
 
   <div id="top-header">
-    <div id="tools">
+    <div>
       <button accesskey="z" onclick={ undo }>
         <img src="/img/undo.png" /> Undo
       </button>
@@ -28,12 +46,25 @@
         <img src="/img/projector.png" /> Send to audience
       </button>
       <button accesskey="c" onclick={ coverUncover }>
-        <img src="/img/eraser.png" /> Uncover mode
+        <img src="/img/eraser.png" /> { paintMode === "cover" ? "Cover" : "Uncover" } mode
+      </button>
+
+      <!-- Paint tools -->
+      <button each={ paintTool in paintTools }
+              class={ paintToolClass(paintTool) }
+              accesskey={ paintTool.constructor.accessKey }
+              onclick={ onPaintToolClickHandler(paintTool) }>
+        <img src="/img/{ paintTool.constructor.img }" /> { paintTool.constructor.title }
       </button>
     </div>
   </div>
 
   <div class="map-container">
-    <canvas class="ui-hints"></canvas>
+    <canvas class="ui-hints"
+            onmouseup={ onmouseup }
+            onmousedown={ onmousedown }
+            onmousemove={ onmousemove }
+            onmouseout={ onmouseout }>
+    </canvas>
   </div>
 </mapdiscoverer>

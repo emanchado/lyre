@@ -1,5 +1,13 @@
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
 body.audience {
     background-color: black;
+}
+
+footer {
+    font-size: 80%;
 }
 
 .panel-body h2 {

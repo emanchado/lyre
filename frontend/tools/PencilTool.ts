@@ -1,5 +1,4 @@
 export default class PencilTool {
-    private uiHintsCtx: CanvasRenderingContext2D;
     private started: boolean;
     private lastX: number;
     private lastY: number;
@@ -7,13 +6,11 @@ export default class PencilTool {
     private static img: string = "pencil.png";
     private static accessKey: string = "p";
 
-    constructor(private uiHintsLayer: HTMLCanvasElement) {
-        this.uiHintsLayer = uiHintsLayer;
-        this.uiHintsCtx = this.uiHintsLayer.getContext('2d');
+    constructor() {
         this.started = false;
     }
 
-    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
+    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D) {
         this.started = true;
 
         ctx.fillStyle = "rgba(0,0,0,1)";
@@ -27,13 +24,13 @@ export default class PencilTool {
         ctx.fill();
         ctx.closePath();
 
-        this.clearUiHints();
+        this.clearUiHints(uiCtx);
 
         this.lastX = offsetX;
         this.lastY = offsetY;
     }
 
-    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
+    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D) {
         if (this.started) {
             ctx.lineCap = 'round';
             ctx.lineWidth = 40;
@@ -46,31 +43,31 @@ export default class PencilTool {
             this.lastX = offsetX;
             this.lastY = offsetY;
         } else {
-            this.clearUiHints();
-            this.drawCircleHint(offsetX, offsetY);
+            this.clearUiHints(uiCtx);
+            this.drawCircleHint(offsetX, offsetY, uiCtx);
         }
     }
 
-    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D) {
+    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D) {
         this.started = false;
 
-        this.drawCircleHint(offsetX, offsetY);
+        this.drawCircleHint(offsetX, offsetY, uiCtx);
     }
 
-    clearUiHints() {
-        this.uiHintsCtx.clearRect(0, 0, this.uiHintsLayer.width, this.uiHintsLayer.height);
+    clearUiHints(uiCtx: CanvasRenderingContext2D) {
+        uiCtx.clearRect(0, 0, uiCtx.canvas.width, uiCtx.canvas.height);
     }
 
-    drawCircleHint(x, y) {
-        this.uiHintsCtx.strokeStyle = "blue";
-        this.uiHintsCtx.beginPath();
-        this.uiHintsCtx.arc(x,
-                            y,
-                            20,
-                            (Math.PI/180)*0,
-                            (Math.PI/180)*360,
-                            false);
-        this.uiHintsCtx.stroke();
-        this.uiHintsCtx.closePath();
+    drawCircleHint(x: number, y: number, uiCtx: CanvasRenderingContext2D) {
+        uiCtx.strokeStyle = "blue";
+        uiCtx.beginPath();
+        uiCtx.arc(x,
+                  y,
+                  20,
+                  (Math.PI/180)*0,
+                  (Math.PI/180)*360,
+                  false);
+        uiCtx.stroke();
+        uiCtx.closePath();
     }
 }
