@@ -54,5 +54,4 @@ const mappingApp = new MapDiscoverer(document.getElementById("tools"),
 // * Redo icons in the toolbox, they don't have to be all the same width
 
 riot.mount('playlist-app', {playlists: apiResponse.playlists});
-riot.mount('filelister-app', {files: apiResponse.files,
-                              mappingApp: mappingApp});
+riot.mount('filelister-app', {files: apiResponse.files});

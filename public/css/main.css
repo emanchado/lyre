@@ -14,7 +14,7 @@ body {
     float: right;
 }
 
-#map-container {
+.map-container {
     position: relative;
     left: 0;
     top: 0;

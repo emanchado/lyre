@@ -1,4 +1,21 @@
-<mapdiscoverer-app>
+<mapdiscoverer>
+  <style scoped>
+    .map-container {
+      position: relative;
+      left: 0;
+      top: 0;
+      margin-top: 2ex;
+    }
+
+    .ui-hints {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: 5px solid #55f;
+      zindex: 1000;
+    }
+  </style>
+
   <div id="top-header">
     <div id="tools">
       <button accesskey="z" onclick={ undo }>
@@ -16,7 +33,7 @@
     </div>
   </div>
 
-  <div id="map-container">
-    <canvas style="position: absolute; top: 0; left: 0; border: 5px solid #55f; zindex: 1000"></canvas>
+  <div class="map-container">
+    <canvas class="ui-hints"></canvas>
   </div>
-</mapdiscoverer-app>
+</mapdiscoverer>

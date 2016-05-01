@@ -23,7 +23,7 @@ class FileListerApp extends Riot.Element
             return file.type === "map";
         });
 
-        this.mappingApp = this.opts.mappingApp;
+        this.mappingApp = this.tags.mapdiscoverer;
         this.mode = FileListerAppModes.FileList;
 
         this.socket = new WebSocket(WEBSOCKET_URL);

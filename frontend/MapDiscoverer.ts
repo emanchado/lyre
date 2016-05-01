@@ -8,8 +8,50 @@ import DiscoverableMap from "./DiscoverableMap";
 
 const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
 
-@template("/templates/filelister.html")
-class MapDiscovererApp {
+@template("/templates/mapdiscoverer.html")
+class MapDiscovererApp extends Riot.Element
+{
+    currentMapUrl: string;
+    private loadedMaps;
+    private uiHints: HTMLCanvasElement;
+    private mapContainer: HTMLElement;
+
+    constructor(opts) {
+        super();
+
+        this.loadedMaps = {};
+        this.currentMapUrl = null;
+    }
+
+    mounted() {
+        this.uiHints = this.root.querySelector("canvas.ui-hints") as HTMLCanvasElement;
+        this.mapContainer = this.root.querySelector(".map-container") as HTMLElement;
+    }
+
+    loadMap(url: string) {
+        if (this.currentMapUrl) {
+            this.mapContainer.removeChild(this.loadedMaps[this.currentMapUrl].containerEl);
+        }
+
+        if (!(url in this.loadedMaps)) {
+            const map = new DiscoverableMap(url);
+            map.init((width, height) => {
+                this.uiHints.width = width;
+                this.uiHints.height = height;
+            });
+            this.loadedMaps[url] = map;
+            map.containerEl.style.position = "relative";
+            map.containerEl.style.top = "5px";
+            map.containerEl.style.left = "5px";
+            // TODO: put this back
+            // this.coverToggle.disable();
+        } else {
+            this.uiHints.width = this.loadedMaps[url].width;
+            this.uiHints.height = this.loadedMaps[url].height;
+        }
+        this.currentMapUrl = url;
+        this.mapContainer.appendChild(this.loadedMaps[this.currentMapUrl].containerEl);
+    }
 }
 
 export default class MapDiscoverer {
@@ -22,6 +64,9 @@ export default class MapDiscoverer {
     private socket: WebSocket;
 
     constructor(toolsDiv: HTMLElement, private containerEl: HTMLElement) {
+        return;
+        console.log("Creating an old-fashioned MapDiscoverer? WHY?");
+
         this.loadedMaps = {};
         this.socket = new WebSocket(WEBSOCKET_URL);
         this.socket.binaryType = "arraybuffer";
