@@ -1,0 +1,17 @@
+<audienceview-app>
+  <style scoped>
+    .audience-view img {
+      max-width: 200px;
+      max-height: 200px;
+    }
+    .audience-view canvas {
+      max-width: 200px;
+      max-height: 200px;
+    }
+  </style>
+
+  <div class="audience-view">
+    <img show={ inImageMode() } src={ imageUrl } />
+    <canvas show={ inMapMode() } name="mapcanvas"></canvas>
+</div>
+</audienceview-app>
