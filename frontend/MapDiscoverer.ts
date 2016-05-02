@@ -6,12 +6,11 @@ import ToggleButton from "./ToggleButton";
 import Toolbox from "./Toolbox";
 import DiscoverableMap from "./DiscoverableMap";
 
-const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
-
 @template("/templates/mapdiscoverer.html")
 class MapDiscovererApp extends Riot.Element
 {
     currentMapUrl: string;
+    private socket: WebSocket;
     private loadedMaps;
     private uiHints: HTMLCanvasElement;
     private mapContainer: HTMLElement;
@@ -22,6 +21,7 @@ class MapDiscovererApp extends Riot.Element
     constructor(opts) {
         super();
 
+        this.socket = opts.socket;
         this.loadedMaps = {};
         this.currentMapUrl = null;
         this.paintMode = "uncover";
@@ -55,6 +55,24 @@ class MapDiscovererApp extends Riot.Element
         }
         this.currentMapUrl = url;
         this.mapContainer.appendChild(this.loadedMaps[this.currentMapUrl].containerEl);
+    }
+
+    sendToAudience(evt) {
+        let [coords, imageData] = this.loadedMaps[this.currentMapUrl].calculateDiscoveredMapArea();
+
+        if (this.socket && imageData) {
+            this.socket.send(JSON.stringify({
+                type: "map-metadata",
+                width: coords[2] - coords[0],
+                height: coords[3] - coords[1]
+            }));
+
+            const binary = new Uint8Array(imageData.data.length);
+            for (var i = 0, len = imageData.data.length; i < len; i++) {
+                binary[i] = imageData.data[i];
+            }
+            this.socket.send(binary.buffer);
+        }
     }
 
     coverUncover(evt) {

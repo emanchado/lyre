@@ -64,7 +64,6 @@ class FileListerApp extends Riot.Element
 
     openMapHandler(mapProps) {
         return function(e) {
-            console.log("Loading map", mapProps.url);
             this.mode = FileListerAppModes.Map;
             this.mappingApp.loadMap(mapProps.url);
         }.bind(this.parent);
