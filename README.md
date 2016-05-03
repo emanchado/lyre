@@ -1,22 +1,44 @@
-Map discoverer
-==============
+Lyre
+====
+This is a storyteller helper program. It allows a narrator to setup a
+set of images and music playlists to use when narrating a story.
 
-This is a very simple web tool to "discover" maps. The main usecase is
-pen-and-paper role-playing games, in which you want to show a map but
-piece by piece, as the characters explore it.
+To get started, you have to:
 
-The idea is: the narrator loads a map (say, in a laptop or a tablet)
-and selects which parts of the map should be shown first. Then,
-toggles full opacity so that only the uncovered parts show. Now the
-laptop or tablet can be shown to the players, which will only see the
-parts the narrator wants. As they explore the map, the narrator can
-get the tablet, toggle partial opacity, uncover a bit more of the map,
-toggle full opacity again and show the result to the players.
+1. Run `npm install` to get dependencies
+1. Run `npm run watchbe`, wait for it to finish compiling, kill it
+1. Run `npm run watchfe`, wait for it to finish compiling, kill it
+1. Run `npm run startdev`
 
-You can download the code and make modifications, or simply [use it
-online](http://emanchado.github.io/map-discoverer).
+Once that is done, open two browser tabs with the following URLs:
+
+1. http://localhost:3000/scenarios/narrate/1
+1. http://localhost:3000/scenarios/listen/1
+
+The first one will usually be loaded in the narrator's laptop, and the
+second will be loaded in a device shared by the players (eg. a tablet).
+
+In the first URL you can:
+
+* Choose an image: it will automatically be sent to the players'
+device.
+* Choose a map: you will then be able to uncover certain parts of the
+  map, and press "Send to audience" whenever you want them to see the
+  uncovered part of the map.
+* Choose a playlist: it will start playing (only on the narrator's
+  laptop!) all the songs in that playlist, in repeat.
+
+For now, if you want your own images, maps and playlists you will have
+to modify the variable `apiResponse` in `frontend/lyre.ts` and compile
+the frontend again with `npm run watchfe`. The files will have to be
+under `public/catalog`.
+
 
 TODO
 ----
 
 * Allow changing the size of pencil?
+* Map markers for characters?
+* Mark unsent map bits?
+* Write the actual backend to upload files, and get that information
+  from the backend instead of from the hardcoded `apiResponse`.
