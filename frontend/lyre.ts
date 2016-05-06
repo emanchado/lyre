@@ -40,8 +40,16 @@ export const apiResponse = {
     ]
 };
 
-export default function mountAll(apiResponse) {
-    riot.mount('audienceview-app');
-    riot.mount('playlist-app', {playlists: apiResponse.playlists});
-    riot.mount('filelister-app', {files: apiResponse.files});
+export default function mountAll(scenarioId) {
+    let xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function() {
+        console.log("Parsing", this.responseText);
+        let data = JSON.parse(this.responseText);
+
+        riot.mount('audienceview-app');
+        riot.mount('playlist-app', {playlists: data.playlists});
+        riot.mount('filelister-app', {files: data.files});
+    });
+    xhr.open("GET", "/api/scenarios/" + scenarioId);
+    xhr.send();
 };

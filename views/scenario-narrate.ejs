@@ -34,7 +34,6 @@
  // itself into a module, we have to load all the dependencies
  // explicitly and in order so that all this works.
  require(["AudienceApp", "PlaylistApp", "MapDiscoverer", "FileLister", "lyre"], function(aapp, plapp, md, flister, lyre) {
-     console.log("lyre =", lyre);
-     lyre.default(lyre.apiResponse);
+     lyre.default(<%= id %>);
  });
 </script>
