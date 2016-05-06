@@ -1,7 +1,7 @@
 /// <reference path="riot-ts.d.ts" />
 
 @template("/templates/playlist.html")
-class PlaylistApp extends Riot.Element
+export default class PlaylistApp extends Riot.Element
 {
     private currentPlaylistTitle: string;
     private currentTrackIndex: number;

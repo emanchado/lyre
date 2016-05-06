@@ -1,11 +1,13 @@
 /// <reference path="riot-ts.d.ts" />
 
+import MapDiscoverer from "./MapDiscoverer";
+
 const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
 
 const enum FileListerAppModes { FileList, Map };
 
 @template("/templates/filelister.html")
-class FileListerApp extends Riot.Element
+export default class FileListerApp extends Riot.Element
 {
     private images;
     private maps;

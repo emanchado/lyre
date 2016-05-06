@@ -3,15 +3,17 @@
 const AUDIENCE_WEBSOCKET_URL = "ws://localhost:3000/audience/ws";
 
 @template("/templates/audienceview.html")
-class AudienceApp extends Riot.Element
+export default class AudienceApp extends Riot.Element
 {
     private socket: WebSocket;
     private mode: string;
     private imageUrl: string;
+    private mapcanvas: HTMLCanvasElement;
 
     constructor() {
         super();
 
+        // This is a named element, see the template
         const mapCanvas = this.mapcanvas;
         this.socket = new WebSocket(AUDIENCE_WEBSOCKET_URL);
         this.socket.binaryType = "arraybuffer";
@@ -45,7 +47,7 @@ class AudienceApp extends Riot.Element
         this.socket.onclose = () => {
             this.socket = null;
             setTimeout(() => {
-                this.socket = new WebSocket(WEBSOCKET_URL);
+                this.socket = new WebSocket(AUDIENCE_WEBSOCKET_URL);
                 this.socket.binaryType = "arraybuffer";
             }, 5000);
         };

@@ -27,5 +27,14 @@
 <script type="text/javascript" src="/js/require.js"></script>
 <script type="text/javascript" src="/js/compiled/lyre.js"></script>
 <script type="text/javascript">
- require(["lyre"], function(md) {});
+ // Unfortunately, due to (1) RiotTS not explicitly using modules, but
+ // instead relying on tags being defined after loading certain code,
+ // (2) TypeScript optimising away unused imports, and (3)
+ // MapDiscoverer importing tools as external modules and thus turning
+ // itself into a module, we have to load all the dependencies
+ // explicitly and in order so that all this works.
+ require(["AudienceApp", "PlaylistApp", "MapDiscoverer", "FileLister", "lyre"], function(aapp, plapp, md, flister, lyre) {
+     console.log("lyre =", lyre);
+     lyre.default(lyre.apiResponse);
+ });
 </script>

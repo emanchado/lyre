@@ -1,8 +1,6 @@
 /// <reference path="riot-ts.d.ts" />
 
-import MapDiscoverer from "./MapDiscoverer";
-
-const apiResponse = {
+export const apiResponse = {
     files: [
         {title: "Robert Greene",
          url: "/catalog/Robert%20Greene.png",
@@ -42,9 +40,8 @@ const apiResponse = {
     ]
 };
 
-const mappingApp = new MapDiscoverer(document.getElementById("tools"),
-                                     document.getElementById("map-container"));
-
-riot.mount('audienceview-app');
-riot.mount('playlist-app', {playlists: apiResponse.playlists});
-riot.mount('filelister-app', {files: apiResponse.files});
+export default function mountAll(apiResponse) {
+    riot.mount('audienceview-app');
+    riot.mount('playlist-app', {playlists: apiResponse.playlists});
+    riot.mount('filelister-app', {files: apiResponse.files});
+};
