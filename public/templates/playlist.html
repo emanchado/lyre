@@ -9,7 +9,6 @@
     <audio each={ track, i in pl.tracks }
            src={ track.url }
            onended={ endedHandler(pl.title, i) }
-           title={ track.title }
            />
   </div>
 </playlist-app>

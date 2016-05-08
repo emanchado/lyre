@@ -1,5 +1,5 @@
 module.exports = {
     secretPassphrase: null,
-    storeDirectory: "store",
+    storeDirectory: "../public/scenarios",
     sessionSecret: "This is not a good-enough secret, please change!"
 };

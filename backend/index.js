@@ -35,9 +35,9 @@ app.use(expressLayout());
 app.all("/", authMiddleware, endpoints.index);
 app.all("/scenarios/manage/:id", authMiddleware, endpoints.scenarioManage);
 app.all("/scenarios/narrate/:id", authMiddleware, endpoints.scenarioNarrate);
-app.all("/api/scenarios/:id", authMiddleware, endpoints.apiScenario);
-// Listen does NOT have authentication!
+// These endpoints do NOT have authentication!
 app.all("/scenarios/listen/:id", endpoints.scenarioListen);
+app.get("/api/scenarios/:id", endpoints.apiScenario);
 
 wsServer.on("connection", endpoints.wsConnection);
 
