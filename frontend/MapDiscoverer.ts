@@ -55,6 +55,14 @@ export default class MapDiscovererApp extends Riot.Element
         this.mapContainer.appendChild(this.loadedMaps[this.currentMapUrl].containerEl);
     }
 
+    undo() {
+        this.loadedMaps[this.currentMapUrl].undo();
+    }
+
+    redo() {
+        this.loadedMaps[this.currentMapUrl].redo();
+    }
+
     sendToAudience(evt) {
         let [coords, imageData] = this.loadedMaps[this.currentMapUrl].calculateDiscoveredMapArea();
 
