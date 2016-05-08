@@ -10,12 +10,13 @@ function readImages(scenarioId) {
 
     return Q.nfcall(fs.readdir, imageDir).then(function(entries) {
         return entries.filter(function(entry) {
-            return entry[0] !== ".";
+            return entry[0] !== "." && entry !== "thumbnails";
         });
     }).then(function(files) {
         return files.map(function(file) {
             return {title: file.replace(/\..*/, ""),
                     url: "/scenarios/" + scenarioId + "/images/" + escape(file),
+                    thumbnailUrl: "/scenarios/" + scenarioId + "/images/thumbnails/" + escape(file),
                     type: file.indexOf("map") === -1 ? "image" : "map"};
         });
     });

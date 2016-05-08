@@ -6,8 +6,29 @@ body.audience {
     background-color: black;
 }
 
+.top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100px;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+
+    border-bottom: 1px solid;
+}
+
+.container-fluid {
+    margin-top: 85px;
+}
+
 footer {
     font-size: 80%;
+}
+
+audienceview-app {
+    width: 100px;
 }
 
 .panel-body h2 {
@@ -21,20 +42,4 @@ footer {
 
 #map-discoverer {
     overflow: auto;
-}
-
-.playlist {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.playlist img {
-    margin: 5px;
-}
-
-.playlist .track-info {
-    color: #aaa;
-    font-size: 80%;
-    font-style: italic;
 }

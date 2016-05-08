@@ -1,9 +1,33 @@
 <playlist-app>
-  <div each={ pl in opts.playlists } class="playlist" data-title="{ pl.title }" onclick={ playPauseHandler(pl.title) }>
-    <img src="/img/{ playlistStatus(pl.title) }.png">
-    <div>
-      { pl.title }<br/>
-      <div class="track-info">{ trackInfo(pl.title) }</div>
+  <style scoped>
+    .playlist-container {
+        display: inline-block;
+    }
+
+    .playlist {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .playlist img {
+        margin: 5px;
+    }
+
+    .playlist .track-info {
+        color: #aaa;
+        font-size: 80%;
+        font-style: italic;
+    }
+  </style>
+
+  <div each={ pl in opts.playlists } class="playlist-container" data-title="{ pl.title }" onclick={ playPauseHandler(pl.title) }>
+    <div class="playlist">
+      <img src="/img/{ playlistStatus(pl.title) }.png">
+      <div>
+        { pl.title }<br/>
+        <div class="track-info">{ trackInfo(pl.title) }</div>
+      </div>
     </div>
 
     <audio each={ track, i in pl.tracks }
