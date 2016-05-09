@@ -15,6 +15,7 @@ export default class MapDiscovererApp extends Riot.Element
     private paintMode: string;
     private paintTools: Array<any>;
     private currentPaintTool;
+    private penSize: number;
 
     constructor(opts) {
         super();
@@ -25,6 +26,7 @@ export default class MapDiscovererApp extends Riot.Element
         this.paintMode = "uncover";
         this.paintTools = [new PencilTool(), new RectangleTool()];
         this.currentPaintTool = this.paintTools[0];
+        this.penSize = 40;
     }
 
     mounted() {
@@ -85,37 +87,43 @@ export default class MapDiscovererApp extends Riot.Element
         this.paintMode = this.paintMode === "uncover" ? "cover" : "uncover";
     }
 
+    changePenSize(evt) {
+        this.penSize = parseInt(evt.target.value, 10);
+    }
+
     compositeOperationForMode(paintMode) {
         return paintMode === "uncover" ? "destination-out" : "source-over";
     }
 
-    onmousedown(evt) {
+    withPencil(operation) {
         const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
               uiHintsCtx = this.uiHints.getContext("2d");
+
         ctx.save();
-        ctx.globalCompositeOperation = this.compositeOperationForMode(this.paintMode);
-        this.currentPaintTool.onStart(evt, ctx, uiHintsCtx);
+        ctx.globalCompositeOperation =
+            this.paintMode === "uncover" ? "destination-out" : "source-over";
+        operation(ctx, uiHintsCtx, this.penSize);
         ctx.restore();
     }
 
+    onmousedown(evt) {
+        this.withPencil((ctx, uiHintsCtx, penSize) => {
+            this.currentPaintTool.onStart(evt, ctx, uiHintsCtx, penSize);
+        });
+    }
+
     onmouseup(evt) {
-        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
-              uiHintsCtx = this.uiHints.getContext("2d");
-        ctx.save();
-        ctx.globalCompositeOperation = this.compositeOperationForMode(this.paintMode);
-        this.currentPaintTool.onStop(evt, ctx, uiHintsCtx);
-        ctx.restore();
+        this.withPencil((ctx, uiHintsCtx, penSize) => {
+            this.currentPaintTool.onStop(evt, ctx, uiHintsCtx, penSize);
+        });
         // Take a snapshot of the map for undo purposes
         this.loadedMaps[this.currentMapUrl].saveCheckpoint();
     }
 
     onmousemove(evt) {
-        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
-              uiHintsCtx = this.uiHints.getContext("2d");
-        ctx.save();
-        ctx.globalCompositeOperation = this.compositeOperationForMode(this.paintMode);
-        this.currentPaintTool.onMove(evt, ctx, uiHintsCtx);
-        ctx.restore();
+        this.withPencil((ctx, uiHintsCtx, penSize) => {
+            this.currentPaintTool.onMove(evt, ctx, uiHintsCtx, penSize);
+        });
     }
 
     onmouseout(evt) {

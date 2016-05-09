@@ -1,5 +1,11 @@
 <mapdiscoverer>
   <style scoped>
+    .toolbox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
     button {
       height: 30px;
     }
@@ -9,6 +15,10 @@
     button.active {
       background-color: #666;
       color: #ddd;
+    }
+
+    input[type="range"] {
+      width: 150px;
     }
 
     .map-container {
@@ -35,7 +45,7 @@
   </style>
 
   <div id="top-header">
-    <div>
+    <div class="toolbox">
       <button accesskey="z" onclick={ undo }>
         <img src="/img/undo.png" /> Undo
       </button>
@@ -48,6 +58,11 @@
       <button accesskey="c" onclick={ coverUncover }>
         <img src="/img/eraser.png" /> { paintMode === "cover" ? "Cover" : "Uncover" } mode
       </button>
+      <input type="range"
+             min="10" max="100" step="15"
+             value={ penSize }
+             onchange={ changePenSize } />
+      Size: { penSize }
 
       <!-- Paint tools -->
       <button each={ paintTool in paintTools }

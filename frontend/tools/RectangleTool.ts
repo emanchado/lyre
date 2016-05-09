@@ -10,13 +10,13 @@ export default class RectangleTool {
         this.started = false;
     }
 
-    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D) {
+    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
         [this.initialX, this.initialY] = [offsetX, offsetY];
         this.clearUiHints(uiCtx);
         this.started = true;
     }
 
-    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D) {
+    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
         this.clearUiHints(uiCtx);
 
         if (this.started) {
@@ -34,7 +34,7 @@ export default class RectangleTool {
         }
     }
 
-    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D) {
+    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
         this.clearUiHints(uiCtx);
 
         ctx.lineWidth = 1;

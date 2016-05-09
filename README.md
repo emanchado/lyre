@@ -41,4 +41,6 @@ TODO
 * Map markers for characters?
 * Mark unsent map bits?
 * Write the actual backend to upload files, and get that information
-  from the backend instead of from the hardcoded `apiResponse`.
+  from the backend
+* Reconnect WebSockets when there are problems (esp. in narrator mode,
+  as the user will lose data if she reloads the page)
