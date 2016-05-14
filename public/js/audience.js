@@ -103,6 +103,8 @@ window.addEventListener("load", function() {
                     content.style.display = '';
                     content.width = data.width;
                     content.height = data.height;
+                    content.style.maxHeight = currentDocumentHeight + "px";
+                    content.style.maxWidth = currentDocumentWidth + "px";
                 } else if (data.type === 'pictures') {
                     content.style.display = 'none';
                     if (data.pictures.length > 1) {

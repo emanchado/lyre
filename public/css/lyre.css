@@ -13,16 +13,13 @@ body.audience {
 }
 
 body.audience .container-fluid {
-    height: 100%;
-    margin-top: 0;
-}
-
-#picture {
     display: flex;
     justify-content: center;
     align-items: center;
-    max-width: 100%;
+
+    margin-top: 0;
     height: 100%;
+    max-width: 100%;
 }
 
 #fullscreen-btn {
