@@ -41,6 +41,6 @@ app.get("/api/scenarios/:id", endpoints.apiScenario);
 
 wsServer.on("connection", endpoints.wsConnection);
 
-httpServer.listen(3000, function() {
-    console.log("Listening on http://localhost:3000");
+httpServer.listen(config.port, function() {
+    console.log("Listening on http://localhost:" + config.port);
 });
