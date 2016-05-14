@@ -2,7 +2,8 @@
 
 import MapDiscoverer from "./MapDiscoverer";
 
-const WEBSOCKET_URL = "ws://localhost:3000/narrator/ws";
+const WEBSOCKET_URL = location.protocol.replace("http", "ws") +
+            location.host + "/narrator/ws";
 
 const enum FileListerAppModes { FileList, Map };
 

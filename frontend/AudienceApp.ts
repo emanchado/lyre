@@ -1,6 +1,7 @@
 /// <reference path="riot-ts.d.ts" />
 
-const AUDIENCE_WEBSOCKET_URL = "ws://localhost:3000/audience/ws";
+const AUDIENCE_WEBSOCKET_URL = location.protocol.replace("http", "ws") +
+    location.host + "/audience/ws";
 
 @template("/templates/audienceview.html")
 export default class AudienceApp extends Riot.Element
