@@ -6,9 +6,16 @@ set of images and music playlists to use when narrating a story.
 To get started, you have to:
 
 1. Run `npm install` to get dependencies
+1. Create `backend/config/local-development.js` (see below)
 1. Run `npm run watchbe`, wait for it to finish compiling, kill it
 1. Run `npm run watchfe`, wait for it to finish compiling, kill it
 1. Run `npm run startdev`
+
+The contents of `local-development.js` have to be:
+
+    module.exports = {
+        secretPassphrase: "<my secret passphrase>"
+    };
 
 Once that is done, open two browser tabs with the following URLs:
 
