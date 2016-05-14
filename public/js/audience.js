@@ -1,6 +1,18 @@
 /*global ImageData */
 
-function showPictures(pictures) {
+var currentDocumentWidth  = document.body.clientWidth,
+    currentDocumentHeight = document.body.clientHeight;
+
+function showPicture(picture) {
+    var container = document.getElementById("picture"),
+        imgEl = container.querySelector("img");
+
+    imgEl.src = picture.originalUrl;
+    imgEl.style.maxHeight = currentDocumentHeight + "px";
+    imgEl.style.maxWidth = currentDocumentWidth + "px";
+}
+
+function showGallery(pictures) {
     var gallery = document.getElementById("pictures"),
         galleryLinks = gallery.getElementsByTagName("a");
 
@@ -22,12 +34,61 @@ function showPictures(pictures) {
     });
 }
 
+function inFullscreenMode() {
+    return [
+        "fullScreenElement",
+        "mozFullScreenElement"
+    ].some(function(attribute) {
+        return document[attribute];
+    });
+}
+
+function enterFullscreenMode(element) {
+    ["requestFullscreen",
+     "mozRequestFullscreen",
+     "msRequestFullscreen",
+     "webkitRequestFullscreen"].forEach(function(method) {
+         if (element[method]) {
+             element[method]();
+             return false;
+         }
+         return true;
+     });
+}
+
+function exitFullscreenMode() {
+    ["exitFullscreen",
+     "mozCancelFullScreen",
+     "msExitFullscreen",
+     "webkitExitFullscreen"].forEach(function(method) {
+         if (document[method]) {
+             document[method]();
+             return false;
+         }
+         return true;
+     });
+}
+
 window.addEventListener("load", function() {
     var content = document.getElementById("content"),
         picture = document.getElementById("picture"),
         pictures = document.getElementById("pictures");
 
-    var socket = new WebSocket("ws://localhost:3000/audience/ws");
+    document.getElementById("fullscreen-btn").addEventListener("click", function() {
+        var element = document.body;
+
+        if (inFullscreenMode()) {
+            console.log("Trying to leave fullscreen");
+            exitFullscreenMode(element);
+        } else {
+            console.log("Entering fullscreen");
+            enterFullscreenMode(element);
+        }
+    }, false);
+
+    var wsUrl = location.protocol.replace("http", "ws") +
+            location.host + "/audience/ws",
+        socket = new WebSocket(wsUrl);
     socket.binaryType = "arraybuffer";
 
     socket.onerror = function() {
@@ -45,10 +106,16 @@ window.addEventListener("load", function() {
                     content.width = data.width;
                     content.height = data.height;
                 } else if (data.type === 'pictures') {
-                    picture.style.display = '';
-                    pictures.style.display = '';
                     content.style.display = 'none';
-                    showPictures(data.pictures);
+                    if (data.pictures.length > 1) {
+                        picture.style.display = 'none';
+                        pictures.style.display = '';
+                        showGallery(data.pictures);
+                    } else {
+                        picture.style.display = '';
+                        pictures.style.display = 'none';
+                        showPicture(data.pictures[0]);
+                    }
                 }
             } catch(e) {
                 console.warn("dafuq did I just read?", msg.data);
@@ -62,4 +129,8 @@ window.addEventListener("load", function() {
             contentCtx.putImageData(imageData, 0, 0);
         }
     };
+
+    document.addEventListener("resize", function(/*evt*/) {
+        currentDocumentHeight = document.body.clientHeight;
+    }, false);
 }, false);

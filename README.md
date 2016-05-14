@@ -37,7 +37,6 @@ under `public/catalog`.
 TODO
 ----
 
-* Allow changing the size of pencil?
 * Map markers for characters?
 * Mark unsent map bits?
 * Write the actual backend to upload files, and get that information
