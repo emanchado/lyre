@@ -21,18 +21,18 @@
     }
   </style>
 
-  <div each={ pl in opts.playlists } class="playlist-container" data-title="{ pl.title }" onclick={ playPauseHandler(pl.title) }>
-    <div class="playlist">
+  <div each={ pl in opts.playlists } class="playlist-container" onclick={ playPauseHandler(pl.title) }>
+    <div class="playlist" data-title="{ pl.title }">
       <img src="/img/{ playlistStatus(pl.title) }.png">
       <div>
         { pl.title }<br/>
         <div class="track-info">{ trackInfo(pl.title) }</div>
       </div>
-    </div>
 
-    <audio each={ track, i in pl.tracks }
-           src={ track.url }
-           onended={ endedHandler(pl.title, i) }
-           />
+      <audio each={ track, i in pl.tracks }
+             src={ track.url }
+             onended={ endedHandler(pl.title, i) }
+             />
+    </div>
   </div>
 </playlist-app>
