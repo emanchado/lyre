@@ -78,10 +78,8 @@ window.addEventListener("load", function() {
         var element = document.body;
 
         if (inFullscreenMode()) {
-            console.log("Trying to leave fullscreen");
             exitFullscreenMode(element);
         } else {
-            console.log("Entering fullscreen");
             enterFullscreenMode(element);
         }
     }, false);
