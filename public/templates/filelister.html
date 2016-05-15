@@ -8,20 +8,26 @@
       display: inline-block;
       margin: 3px;
     }
+
+    li.map {
+      position: relative;
+    }
+
+    li.map img.map-mark {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
   </style>
 
   <div show={ fileListMode() }>
-    <h1>Images</h1>
+    <h1>Intro Scene</h1>
     <ul class="image-list">
-      <li each={ image in images } onclick={ sendImageHandler(image) }>
+      <li each={ image in files }
+          class={ image.type }
+          onclick={ onImageClickHandler(image) }>
+        <img show={ image.type === "map" } class="map-mark" src="/img/compass.png" />
         <img src={ image.thumbnailUrl } alt={ image.title } />
-      </li>
-    </ul>
-
-    <h1>Maps</h1>
-    <ul class="image-list">
-      <li each={ map in maps } onclick={ openMapHandler(map) }>
-        <img src={ map.thumbnailUrl } alt={ map.title } />
       </li>
     </ul>
   </div>

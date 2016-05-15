@@ -10,8 +10,7 @@ const enum FileListerAppModes { FileList, Map };
 @template("/templates/filelister.html")
 export default class FileListerApp extends Riot.Element
 {
-    private images;
-    private maps;
+    private files;
     private socket: WebSocket;
     private mode: FileListerAppModes;
     private mappingApp;
@@ -19,12 +18,7 @@ export default class FileListerApp extends Riot.Element
     constructor() {
         super();
 
-        this.images = this.opts.files.filter((file) => {
-            return file.type === "image";
-        });
-        this.maps = this.opts.files.filter((file) => {
-            return file.type === "map";
-        });
+        this.files = this.opts.files;
 
         this.mappingApp = this.tags.mapdiscoverer;
         this.mode = FileListerAppModes.FileList;
@@ -55,20 +49,20 @@ export default class FileListerApp extends Riot.Element
         return this.mode === FileListerAppModes.Map;
     }
 
-    sendImageHandler(imageProps) {
-        return (e) => {
-            this.socket.send(JSON.stringify({
-                type: "pictures",
-                pictures: [{originalUrl: imageProps.url,
-                            thumbnailUrl: imageProps.url}]
-            }));
-        };
-    }
-
-    openMapHandler(mapProps) {
-        return function(e) {
-            this.mode = FileListerAppModes.Map;
-            this.mappingApp.loadMap(mapProps.url);
-        }.bind(this.parent);
+    onImageClickHandler(imageProps) {
+        if (imageProps.type === "image") {
+            return (e) => {
+                this.socket.send(JSON.stringify({
+                    type: "pictures",
+                    pictures: [{originalUrl: imageProps.url,
+                                thumbnailUrl: imageProps.thumbnailUrl}]
+                }));
+            };
+        } else {
+            return function(e) {
+                this.mode = FileListerAppModes.Map;
+                this.mappingApp.loadMap(imageProps.url);
+            }.bind(this.parent);
+        }
     }
 }
