@@ -1,11 +1,15 @@
 /// <reference path="riot-ts.d.ts" />
 
+interface PlaylistAudioElements {
+    [playlistName: string]: Array<HTMLAudioElement>;
+}
+
 @template("/templates/playlist.html")
 export default class PlaylistApp extends Riot.Element
 {
     private currentPlaylistTitle: string;
     private currentTrackIndex: number;
-    private audioElementsForPlaylist;
+    private audioElementsForPlaylist: PlaylistAudioElements;
     private container: Element;
 
     mounted() {

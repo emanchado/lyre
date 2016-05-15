@@ -1,4 +1,6 @@
-export default class RectangleTool {
+import {MapDiscovererTool, CoordinateEvent} from "./MapDiscovererTool";
+
+export default class RectangleTool implements MapDiscovererTool {
     private started: boolean;
     private initialX: number;
     private initialY: number;

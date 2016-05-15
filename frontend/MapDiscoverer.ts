@@ -3,18 +3,19 @@
 import PencilTool from "./tools/PencilTool";
 import RectangleTool from "./tools/RectangleTool";
 import DiscoverableMap from "./DiscoverableMap";
+import MapDiscovererTool from "./tools/MapDiscovererTool";
 
 @template("/templates/mapdiscoverer.html")
 export default class MapDiscovererApp extends Riot.Element
 {
     currentMapUrl: string;
     private socket: WebSocket;
-    private loadedMaps;
+    private loadedMaps: {[url: string]: DiscoverableMap};
     private uiHints: HTMLCanvasElement;
     private mapContainer: HTMLElement;
     private paintMode: string;
-    private paintTools: Array<any>;
-    private currentPaintTool;
+    private paintTools: Array<MapDiscovererTool>;
+    private currentPaintTool: MapDiscovererTool;
     private penSize: number;
 
     constructor(opts) {
@@ -91,21 +92,6 @@ export default class MapDiscovererApp extends Riot.Element
         this.penSize = parseInt(evt.target.value, 10);
     }
 
-    compositeOperationForMode(paintMode) {
-        return paintMode === "uncover" ? "destination-out" : "source-over";
-    }
-
-    withPencil(operation) {
-        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
-              uiHintsCtx = this.uiHints.getContext("2d");
-
-        ctx.save();
-        ctx.globalCompositeOperation =
-            this.paintMode === "uncover" ? "destination-out" : "source-over";
-        operation(ctx, uiHintsCtx, this.penSize);
-        ctx.restore();
-    }
-
     onmousedown(evt) {
         this.withPencil((ctx, uiHintsCtx, penSize) => {
             this.currentPaintTool.onStart(evt, ctx, uiHintsCtx, penSize);
@@ -139,5 +125,20 @@ export default class MapDiscovererApp extends Riot.Element
         return function(e) {
             this.currentPaintTool = tool;
         }.bind(this.parent);
+    }
+
+    private compositeOperationForMode(paintMode) {
+        return paintMode === "uncover" ? "destination-out" : "source-over";
+    }
+
+    private withPencil(operation) {
+        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
+              uiHintsCtx = this.uiHints.getContext("2d");
+
+        ctx.save();
+        ctx.globalCompositeOperation =
+            this.paintMode === "uncover" ? "destination-out" : "source-over";
+        operation(ctx, uiHintsCtx, this.penSize);
+        ctx.restore();
     }
 }

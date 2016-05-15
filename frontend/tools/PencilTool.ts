@@ -1,4 +1,6 @@
-export default class PencilTool {
+import {MapDiscovererTool, CoordinateEvent} from "./MapDiscovererTool";
+
+export default class PencilTool implements MapDiscovererTool {
     private started: boolean;
     private lastX: number;
     private lastY: number;
