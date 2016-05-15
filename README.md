@@ -50,3 +50,8 @@ TODO
   from the backend
 * Reconnect WebSockets when there are problems (esp. in narrator mode,
   as the user will lose data if she reloads the page)
+
+Credits
+-------
+* Compass icon by [jhnri4](https://openclipart.org/detail/87583/compass-symbol)
+* Most other icons from flaticon.com

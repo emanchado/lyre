@@ -14,6 +14,9 @@ export default class AudienceApp extends Riot.Element
     constructor() {
         super();
 
+        this.mode = "image";
+        this.imageUrl = "/img/lyre.png";
+
         // This is a named element, see the template
         const mapCanvas = this.mapcanvas;
         this.socket = new WebSocket(AUDIENCE_WEBSOCKET_URL);
