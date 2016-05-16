@@ -30,17 +30,6 @@ export default class PlaylistApp extends Riot.Element
         }
     }
 
-    trackInfo(playlistTitle: string) {
-        if (this.currentPlaylistTitle === playlistTitle) {
-            const currentAudioEl =
-                this.getAudioElement(this.currentPlaylistTitle,
-                                     this.currentTrackIndex);
-            return currentAudioEl.title;
-        } else {
-            return "";
-        }
-    }
-
     playlistStatus(playlistTitle: string): string {
         const isCurrentPlaylist =
             (this.currentPlaylistTitle === playlistTitle);
@@ -48,7 +37,7 @@ export default class PlaylistApp extends Riot.Element
                                                     this.currentTrackIndex);
 
         return isCurrentPlaylist && currentAudioEl && !currentAudioEl.paused ?
-            "pause" : "play";
+            "playing" : "paused";
     }
 
     playPauseHandler(playlistTitle: string) {
