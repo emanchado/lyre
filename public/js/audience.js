@@ -69,6 +69,25 @@ function exitFullscreenMode() {
      });
 }
 
+function createWebSocket(url, props) {
+    var socket = new WebSocket(url);
+    socket.binaryType = "arraybuffer";
+
+    socket.onopen = props.onopen;
+    socket.onclose = function(ev) {
+        if (props.onclose) {
+            props.onclose(ev);
+        }
+
+        setTimeout(function() {
+            socket = createWebSocket(url, props);
+        }, 3000);
+    };
+    socket.onmessage = props.onmessage;
+
+    return socket;
+}
+
 window.addEventListener("load", function() {
     var content = document.getElementById("content"),
         picture = document.getElementById("picture"),
@@ -85,50 +104,53 @@ window.addEventListener("load", function() {
     }, false);
 
     var wsUrl = location.protocol.replace("http", "ws") +
-            location.host + "/audience/ws",
-        socket = new WebSocket(wsUrl);
-    socket.binaryType = "arraybuffer";
+            location.host + "/audience/ws";
 
-    socket.onerror = function() {
-        console.log("Could not establish a WebSocket connection");
-    };
-    socket.onmessage = function(msg) {
-        if (typeof(msg.data) === 'string') {
-            try {
-                var data = JSON.parse(msg.data);
+    createWebSocket(wsUrl, {
+        onopen: function() {
+            document.getElementById("offline").style.display = "none";
+        },
+        onclose: function() {
+            document.getElementById("offline").style.display = "";
+        },
+        onmessage: function(msg) {
+            if (typeof(msg.data) === 'string') {
+                try {
+                    var data = JSON.parse(msg.data);
 
-                if (data.type === 'map-metadata') {
-                    picture.style.display = 'none';
-                    pictures.style.display = 'none';
-                    content.style.display = '';
-                    content.width = data.width;
-                    content.height = data.height;
-                    content.style.maxHeight = currentDocumentHeight + "px";
-                    content.style.maxWidth = currentDocumentWidth + "px";
-                } else if (data.type === 'pictures') {
-                    content.style.display = 'none';
-                    if (data.pictures.length > 1) {
+                    if (data.type === 'map-metadata') {
                         picture.style.display = 'none';
-                        pictures.style.display = '';
-                        showGallery(data.pictures);
-                    } else {
-                        picture.style.display = '';
                         pictures.style.display = 'none';
-                        showPicture(data.pictures[0]);
+                        content.style.display = '';
+                        content.width = data.width;
+                        content.height = data.height;
+                        content.style.maxHeight = currentDocumentHeight + "px";
+                        content.style.maxWidth = currentDocumentWidth + "px";
+                    } else if (data.type === 'pictures') {
+                        content.style.display = 'none';
+                        if (data.pictures.length > 1) {
+                            picture.style.display = 'none';
+                            pictures.style.display = '';
+                            showGallery(data.pictures);
+                        } else {
+                            picture.style.display = '';
+                            pictures.style.display = 'none';
+                            showPicture(data.pictures[0]);
+                        }
                     }
+                } catch(e) {
+                    console.warn("dafuq did I just read?", msg.data);
+                    console.error(e);
                 }
-            } catch(e) {
-                console.warn("dafuq did I just read?", msg.data);
-                console.error(e);
+            } else if (typeof(msg.data) === 'object') {
+                var contentCtx = content.getContext("2d"),
+                    imageData = new ImageData(new Uint8ClampedArray(msg.data),
+                                              content.width,
+                                              content.height);
+                contentCtx.putImageData(imageData, 0, 0);
             }
-        } else if (typeof(msg.data) === 'object') {
-            var contentCtx = content.getContext("2d"),
-                imageData = new ImageData(new Uint8ClampedArray(msg.data),
-                                          content.width,
-                                          content.height);
-            contentCtx.putImageData(imageData, 0, 0);
         }
-    };
+    });
 
     document.addEventListener("resize", function(/*evt*/) {
         currentDocumentHeight = document.body.clientHeight;

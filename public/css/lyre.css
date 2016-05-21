@@ -32,6 +32,16 @@ body.audience .container-fluid {
     background-color: #ccc;
 }
 
+#offline {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    padding: 5px;
+    color: #eee;
+    background-color: #e33;
+    font-weight: bold;
+}
+
 .top {
     position: fixed;
     top: 0;
