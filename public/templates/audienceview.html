@@ -1,5 +1,12 @@
 <audienceview-app>
   <style scoped>
+    .offline {
+      padding: 5px;
+      color: #eee;
+      background-color: #e33;
+      font-weight: bold;
+      text-align: center;
+    }
     .audience-view img {
       max-width: 64px;
       max-height: 64px;
@@ -11,7 +18,8 @@
   </style>
 
   <div class="audience-view">
-    <img show={ inImageMode() } src={ imageUrl } />
-    <canvas show={ inMapMode() } name="mapcanvas"></canvas>
+    <div class="offline" show={ !isOnline() }>Offline</div>
+    <img show={ isOnline() && inImageMode() } src={ imageUrl } />
+    <canvas show={ isOnline() && inMapMode() } name="mapcanvas"></canvas>
 </div>
 </audienceview-app>

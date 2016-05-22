@@ -1,6 +1,7 @@
 /// <reference path="riot-ts.d.ts" />
 
 import MapDiscoverer from "./MapDiscoverer";
+import ReconnectingWebSocket from "./ReconnectingWebSocket";
 
 const WEBSOCKET_URL = location.protocol.replace("http", "ws") +
             location.host + "/narrator/ws";
@@ -14,7 +15,7 @@ class SceneHeader extends Riot.Element {}
 export default class FileListerApp extends Riot.Element
 {
     private files;
-    private socket: WebSocket;
+    private socket: ReconnectingWebSocket;
     private mode: FileListerAppModes;
     private mappingApp;
 
@@ -26,18 +27,13 @@ export default class FileListerApp extends Riot.Element
         this.mappingApp = this.tags.mapdiscoverer;
         this.mode = FileListerAppModes.FileList;
 
-        this.socket = new WebSocket(WEBSOCKET_URL);
-        this.socket.binaryType = "arraybuffer";
-        this.socket.onmessage = (message) => {
-            console.log("Received", message.data);
-        };
-        this.socket.onclose = () => {
-            this.socket = null;
-            setTimeout(() => {
-                this.socket = new WebSocket(WEBSOCKET_URL);
-                this.socket.binaryType = "arraybuffer";
-            }, 5000);
-        };
+        this.socket = new ReconnectingWebSocket(WEBSOCKET_URL);
+        this.socket.on("open", () => { this.update(); });
+        this.socket.on("close", () => { this.update(); });
+    }
+
+    isOnline(): boolean {
+        return this.socket.isOnline;
     }
 
     switchToFileListMode() {

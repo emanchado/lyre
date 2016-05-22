@@ -1,12 +1,14 @@
 /// <reference path="riot-ts.d.ts" />
 
+import ReconnectingWebSocket from "./ReconnectingWebSocket";
+
 const AUDIENCE_WEBSOCKET_URL = location.protocol.replace("http", "ws") +
     location.host + "/audience/ws";
 
 @template("/templates/audienceview.html")
 export default class AudienceApp extends Riot.Element
 {
-    private socket: WebSocket;
+    private socket: ReconnectingWebSocket;
     private mode: string;
     private imageUrl: string;
     private mapcanvas: HTMLCanvasElement;
@@ -19,9 +21,10 @@ export default class AudienceApp extends Riot.Element
 
         // This is a named element, see the template
         const mapCanvas = this.mapcanvas;
-        this.socket = new WebSocket(AUDIENCE_WEBSOCKET_URL);
-        this.socket.binaryType = "arraybuffer";
-        this.socket.onmessage = (msg) => {
+        this.socket = new ReconnectingWebSocket(AUDIENCE_WEBSOCKET_URL);
+        this.socket.on("open", () => { this.update(); });
+        this.socket.on("close", () => { this.update(); });
+        this.socket.on("message", (msg) => {
             if (typeof(msg.data) === "string") {
                 try {
                     var data = JSON.parse(msg.data);
@@ -47,14 +50,11 @@ export default class AudienceApp extends Riot.Element
                                           mapCanvas.height);
                 contentCtx.putImageData(imageData, 0, 0);
             }
-        };
-        this.socket.onclose = () => {
-            this.socket = null;
-            setTimeout(() => {
-                this.socket = new WebSocket(AUDIENCE_WEBSOCKET_URL);
-                this.socket.binaryType = "arraybuffer";
-            }, 5000);
-        };
+        });
+    }
+
+    isOnline(): boolean {
+        return this.socket.isOnline;
     }
 
     inImageMode() {

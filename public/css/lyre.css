@@ -36,10 +36,11 @@ body.audience .container-fluid {
     position: fixed;
     top: 10px;
     left: 10px;
-    padding: 5px;
+    padding: 5px 10px;
     color: #eee;
     background-color: #e33;
     font-weight: bold;
+    z-index: 100;
 }
 
 .top {
