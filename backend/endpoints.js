@@ -1,6 +1,9 @@
 import * as url from "url";
+import path from "path";
+
+import config from "config";
 import Q from "q";
-import scenarioStore from "./lib/scenarioStore";
+import ScenarioStore from "./lib/ScenarioStore";
 
 const webSockets = {narrator: [], audience: []},
       webSocketTypeForUrl = {"/narrator/ws": "narrator",
@@ -16,21 +19,26 @@ const webSockets = {narrator: [], audience: []},
           audience: function(/*message*/) {}
       };
 
+const scenarioStoreDir = path.join(config.scenarioStore.path);
+const store = new ScenarioStore(scenarioStoreDir);
+
 function index(req, res) {
     res.render("index", {
         scenarios: [
             {id: 1, title: "Suffragettes"}
-        ]
+        ],
+        scenarioList: store.listScenarios()
     });
 }
 
 function scenarioManage(req, res) {
+    const scenarioInfo = store.getScenario(req.params.id);
+
     res.render("scenario-manage", {
-        id: 1,
-        title: "Suffragettes",
-        images: [],
-        playlists: [],
-        maps: []
+        id: scenarioInfo.id,
+        title: scenarioInfo.name,
+        files: scenarioInfo.files,
+        playlists: scenarioInfo.playlists
     });
 }
 
@@ -44,18 +52,12 @@ function scenarioListen(req, res) {
     res.render("scenario-listen", {layout: false});
 }
 
+function apiScenarios(req, res) {
+    res.send(store.listScenarios());
+}
+
 function apiScenario(req, res) {
-    return Q.all([
-        scenarioStore.readImages(req.params.id),
-        scenarioStore.readPlaylists(req.params.id)
-    ]).spread(function(files, playlists) {
-        res.send({
-            files: files,
-            playlists: playlists
-        });
-    }).catch(function(err) {
-        res.send("Error! " + err);
-    });
+    res.sendFile(path.join(store.storePath, req.params.id, "info.json"));
 }
 
 function wsConnection(ws) {
@@ -71,4 +73,4 @@ function wsConnection(ws) {
 }
 
 export { index, scenarioManage, scenarioNarrate, scenarioListen,
-         apiScenario, wsConnection };
+         apiScenarios, apiScenario, wsConnection };

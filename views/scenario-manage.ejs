@@ -12,18 +12,18 @@
   <div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-body">
-        <h2>Images</h2>
+        <h2>Files</h2>
 
-        <% if (images.length) { %>
-          <% images.forEach(function(image) { %>
+        <% if (files.length) { %>
+          <% files.forEach(function(image) { %>
             <%= image %>
           <% }); %>
         <% } else { %>
-          <em>No images</em>
+          <em>No files</em>
         <% } %>
 
         <h3>Upload</h3>
-        <form method="post" action="/scenarios/images">
+        <form method="post" action="/scenarios/files">
           <input type="submit" value="Upload" />
         </form>
       </div>
@@ -44,29 +44,6 @@
 
         <h3>Upload</h3>
         <form method="post" action="/scenarios/playlists">
-          <input type="submit" value="Upload" />
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <h2>Maps</h2>
-
-        <% if (maps.length) { %>
-          <% maps.forEach(function(image) { %>
-            <%= image %>
-          <% }); %>
-        <% } else { %>
-          <em>No maps</em>
-        <% } %>
-
-        <h3>Upload</h3>
-        <form method="post" action="/scenarios/maps">
           <input type="submit" value="Upload" />
         </form>
       </div>
