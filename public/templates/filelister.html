@@ -23,15 +23,17 @@
   <div id="offline" show={ !isOnline() }>Offline</div>
 
   <div show={ fileListMode() }>
-    <sceneheader>Intro Scene</sceneheader>
-    <ul class="image-list">
-      <li each={ image in files }
-          class={ image.type }
-          onclick={ onImageClickHandler(image) }>
-        <img show={ image.type === "map" } class="map-mark" src="/img/compass.png" />
-        <img src={ image.thumbnailUrl } alt={ image.title } />
-      </li>
-    </ul>
+    <div class="scene" each={ scene in scenes }>
+      <sceneheader>{ scene.title }</sceneheader>
+      <ul class="image-list">
+        <li each={ file in scene.files }
+            class={ file.type }
+            onclick={ onImageClickHandler(file) }>
+          <img show={ file.type === "map" } class="map-mark" src="/img/compass.png" />
+          <img src={ file.thumbnailUrl } alt={ file.title } title={ file.title } />
+        </li>
+      </ul>
+    </div>
   </div>
 
   <div show={ mapMode() }>

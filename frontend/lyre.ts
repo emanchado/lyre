@@ -7,7 +7,7 @@ export default function mountAll(scenarioId) {
 
         riot.mount('audienceview-app');
         riot.mount('playlist-app', {playlists: data.playlists});
-        riot.mount('filelister-app', {files: data.files});
+        riot.mount('filelister-app', {scenes: data.scenes});
     });
     xhr.open("GET", "/api/scenarios/" + scenarioId);
     xhr.send();

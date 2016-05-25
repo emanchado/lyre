@@ -15,8 +15,8 @@ class ScenarioStore {
                       JSON.parse(fse.readFileSync(infoJsonPath).toString());
 
             return {id: scenarioInfo.id,
-                    name: scenarioInfo.name,
-                    numberImages: scenarioInfo.files.length,
+                    title: scenarioInfo.title,
+                    numberFiles: scenarioInfo.files.length,
                     numberPlaylists: scenarioInfo.playlists.length};
         });
     }

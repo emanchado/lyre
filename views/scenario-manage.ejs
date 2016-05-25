@@ -12,18 +12,18 @@
   <div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-body">
-        <h2>Files</h2>
+        <h2>Scenes</h2>
 
-        <% if (files.length) { %>
-          <% files.forEach(function(image) { %>
-            <%= image %>
+        <% if (scenes.length) { %>
+          <% scenes.forEach(function(scene) { %>
+            <%= scene.title %>
           <% }); %>
         <% } else { %>
-          <em>No files</em>
+          <em>No scenes</em>
         <% } %>
 
         <h3>Upload</h3>
-        <form method="post" action="/scenarios/files">
+        <form method="post" action="/scenarios/scenes">
           <input type="submit" value="Upload" />
         </form>
       </div>
@@ -35,8 +35,8 @@
         <h2>Playlists</h2>
 
         <% if (playlists.length) { %>
-          <% playlists.forEach(function(image) { %>
-            <%= image %>
+          <% playlists.forEach(function(playlist) { %>
+            <%= playlist.title %>
           <% }); %>
         <% } else { %>
           <em>No playlists</em>

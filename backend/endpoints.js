@@ -24,9 +24,6 @@ const store = new ScenarioStore(scenarioStoreDir);
 
 function index(req, res) {
     res.render("index", {
-        scenarios: [
-            {id: 1, title: "Suffragettes"}
-        ],
         scenarioList: store.listScenarios()
     });
 }
@@ -37,7 +34,7 @@ function scenarioManage(req, res) {
     res.render("scenario-manage", {
         id: scenarioInfo.id,
         title: scenarioInfo.name,
-        files: scenarioInfo.files,
+        scenes: scenarioInfo.scenes,
         playlists: scenarioInfo.playlists
     });
 }

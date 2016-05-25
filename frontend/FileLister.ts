@@ -14,7 +14,7 @@ class SceneHeader extends Riot.Element {}
 @template("/templates/filelister.html")
 export default class FileListerApp extends Riot.Element
 {
-    private files;
+    private scenes;
     private socket: ReconnectingWebSocket;
     private mode: FileListerAppModes;
     private mappingApp;
@@ -22,7 +22,7 @@ export default class FileListerApp extends Riot.Element
     constructor() {
         super();
 
-        this.files = this.opts.files;
+        this.scenes = this.opts.scenes;
 
         this.mappingApp = this.tags.mapdiscoverer;
         this.mode = FileListerAppModes.FileList;
