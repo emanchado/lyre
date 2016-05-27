@@ -1,52 +1,26 @@
-<div class="row">
-  <div class="col-md-6">
-    <h1><%= title %></h1>
-  </div>
-
-  <div class="col-md-6">
-    <button onclick="location.href = '/scenarios/narrate/<%= id %>'">Start scenario</button>
-  </div>
+<div class="top">
+  <img src="/img/lyre.png" />
+  <playlist-editor></playlist-editor>
 </div>
 
-<div class="row">
-  <div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <h2>Scenes</h2>
-
-        <% if (scenes.length) { %>
-          <% scenes.forEach(function(scene) { %>
-            <%= scene.title %>
-          <% }); %>
-        <% } else { %>
-          <em>No scenes</em>
-        <% } %>
-
-        <h3>Upload</h3>
-        <form method="post" action="/scenarios/scenes">
-          <input type="submit" value="Upload" />
-        </form>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-6">
-    <div class="panel panel-default">
-      <div class="panel-body">
-        <h2>Playlists</h2>
-
-        <% if (playlists.length) { %>
-          <% playlists.forEach(function(playlist) { %>
-            <%= playlist.title %>
-          <% }); %>
-        <% } else { %>
-          <em>No playlists</em>
-        <% } %>
-
-        <h3>Upload</h3>
-        <form method="post" action="/scenarios/playlists">
-          <input type="submit" value="Upload" />
-        </form>
-      </div>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <filelist-editor></filelist-editor>
     </div>
   </div>
 </div>
+
+<script type="text/javascript" src="/js/require.js"></script>
+<script type="text/javascript" src="/js/compiled/lyre.js"></script>
+<script type="text/javascript">
+ // Unfortunately, due to (1) RiotTS not explicitly using modules, but
+ // instead relying on tags being defined after loading certain code,
+ // (2) TypeScript optimising away unused imports, and (3)
+ // MapDiscoverer importing tools as external modules and thus turning
+ // itself into a module, we have to load all the dependencies
+ // explicitly and in order so that all this works.
+ require(["PlaylistEditor", "FileListEditor", "lyre"], function(pleditor, fleditor, lyre) {
+     lyre.default(<%= id %>);
+ });
+</script>

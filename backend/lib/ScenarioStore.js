@@ -16,7 +16,7 @@ class ScenarioStore {
 
             return {id: scenarioInfo.id,
                     title: scenarioInfo.title,
-                    numberFiles: scenarioInfo.files.length,
+                    numberScenes: scenarioInfo.scenes.length,
                     numberPlaylists: scenarioInfo.playlists.length};
         });
     }

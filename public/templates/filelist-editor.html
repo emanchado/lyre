@@ -1,0 +1,49 @@
+<filelist-editor>
+  <style scoped>
+    ul.image-list {
+      display: block;
+    }
+
+    ul.image-list li {
+      display: inline-block;
+      margin: 3px;
+      width: 150px;
+      height: 150px;
+    }
+
+    li.new {
+      border: 2px solid #555;
+      border-radius: 5px;
+    }
+
+    li.map {
+      position: relative;
+    }
+
+    li.map img.map-mark {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+    }
+  </style>
+
+  <div class="scene" each={ scene in scenes }>
+    <sceneheader-editor scene={ scene } ontitleupdate={ this.onSceneUpdate.bind(this) }></sceneheader-editor>
+    <ul class="image-list">
+      <li each={ file in scene.files }
+          class={ file.type }
+          onclick={ onImageClickHandler(file) }>
+        <img show={ file.type === "map" } class="map-mark" src="/img/compass.png" />
+        <img src={ file.thumbnailUrl } alt={ file.title } title={ file.title } />
+      </li>
+      <li class="new"
+          onclick={ onAddImageClickHandler(scene.id) }>
+        <img src="/img/new-image.png" alt="New image" title="New image" />
+      </li>
+    </ul>
+  </div>
+
+  <div class="scene">
+    <sceneheader-editor scene={ {title: "New Scene"} } ontitleupdate={ this.onSceneCreate.bind(this) }></sceneheader-editor>
+  </div>
+</filelist-editor>

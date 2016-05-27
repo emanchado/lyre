@@ -1,0 +1,37 @@
+<playlist-editor>
+  <style scoped>
+    .playlist-container {
+        display: inline-block;
+    }
+
+    .playlist {
+        margin: 5px;
+        border-bottom: 3px solid transparent;
+        padding: 8px 15px;
+
+        text-transform: capitalize;
+
+        cursor: pointer;
+    }
+
+    .playlist-playing {
+        border: 0;
+        border-bottom: 3px solid transparent;
+        border-image: linear-gradient(to right, #1c58fe 0%, #22c064 100%);
+        border-image-slice: 1;
+
+        font-weight: bold;
+    }
+  </style>
+
+  <div each={ pl in opts.playlists } class="playlist-container" onclick={ playPauseHandler(pl.title) }>
+    <div class="playlist playlist-{ playlistStatus(pl.title) }" data-title="{ pl.title }">
+      { pl.title }
+
+      <audio each={ track, i in pl.tracks }
+             src={ track.url }
+             onended={ endedHandler(pl.title, i) }
+             />
+    </div>
+  </div>
+</playlist-editor>
