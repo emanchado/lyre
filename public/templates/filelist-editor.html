@@ -32,13 +32,27 @@
     <ul class="image-list">
       <li each={ file in scene.files }
           class={ file.type }
-          onclick={ onImageClickHandler(file) }>
-        <img show={ file.type === "map" } class="map-mark" src="/img/compass.png" />
-        <img src={ file.thumbnailUrl } alt={ file.title } title={ file.title } />
+          onclick={ onImageClickHandler(file) }
+          data-id={ file.id }>
+        <img show={ file.type === "map" }
+             draggable="false"
+             class="map-mark"
+             src="/img/compass.png" />
+        <img src={ file.thumbnailUrl }
+             alt={ file.title }
+             title={ file.title }
+             draggable="true"
+             ondragstart={ onDragStart.bind(this.parent) }
+             ondragend={ onDragEnd.bind(this.parent) }
+             ondragenter={ onDragEnter.bind(this.parent) } />
       </li>
       <li class="new"
           onclick={ onAddImageClickHandler(scene.id) }>
-        <img src="/img/new-image.png" alt="New image" title="New image" />
+        <img src="/img/new-image.png"
+             alt="New image"
+             title="New image"
+             draggable="false"
+             ondragenter={ onDragEnter.bind(this) } />
       </li>
     </ul>
   </div>

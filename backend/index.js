@@ -23,6 +23,7 @@ const authMiddleware = middlewares.getAuthMiddleware(config);
 app.set("views", __dirname + "/../views");
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(expressSession({
     resave: false,
@@ -40,6 +41,7 @@ app.all("/scenarios/narrate/:id", authMiddleware, endpoints.scenarioNarrate);
 app.all("/scenarios/listen/:id", endpoints.scenarioListen);
 app.get("/api/scenarios", endpoints.apiScenarios);
 app.get("/api/scenarios/:id", endpoints.apiScenario);
+app.post("/api/scenarios/:id/images/:imageId", endpoints.apiScenarioImage);
 
 wsServer.on("connection", endpoints.wsConnection);
 

@@ -35,6 +35,32 @@ class ScenarioStore {
         fse.writeFileSync(path.join(scenarioDir, "info.json"),
                           JSON.stringify(scenario));
     }
+
+    reorderImage(scenarioId, imageId, newPreviousId) {
+        const scenario = this.getScenario(scenarioId);
+
+        scenario.scenes.forEach(function(scene) {
+            let fileIndex = null,
+                previousIndex = newPreviousId ? null : -1;
+            scene.files.forEach(function(file, i) {
+                if (file.id === imageId) {
+                    console.log("Found fileIndex");
+                    fileIndex = i;
+                } else if (file.id === newPreviousId) {
+                    console.log("Found previousIndex");
+                    previousIndex = i - (fileIndex ? 1 : 0);
+                }
+            });
+
+            if (fileIndex !== null && previousIndex !== null) {
+                console.log("Moved file");
+                const movedFile = scene.files.splice(fileIndex, 1)[0];
+                scene.files.splice(previousIndex + 1, 0, movedFile);
+            }
+        });
+
+        this.saveScenario(scenario);
+    }
 }
 
 export default ScenarioStore;

@@ -3,9 +3,6 @@
 import MapDiscoverer from "./MapDiscoverer";
 import ReconnectingWebSocket from "./ReconnectingWebSocket";
 
-const WEBSOCKET_URL = location.protocol.replace("http", "ws") +
-            location.host + "/narrator/ws";
-
 @template("/templates/sceneheader-editor.html")
 class SceneHeaderEditor extends Riot.Element {
     private editMode: boolean;
@@ -36,6 +33,7 @@ export default class FileListerEditor extends Riot.Element
 {
     private scenarioId: number;
     private scenes;
+    private currentDraggedItem;
 
     constructor() {
         super();
@@ -58,5 +56,57 @@ export default class FileListerEditor extends Riot.Element
     onSceneUpdate(sceneId: number, newSceneTitle: string) {
         console.log("Current scenario is", this.scenarioId);
         console.log("Update for scene", sceneId, ", new title is", newSceneTitle);
+    }
+
+    /**
+     * Sometimes we can get Text nodes if we simply get to
+     * .previousSibling, hence this method to make sure we get the
+     * previous image element.
+     */
+    private previousFileEl(fileEl) {
+        const previousSibling = fileEl.previousSibling;
+
+        if (!previousSibling) {
+            return null;
+        }
+        if (!(previousSibling instanceof HTMLElement)) {
+            return this.previousFileEl(previousSibling);
+        }
+
+        return previousSibling;
+    }
+
+    onDragStart(ev) {
+        this.currentDraggedItem = ev.target.parentNode;
+        this.currentDraggedItem.style.opacity = "0.3";
+        return true;
+    }
+
+    onDragEnd(ev) {
+        const currentImageId = this.currentDraggedItem.dataset.id,
+              prevImage = this.previousFileEl(this.currentDraggedItem),
+              prevImageId = (prevImage && prevImage.dataset) ? prevImage.dataset.id : null;
+
+        this.currentDraggedItem.style.opacity = "";
+        this.currentDraggedItem = null;
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/scenarios/" + this.scenarioId + "/images/" + currentImageId);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify({"action": "move", "previous": prevImageId}));
+
+        return true;
+    }
+
+    onDragEnter(ev) {
+        const targetLi = ev.target.parentNode;
+
+        if (targetLi !== this.currentDraggedItem) {
+            if (this.currentDraggedItem) {
+                const parent = this.currentDraggedItem.parentNode;
+                parent.insertBefore(this.currentDraggedItem, targetLi);
+            }
+        }
+        return true;
     }
 }

@@ -57,6 +57,23 @@ function apiScenario(req, res) {
     res.sendFile(path.join(store.storePath, req.params.id, "info.json"));
 }
 
+function apiScenarioImage(req, res) {
+    const scenarioId = req.params.id,
+          scenario = store.getScenario(scenarioId),
+          imageId = parseInt(req.params.imageId, 10),
+          changeSpec = req.body;
+
+    if (changeSpec.action === "move") {
+        store.reorderImage(scenarioId,
+                           imageId,
+                           parseInt(changeSpec.previous, 10));
+        res.send(JSON.stringify({success: true}));
+    } else {
+        res.statusCode = 400;
+        res.send("Don't understand action '" + changeSpec.action + "'");
+    }
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -70,4 +87,4 @@ function wsConnection(ws) {
 }
 
 export { index, scenarioManage, scenarioNarrate, scenarioListen,
-         apiScenarios, apiScenario, wsConnection };
+         apiScenarios, apiScenario, apiScenarioImage, wsConnection };
