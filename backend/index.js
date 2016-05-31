@@ -31,17 +31,17 @@ app.use(expressSession({
     secret: config.sessionSecret || "we have the BEST secrets"
 }));
 app.use(express.static(__dirname + "/../public"));
-app.use("/scenarios", express.static(__dirname + "/../scenarios"));
+app.use("/stories", express.static(__dirname + "/../stories"));
 app.use(expressLayout());
 
 app.all("/", authMiddleware, endpoints.index);
-app.all("/scenarios/manage/:id", authMiddleware, endpoints.scenarioManage);
-app.all("/scenarios/narrate/:id", authMiddleware, endpoints.scenarioNarrate);
+app.all("/stories/manage/:id", authMiddleware, endpoints.storyManage);
+app.all("/stories/narrate/:id", authMiddleware, endpoints.storyNarrate);
 // These endpoints do NOT have authentication!
-app.all("/scenarios/listen/:id", endpoints.scenarioListen);
-app.get("/api/scenarios", endpoints.apiScenarios);
-app.get("/api/scenarios/:id", endpoints.apiScenario);
-app.post("/api/scenarios/:id/images/:imageId", endpoints.apiScenarioImage);
+app.all("/stories/listen/:id", endpoints.storyListen);
+app.get("/api/stories", endpoints.apiStories);
+app.get("/api/stories/:id", endpoints.apiStory);
+app.post("/api/stories/:id/images/:imageId", endpoints.apiStoryImage);
 
 wsServer.on("connection", endpoints.wsConnection);
 

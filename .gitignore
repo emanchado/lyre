@@ -4,4 +4,5 @@ public/js/compiled/
 *.js.map
 build/
 backend/config/local-*.js
-scenarios/
+stories/
+lyre.db

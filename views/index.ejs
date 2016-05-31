@@ -1,22 +1,22 @@
 <div class="row">
   <div class="col-md-12">
-    <h1>Scenarios</h1>
+    <h1>Stories</h1>
 
-    <% if (scenarioList.length) { %>
-      <% scenarioList.forEach(function(scenario) { %>
+    <% if (storyList.length) { %>
+      <% storyList.forEach(function(story) { %>
         <div class="col-md-12">
-          <a href="/scenarios/manage/<%= scenario.id %>">
+          <a href="/stories/manage/<%= story.id %>">
             <div class="panel panel-default">
               <div class="panel-body">
-                <%= scenario.title %>
-                <div class="scenario-details">(<%= scenario.numberScenes %> scenes, <%= scenario.numberPlaylists %> playlists)</div>
+                <%= story.title %>
+                <div class="story-details">(<%= story.numberScenes %> scenes, <%= story.numberPlaylists %> playlists)</div>
               </div>
             </div>
           </a>
         </div>
       <% }); %>
     <% } else { %>
-      <em>No scenarios.</em>
+      <em>No stories.</em>
     <% } %>
   </div>
 </div>

@@ -3,7 +3,7 @@ import path from "path";
 
 import config from "config";
 import Q from "q";
-import ScenarioStore from "./lib/ScenarioStore";
+import StoryStore from "./lib/StoryStore";
 
 const webSockets = {narrator: [], audience: []},
       webSocketTypeForUrl = {"/narrator/ws": "narrator",
@@ -19,52 +19,55 @@ const webSockets = {narrator: [], audience: []},
           audience: function(/*message*/) {}
       };
 
-const scenarioStoreDir = path.join(config.scenarioStore.path);
-const store = new ScenarioStore(scenarioStoreDir);
+const store = new StoryStore(config.storyStore.dbPath,
+                             config.storyStore.path);
+// TODO: This returns a promise, but there's no good way to wait for
+// it here
+store.connect();
 
 function index(req, res) {
     res.render("index", {
-        scenarioList: store.listScenarios()
+        storyList: store.listStories()
     });
 }
 
-function scenarioManage(req, res) {
-    const scenarioInfo = store.getScenario(req.params.id);
+function storyManage(req, res) {
+    const storyInfo = store.getStory(req.params.id);
 
-    res.render("scenario-manage", {
-        id: scenarioInfo.id,
-        title: scenarioInfo.name,
-        scenes: scenarioInfo.scenes,
-        playlists: scenarioInfo.playlists
+    res.render("story-manage", {
+        id: storyInfo.id,
+        title: storyInfo.name,
+        scenes: storyInfo.scenes,
+        playlists: storyInfo.playlists
     });
 }
 
-function scenarioNarrate(req, res) {
-    res.render("scenario-narrate", {
+function storyNarrate(req, res) {
+    res.render("story-narrate", {
         id: 1
     });
 }
 
-function scenarioListen(req, res) {
-    res.render("scenario-listen", {layout: false});
+function storyListen(req, res) {
+    res.render("story-listen", {layout: false});
 }
 
-function apiScenarios(req, res) {
-    res.send(store.listScenarios());
+function apiStories(req, res) {
+    res.send(store.listStories());
 }
 
-function apiScenario(req, res) {
-    res.sendFile(path.join(store.storePath, req.params.id, "info.json"));
+function apiStory(req, res) {
+    return store.getStory(req.params.id);
 }
 
-function apiScenarioImage(req, res) {
-    const scenarioId = req.params.id,
-          scenario = store.getScenario(scenarioId),
+function apiStoryImage(req, res) {
+    const storyId = req.params.id,
+          story = store.getStory(storyId),
           imageId = parseInt(req.params.imageId, 10),
           changeSpec = req.body;
 
     if (changeSpec.action === "move") {
-        store.reorderImage(scenarioId,
+        store.reorderImage(storyId,
                            imageId,
                            parseInt(changeSpec.previous, 10));
         res.send(JSON.stringify({success: true}));
@@ -86,5 +89,5 @@ function wsConnection(ws) {
     webSockets[webSocketType].push(ws);
 }
 
-export { index, scenarioManage, scenarioNarrate, scenarioListen,
-         apiScenarios, apiScenario, apiScenarioImage, wsConnection };
+export { index, storyManage, storyNarrate, storyListen,
+         apiStories, apiStory, apiStoryImage, wsConnection };
