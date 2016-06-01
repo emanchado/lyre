@@ -30,7 +30,8 @@
     <div class="line"></div>
     <h1 show={ !editMode } onclick={ switchEditMode }>{ opts.scene.title }</h1>
     <h1 show={ editMode }>
-      <input type="text"
+      <input id="editfield"
+             type="text"
              value={ opts.scene.title }
              onkeydown={ onKeyDown.bind(this) } />
     </h1>

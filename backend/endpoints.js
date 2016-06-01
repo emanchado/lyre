@@ -70,7 +70,7 @@ function apiStory(req, res) {
     });
 }
 
-function apiStoryFile(req, res) {
+function apiPutStoryFile(req, res) {
     const storyId = req.params.id,
           imageId = parseInt(req.params.fileId, 10),
           changeSpec = req.body;
@@ -92,6 +92,18 @@ function apiStoryFile(req, res) {
     }
 }
 
+function apiPutScene(req, res) {
+    const sceneId = req.params.id,
+          newProps = req.body;
+
+    store.updateScene(sceneId, newProps).then(updatedScene => {
+        res.send(updatedScene);
+    }).catch(err => {
+        res.statusCode = 400;
+        res.send(JSON.stringify({error: err}));
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -105,4 +117,4 @@ function wsConnection(ws) {
 }
 
 export { index, storyManage, storyNarrate, storyListen,
-         apiStories, apiStory, apiStoryFile, wsConnection };
+         apiStories, apiStory, apiPutStoryFile, apiPutScene, wsConnection };

@@ -3,9 +3,13 @@
 import MapDiscoverer from "./MapDiscoverer";
 import ReconnectingWebSocket from "./ReconnectingWebSocket";
 
+const ENTER_KEY = 13;
+const ESC_KEY = 27;
+
 @template("/templates/sceneheader-editor.html")
 class SceneHeaderEditor extends Riot.Element {
     private editMode: boolean;
+    private editfield: HTMLInputElement;
 
     constructor() {
         super();
@@ -14,13 +18,20 @@ class SceneHeaderEditor extends Riot.Element {
 
     switchEditMode() {
         this.editMode = true;
+        // For some reason, the value is not updated when pressing Esc
+        // in edit mode, so for now we'll update right after start
+        // editing
+        this.editfield.value = this.opts.scene.title;
     }
 
     onKeyDown(e) {
         const onTitleUpdate = this.opts.ontitleupdate;
 
-        if (e.which === 13) {
+        if (e.which === ENTER_KEY) {
             onTitleUpdate(this.opts.scene.id, e.target.value);
+            this.editMode = false;
+        } else if (e.which === ESC_KEY) {
+            this.editfield.value = this.opts.scene.title;
             this.editMode = false;
         }
         // Return true; otherwise, the event default is prevented
@@ -51,11 +62,30 @@ export default class FileListerEditor extends Riot.Element
     onSceneCreate(_sceneId: number, newSceneTitle: string) {
         console.log("Current scenario is", this.storyId);
         console.log("Create new scene with title", newSceneTitle);
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/stories/" + this.storyId + "/scenes");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            const newScene = JSON.parse(this.responseText);
+            this.scenes.push(newScene);
+        });
+        xhr.send(JSON.stringify({"title": newSceneTitle}));
     }
 
     onSceneUpdate(sceneId: number, newSceneTitle: string) {
-        console.log("Current scenario is", this.storyId);
-        console.log("Update for scene", sceneId, ", new title is", newSceneTitle);
+        let xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/api/scenes/" + sceneId);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", () => {
+            this.scenes.forEach(scene => {
+                if (scene.id === sceneId) {
+                    scene.title = newSceneTitle;
+                    this.update();
+                }
+            });
+        });
+        xhr.send(JSON.stringify({"title": newSceneTitle}));
     }
 
     /**
@@ -91,7 +121,7 @@ export default class FileListerEditor extends Riot.Element
         this.currentDraggedItem = null;
 
         let xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/stories/" + this.storyId + "/files/" + currentImageId);
+        xhr.open("PUT", "/api/stories/" + this.storyId + "/files/" + currentImageId);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(JSON.stringify({"action": "move", "previous": prevImageId}));
 

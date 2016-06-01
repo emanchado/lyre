@@ -38,10 +38,13 @@ app.all("/", authMiddleware, endpoints.index);
 app.all("/stories/manage/:id", authMiddleware, endpoints.storyManage);
 app.all("/stories/narrate/:id", authMiddleware, endpoints.storyNarrate);
 // These endpoints do NOT have authentication!
-app.all("/stories/listen/:id", endpoints.storyListen);
+app.get("/stories/listen/:id", endpoints.storyListen);
+
+// API endpoints. No authentication for now, but need to have!
 app.get("/api/stories", endpoints.apiStories);
 app.get("/api/stories/:id", endpoints.apiStory);
-app.post("/api/stories/:id/files/:fileId", endpoints.apiStoryFile);
+app.put("/api/stories/:id/files/:fileId", endpoints.apiPutStoryFile);
+app.put("/api/scenes/:id", endpoints.apiPutScene);
 
 wsServer.on("connection", endpoints.wsConnection);
 

@@ -115,13 +115,31 @@ class StoryStore {
         });
     }
 
-    saveStory(story) {
-        const storyDir = path.join(this.storePath, story.id.toString());
+    updateScene(sceneId, newProps) {
+        if (!newProps.title) {
+            throw new Error("Cannot update scene to an empty title");
+        }
 
-        fse.mkdirs(storyDir);
-        fse.writeFileSync(path.join(storyDir, "info.json"),
-                          JSON.stringify(story));
+        return Q.ninvoke(
+            this.db,
+            "run",
+            "UPDATE scenes SET title = ? WHERE id = ?",
+            [newProps.title, sceneId]
+        ).then(() => {
+            return {
+                id: sceneId,
+                title: newProps.title
+            };
+        });
     }
+
+    // saveStory(story) {
+    //     const storyDir = path.join(this.storePath, story.id.toString());
+
+    //     fse.mkdirs(storyDir);
+    //     fse.writeFileSync(path.join(storyDir, "info.json"),
+    //                       JSON.stringify(story));
+    // }
 
     reorderImage(storyId, fileId, newPreviousId) {
         let filePosition, newPreviousPosition;
