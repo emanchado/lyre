@@ -16,14 +16,18 @@ function sceneFileInfo(storyId, sceneFiles) {
             seenScenes[file.scene_id] = true;
         }
 
-        var currentSceneFiles = scenes[scenes.length - 1].files,
-            fileBaseUrl = "/stories/" + storyId + "/files";
-        currentSceneFiles.push({id: file.file_id,
-                                title: file.file_filename,
-                                url: fileBaseUrl + "/" + file.file_filename,
-                                thumbnailUrl: fileBaseUrl + "/thumbnails/" +
-                                    file.file_filename,
-                                type: file.file_type});
+        if (file.file_id) {
+            const currentSceneFiles = scenes[scenes.length - 1].files,
+                  fileBaseUrl = "/stories/" + storyId + "/files";
+            currentSceneFiles.push({
+                id: file.file_id,
+                title: file.file_filename,
+                url: fileBaseUrl + "/" + file.file_filename,
+                thumbnailUrl: fileBaseUrl + "/thumbnails/" +
+                    file.file_filename,
+                type: file.file_type
+            });
+        }
     });
 
     return scenes;
@@ -41,10 +45,13 @@ function playlistTrackInfo(storyId, playlistTracks) {
             seenPlaylists[track.playlist_id] = true;
         }
 
-        var currentPlaylistTracks = playlists[playlists.length - 1].tracks;
-        currentPlaylistTracks.push({
-            url: "/stories/" + storyId + "/audio/" + track.track_filename
-        });
+        if (track.track_filename) {
+            const currentPlaylistTracks =
+                      playlists[playlists.length - 1].tracks;
+            currentPlaylistTracks.push({
+                url: "/stories/" + storyId + "/audio/" + track.track_filename
+            });
+        }
     });
 
     return playlists;
@@ -90,7 +97,7 @@ class StoryStore {
                 "SELECT S.id AS scene_id, S.title AS scene_title, " +
                     "F.id AS file_id, F.type AS file_type, " +
                     "F.filename AS file_filename " +
-                    "FROM scenes S JOIN files F " +
+                    "FROM scenes S LEFT JOIN files F " +
                     "ON S.id = F.scene_id WHERE story_id = ? " +
                     "ORDER BY S.position, F.position",
                 storyId
@@ -100,7 +107,7 @@ class StoryStore {
                 "all",
                 "SELECT P.id AS playlist_id, P.title AS playlist_title, " +
                     "T.filename AS track_filename " +
-                    "FROM playlists P JOIN tracks T " +
+                    "FROM playlists P LEFT JOIN tracks T " +
                     "ON p.id = T.playlist_id WHERE story_id = ? " +
                     "ORDER BY P.position, T.position",
                 storyId
@@ -113,6 +120,29 @@ class StoryStore {
                 playlists: playlistTrackInfo(basicInfo.id, playlists)
             };
         });
+    }
+
+    addScene(storyId, sceneProps) {
+        if (!sceneProps.title) {
+            throw new Error("Cannot create scene without a title");
+        }
+
+        const deferred = Q.defer();
+
+        this.db.run(
+            "INSERT INTO scenes (story_id, title, position) " +
+                "VALUES (?, ?, " +
+                "(SELECT COUNT(*) + 1 FROM scenes WHERE story_id = ?))",
+            [storyId, sceneProps.title, storyId],
+            function() {
+                deferred.resolve({
+                    id: this.lastID,
+                    title: sceneProps.title
+                });
+            }
+        );
+
+        return deferred.promise;
     }
 
     updateScene(sceneId, newProps) {

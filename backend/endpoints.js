@@ -104,6 +104,18 @@ function apiPutScene(req, res) {
     });
 }
 
+function apiPostStoryScene(req, res) {
+    const storyId = req.params.id,
+          sceneTitle = req.body.title;
+
+    store.addScene(storyId, {title: sceneTitle}).then(newScene => {
+        res.send(JSON.stringify(newScene));
+    }).catch(err => {
+        res.statusCode = 400;
+        res.send(JSON.stringify({error: err.toString()}));
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -117,4 +129,5 @@ function wsConnection(ws) {
 }
 
 export { index, storyManage, storyNarrate, storyListen,
-         apiStories, apiStory, apiPutStoryFile, apiPutScene, wsConnection };
+         apiStories, apiStory, apiPutStoryFile, apiPutScene,
+         apiPostStoryScene, wsConnection };

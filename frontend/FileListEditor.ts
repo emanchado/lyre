@@ -60,15 +60,14 @@ export default class FileListerEditor extends Riot.Element
     }
 
     onSceneCreate(_sceneId: number, newSceneTitle: string) {
-        console.log("Current scenario is", this.storyId);
-        console.log("Create new scene with title", newSceneTitle);
+        const self = this;
 
         let xhr = new XMLHttpRequest();
         xhr.open("POST", "/api/stories/" + this.storyId + "/scenes");
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
             const newScene = JSON.parse(this.responseText);
-            this.scenes.push(newScene);
+            self.scenes.push(newScene);
         });
         xhr.send(JSON.stringify({"title": newSceneTitle}));
     }
