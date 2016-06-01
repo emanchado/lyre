@@ -31,7 +31,7 @@ app.use(expressSession({
     secret: config.sessionSecret || "we have the BEST secrets"
 }));
 app.use(express.static(__dirname + "/../public"));
-app.use("/stories", express.static(__dirname + "/../stories"));
+app.use("/stories", express.static(config.storyStore.path));
 app.use(expressLayout());
 
 app.all("/", authMiddleware, endpoints.index);
@@ -41,7 +41,7 @@ app.all("/stories/narrate/:id", authMiddleware, endpoints.storyNarrate);
 app.all("/stories/listen/:id", endpoints.storyListen);
 app.get("/api/stories", endpoints.apiStories);
 app.get("/api/stories/:id", endpoints.apiStory);
-app.post("/api/stories/:id/images/:imageId", endpoints.apiStoryImage);
+app.post("/api/stories/:id/files/:fileId", endpoints.apiStoryFile);
 
 wsServer.on("connection", endpoints.wsConnection);
 

@@ -26,19 +26,27 @@ const store = new StoryStore(config.storyStore.dbPath,
 store.connect();
 
 function index(req, res) {
-    res.render("index", {
-        storyList: store.listStories()
+    store.listStories().then(function(storyList) {
+        res.render("index", {
+            storyList: storyList
+        });
+    }).catch(function(err) {
+        res.render("error", {
+            errorMessage: "There was an error: " + err
+        });
     });
 }
 
 function storyManage(req, res) {
-    const storyInfo = store.getStory(req.params.id);
-
-    res.render("story-manage", {
-        id: storyInfo.id,
-        title: storyInfo.name,
-        scenes: storyInfo.scenes,
-        playlists: storyInfo.playlists
+    store.getStory(req.params.id).then(storyInfo => {
+        res.render("story-manage", {
+            id: storyInfo.id,
+            title: storyInfo.title
+        });
+    }).catch(err => {
+        res.render("error", {
+            errorMessage: "Error = " + err
+        });
     });
 }
 
@@ -57,20 +65,27 @@ function apiStories(req, res) {
 }
 
 function apiStory(req, res) {
-    return store.getStory(req.params.id);
+    return store.getStory(req.params.id).then(story => {
+        res.send(JSON.stringify(story));
+    });
 }
 
-function apiStoryImage(req, res) {
+function apiStoryFile(req, res) {
     const storyId = req.params.id,
-          story = store.getStory(storyId),
-          imageId = parseInt(req.params.imageId, 10),
+          imageId = parseInt(req.params.fileId, 10),
           changeSpec = req.body;
 
     if (changeSpec.action === "move") {
-        store.reorderImage(storyId,
-                           imageId,
-                           parseInt(changeSpec.previous, 10));
-        res.send(JSON.stringify({success: true}));
+        store.reorderImage(
+            storyId,
+            imageId,
+            parseInt(changeSpec.previous, 10)
+        ).then(result => {
+            res.send(JSON.stringify({success: result}));
+        }).catch(err => {
+            res.send(JSON.stringify({success: false,
+                                     errorMessage: err.toString()}));
+        });
     } else {
         res.statusCode = 400;
         res.send("Don't understand action '" + changeSpec.action + "'");
@@ -90,4 +105,4 @@ function wsConnection(ws) {
 }
 
 export { index, storyManage, storyNarrate, storyListen,
-         apiStories, apiStory, apiStoryImage, wsConnection };
+         apiStories, apiStory, apiStoryFile, wsConnection };

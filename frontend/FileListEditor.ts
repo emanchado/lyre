@@ -31,14 +31,14 @@ class SceneHeaderEditor extends Riot.Element {
 @template("/templates/filelist-editor.html")
 export default class FileListerEditor extends Riot.Element
 {
-    private scenarioId: number;
+    private storyId: number;
     private scenes;
     private currentDraggedItem;
 
     constructor() {
         super();
 
-        this.scenarioId = this.opts.scenarioId;
+        this.storyId = this.opts.storyId;
         this.scenes = this.opts.scenes;
     }
 
@@ -49,12 +49,12 @@ export default class FileListerEditor extends Riot.Element
     }
 
     onSceneCreate(_sceneId: number, newSceneTitle: string) {
-        console.log("Current scenario is", this.scenarioId);
+        console.log("Current scenario is", this.storyId);
         console.log("Create new scene with title", newSceneTitle);
     }
 
     onSceneUpdate(sceneId: number, newSceneTitle: string) {
-        console.log("Current scenario is", this.scenarioId);
+        console.log("Current scenario is", this.storyId);
         console.log("Update for scene", sceneId, ", new title is", newSceneTitle);
     }
 
@@ -91,7 +91,7 @@ export default class FileListerEditor extends Riot.Element
         this.currentDraggedItem = null;
 
         let xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/scenarios/" + this.scenarioId + "/images/" + currentImageId);
+        xhr.open("POST", "/api/stories/" + this.storyId + "/files/" + currentImageId);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(JSON.stringify({"action": "move", "previous": prevImageId}));
 
