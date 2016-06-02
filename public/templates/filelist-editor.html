@@ -55,6 +55,10 @@
              ondragenter={ onDragEnter.bind(this) } />
       </li>
     </ul>
+    <input type="file"
+           id={ "newfile-" + scene.id }
+           style="display: none"
+           onChange={ onNewFileChange(scene.id) } />
   </div>
 
   <div class="scene">

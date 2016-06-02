@@ -14,7 +14,8 @@ const MIGRATIONS = [
             `CREATE TABLE files (id integer primary key,
                                  scene_id integer,
                                  position integer,
-                                 filename text,
+                                 original_name text,
+                                 path text,
                                  type text)`,
             `CREATE TABLE playlists (id integer primary key,
                                      story_id integer,
@@ -23,7 +24,8 @@ const MIGRATIONS = [
             `CREATE TABLE tracks (id integer primary key,
                                   playlist_id integer,
                                   position integer,
-                                  filename text)`
+                                  original_name text,
+                                  path text)`
         ];
         const promise = Q(true);
 

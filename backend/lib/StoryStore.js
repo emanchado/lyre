@@ -1,8 +1,10 @@
 import path from "path";
 import fse from "fs-extra";
 import sqlite3 from "sqlite3";
-import { upgradeDb } from "./StoryStoreMigrations";
 import Q from "q";
+
+import { upgradeDb } from "./StoryStoreMigrations";
+import thumbnailer from "./thumbnailer";
 
 function sceneFileInfo(storyId, sceneFiles) {
     var scenes = [],
@@ -21,10 +23,10 @@ function sceneFileInfo(storyId, sceneFiles) {
                   fileBaseUrl = "/stories/" + storyId + "/files";
             currentSceneFiles.push({
                 id: file.file_id,
-                title: file.file_filename,
-                url: fileBaseUrl + "/" + file.file_filename,
+                title: file.file_path,
+                url: fileBaseUrl + "/" + file.file_path,
                 thumbnailUrl: fileBaseUrl + "/thumbnails/" +
-                    file.file_filename,
+                    file.file_path,
                 type: file.file_type
             });
         }
@@ -45,16 +47,24 @@ function playlistTrackInfo(storyId, playlistTracks) {
             seenPlaylists[track.playlist_id] = true;
         }
 
-        if (track.track_filename) {
+        if (track.track_path) {
             const currentPlaylistTracks =
                       playlists[playlists.length - 1].tracks;
             currentPlaylistTracks.push({
-                url: "/stories/" + storyId + "/audio/" + track.track_filename
+                url: "/stories/" + storyId + "/audio/" + track.track_path
             });
         }
     });
 
     return playlists;
+}
+
+function poorMansUuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0,
+            v = c === 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
 }
 
 class StoryStore {
@@ -96,7 +106,7 @@ class StoryStore {
                 "all",
                 "SELECT S.id AS scene_id, S.title AS scene_title, " +
                     "F.id AS file_id, F.type AS file_type, " +
-                    "F.filename AS file_filename " +
+                    "F.path AS file_path " +
                     "FROM scenes S LEFT JOIN files F " +
                     "ON S.id = F.scene_id WHERE story_id = ? " +
                     "ORDER BY S.position, F.position",
@@ -106,7 +116,7 @@ class StoryStore {
                 this.db,
                 "all",
                 "SELECT P.id AS playlist_id, P.title AS playlist_title, " +
-                    "T.filename AS track_filename " +
+                    "T.path AS track_path " +
                     "FROM playlists P LEFT JOIN tracks T " +
                     "ON p.id = T.playlist_id WHERE story_id = ? " +
                     "ORDER BY P.position, T.position",
@@ -162,14 +172,6 @@ class StoryStore {
             };
         });
     }
-
-    // saveStory(story) {
-    //     const storyDir = path.join(this.storePath, story.id.toString());
-
-    //     fse.mkdirs(storyDir);
-    //     fse.writeFileSync(path.join(storyDir, "info.json"),
-    //                       JSON.stringify(story));
-    // }
 
     reorderImage(storyId, fileId, newPreviousId) {
         let filePosition, newPreviousPosition;
@@ -266,6 +268,75 @@ class StoryStore {
                     );
                 });
             }
+        });
+    }
+
+    storyIdForScene(sceneId) {
+        return Q.ninvoke(
+            this.db,
+            "get",
+            "SELECT story_id FROM scenes WHERE id = ?",
+            sceneId
+        ).then(row => row.story_id);
+    }
+
+    ensureDirsForStory(storyId) {
+        const baseDir = path.join(this.storyDir, storyId.toString()),
+              filesDir = path.join(baseDir, "files"),
+              thumbsDir = path.join(filesDir, "thumbnails"),
+              audioDir = path.join(baseDir, "audio");
+
+        return Q.nfcall(fse.mkdirp, filesDir).then(() => {
+            return Q.nfcall(fse.mkdirp, thumbsDir);
+        }).then(() => {
+            return Q.nfcall(fse.mkdirp, audioDir);
+        });
+    }
+
+    addFile(sceneId, fileProps) {
+        const originalExtension = fileProps.filename.replace(/.*\./, ""),
+              finalFilename = poorMansUuid() + "." + originalExtension;
+
+        return this.storyIdForScene(sceneId).then(storyId => {
+            const finalPath = path.join(this.storyDir,
+                                        storyId.toString(),
+                                        "files",
+                                        finalFilename);
+
+            return this.ensureDirsForStory(storyId).then(() => {
+                console.log("Moving", fileProps.path, "to", finalPath);
+                return Q.nfcall(fse.move, fileProps.path, finalPath);
+            }).then(() => {
+                const deferred = Q.defer();
+
+                this.db.run(
+                    "INSERT INTO files (scene_id, original_name, path, type, " +
+                        "position) VALUES (?, ?, ?, ?, " +
+                        "(SELECT COUNT(*) + 1 FROM files WHERE scene_id = ?))",
+                    [sceneId, fileProps.filename, finalFilename,
+                     fileProps.type, sceneId],
+                    function(err, result) {
+                        if (err) {
+                            deferred.reject(err);
+                            return;
+                        }
+
+                        deferred.resolve(this.lastID);
+                    }
+                );
+
+                return deferred.promise;
+            }).then(function(lastId) {
+                return thumbnailer.makeThumbnail(finalPath).then(() => {
+                    return {
+                        id: lastId,
+                        sceneId: sceneId,
+                        originalName: fileProps.filename,
+                        path: finalFilename,
+                        type: fileProps.type
+                    };
+                });
+            });
         });
     }
 }

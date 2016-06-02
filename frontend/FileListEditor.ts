@@ -56,6 +56,25 @@ export default class FileListerEditor extends Riot.Element
     onAddImageClickHandler(sceneId) {
         return e => {
             console.log("Adding file for scene", sceneId);
+            this["newfile-" + sceneId].click();
+        };
+    }
+
+    onNewFileChange(sceneId) {
+        return e => {
+            console.log("e =", e);
+            console.log("Upload file:", e.target.value);
+
+            const xhr = new XMLHttpRequest(),
+                  formData = new FormData();
+
+            xhr.open("POST", "/api/scenes/" + sceneId + "/files");
+            xhr.addEventListener("load", function() {
+                console.log(this.responseText);
+            });
+
+            formData.append("file", e.target.files[0]);
+            xhr.send(formData);
         };
     }
 

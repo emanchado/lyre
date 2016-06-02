@@ -1,8 +1,11 @@
 import * as url from "url";
 import path from "path";
+import fse from "fs-extra";
 
 import config from "config";
 import Q from "q";
+import formidable from "formidable";
+
 import StoryStore from "./lib/StoryStore";
 
 const webSockets = {narrator: [], audience: []},
@@ -116,6 +119,30 @@ function apiPostStoryScene(req, res) {
     });
 }
 
+function apiPostSceneFile(req, res) {
+    const sceneId = req.params.id;
+
+    const form = new formidable.IncomingForm();
+    form.uploadDir = config.tmpPath;
+
+    Q.ninvoke(form, "parse", req).spread(function(fields, files) {
+        var uploadedFileInfo = files.file,
+            filename = path.basename(uploadedFileInfo.name),
+            tmpPath = uploadedFileInfo.path;
+
+        return store.addFile(
+            sceneId,
+            {filename: filename, path: tmpPath, type: "image"}
+        ).then(() => {
+            res.send(JSON.stringify({success: true,
+                                     filename: filename}));
+        });
+    }).catch(error => {
+        res.send(JSON.stringify({success: false,
+                                 errorMessage: error.toString()}));
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -130,4 +157,4 @@ function wsConnection(ws) {
 
 export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
-         apiPostStoryScene, wsConnection };
+         apiPostStoryScene, apiPostSceneFile, wsConnection };

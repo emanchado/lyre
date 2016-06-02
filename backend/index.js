@@ -44,8 +44,9 @@ app.get("/stories/listen/:id", endpoints.storyListen);
 app.get("/api/stories", endpoints.apiStories);
 app.get("/api/stories/:id", endpoints.apiStory);
 app.put("/api/stories/:id/files/:fileId", endpoints.apiPutStoryFile);
-app.put("/api/scenes/:id", endpoints.apiPutScene);
 app.post("/api/stories/:id/scenes", endpoints.apiPostStoryScene);
+app.put("/api/scenes/:id", endpoints.apiPutScene);
+app.post("/api/scenes/:id/files", endpoints.apiPostSceneFile);
 
 wsServer.on("connection", endpoints.wsConnection);
 

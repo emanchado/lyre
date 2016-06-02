@@ -44,10 +44,18 @@ under `public/catalog`.
 TODO
 ----
 
+* Remove files
+* Remove scenes
+* Toggle map/image flag on file
+* Reorder scenes
+* Create playlists
+* Reorder playlists
+* Remove playlists
+* Upload tracks
+* Reorder tracks
+* Remove tracks
 * Map markers for characters?
 * Mark unsent map bits?
-* Write the actual backend to upload files, and get that information
-  from the backend
 
 Credits
 -------

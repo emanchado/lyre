@@ -7,5 +7,6 @@ module.exports = {
     storyStore: {
         dbPath: path.join(__dirname, "../../lyre.db"),
         path: path.join(__dirname, "../../stories/")
-    }
+    },
+    tmpPath: "/tmp"
 };
