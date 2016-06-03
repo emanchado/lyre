@@ -133,9 +133,16 @@ function apiPostSceneFile(req, res) {
         return store.addFile(
             sceneId,
             {filename: filename, path: tmpPath, type: "image"}
-        ).then(() => {
-            res.send(JSON.stringify({success: true,
-                                     filename: filename}));
+        ).then(({id, sceneId, originalName, path, type}) => {
+            return store.storyIdForScene(sceneId).then(storyId => {
+                res.send(JSON.stringify({
+                    id: id,
+                    title: originalName,
+                    type: type,
+                    url: "/stories/" + storyId + "/files/" + encodeURI(path),
+                    thumbnailUrl: "/stories/" + storyId + "/files/thumbnails/" + encodeURI(path)
+                }));
+            });
         });
     }).catch(error => {
         res.send(JSON.stringify({success: false,

@@ -97,15 +97,24 @@ export default class FileListerEditor extends Riot.Element
 
     onNewFileChange(sceneId) {
         return e => {
-            console.log("e =", e);
-            console.log("Upload file:", e.target.value);
+            // The user cancelled, let's not try to create an empty file
+            if (!e.target.value) {
+                return;
+            }
 
             const xhr = new XMLHttpRequest(),
-                  formData = new FormData();
+                  formData = new FormData(),
+                  self = this;
 
             xhr.open("POST", "/api/scenes/" + sceneId + "/files");
             xhr.addEventListener("load", function() {
-                console.log(this.responseText);
+                self.scenes.forEach(scene => {
+                    if (scene.id === sceneId) {
+                        scene.files.push(JSON.parse(this.responseText));
+                        self.update();
+                        return false;
+                    }
+                });
             });
 
             formData.append("file", e.target.files[0]);
