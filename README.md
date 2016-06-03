@@ -44,9 +44,7 @@ under `public/catalog`.
 TODO
 ----
 
-* Update the list when a new file is uploaded
 * Let the user choose the initial file type (image/map)
-* Remove files
 * Remove scenes
 * Toggle map/image flag on file
 * Reorder scenes

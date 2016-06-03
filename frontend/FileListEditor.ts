@@ -118,6 +118,7 @@ export default class FileListerEditor extends Riot.Element
             });
 
             formData.append("file", e.target.files[0]);
+            formData.append("type", "image");
             xhr.send(formData);
         };
     }

@@ -128,11 +128,12 @@ function apiPostSceneFile(req, res) {
     Q.ninvoke(form, "parse", req).spread(function(fields, files) {
         var uploadedFileInfo = files.file,
             filename = path.basename(uploadedFileInfo.name),
-            tmpPath = uploadedFileInfo.path;
+            tmpPath = uploadedFileInfo.path,
+            type = fields.type || "image";
 
         return store.addFile(
             sceneId,
-            {filename: filename, path: tmpPath, type: "image"}
+            {filename: filename, path: tmpPath, type: type}
         ).then(({id, sceneId, originalName, path, type}) => {
             return store.storyIdForScene(sceneId).then(storyId => {
                 res.send(JSON.stringify({
