@@ -45,52 +45,80 @@ export default class FileListerEditor extends Riot.Element
     private storyId: number;
     private scenes;
     private currentDraggedItem;
-    private selectedFiles: {[fileId: number]: boolean};
+    private selectedFile: number;
 
     constructor() {
         super();
 
         this.storyId = this.opts.storyId;
         this.scenes = this.opts.scenes;
-        this.selectedFiles = {};
+        this.selectedFile = null;
     }
 
-    onImageClickHandler(fileId) {
+    onFileClickHandler(fileId) {
         return () => {
-            if (this.selectedFiles[fileId]) {
-                delete this.selectedFiles[fileId];
-            } else {
-                this.selectedFiles[fileId] = true;
-            }
+            this.selectedFile =
+                this.selectedFile === fileId ? null : fileId;
         };
     }
 
     onClickDelete(e) {
-        const xhr = new XMLHttpRequest();
+        if (!this.selectedFile) {
+            return;
+        }
 
-        xhr.open("DELETE", "/api/stories/" + this.storyId + "/files");
+        if (!confirm("Delete selected file?")) {
+            return;
+        }
+
+        const xhr = new XMLHttpRequest(),
+              deleteUrl = "/api/stories/" + this.storyId +
+                              "/files/" + this.selectedFile;
+
+        xhr.open("DELETE", deleteUrl);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", () => {
-            const deletedIds =
-                Object.keys(this.selectedFiles).map(k => parseInt(k, 10));
-
-            this.selectedFiles = {};
             this.scenes.forEach(scene => {
                 scene.files = scene.files.filter(file => {
-                    return deletedIds.indexOf(file.id) === -1;
+                    return file.id !== this.selectedFile;
                 });
             });
+            this.selectedFile = null;
             this.update();
         });
+        xhr.send();
+    }
 
-        xhr.send(JSON.stringify({
-            fileIds: Object.keys(this.selectedFiles)
-        }));
+    onClickToggleType() {
+        if (!this.selectedFile) {
+            return;
+        }
+
+        let selectedFileObject;
+        this.scenes.forEach(scene => {
+            scene.files.forEach(file => {
+                if (file.id === this.selectedFile) {
+                    selectedFileObject = file;
+                }
+            });
+        });
+
+        let xhr = new XMLHttpRequest(),
+            newType = selectedFileObject.type === "image" ? "map" : "image";
+        xhr.open(
+            "PUT",
+            "/api/stories/" + this.storyId + "/files/" + this.selectedFile
+        );
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", () => {
+            selectedFileObject.type = newType;
+            this.update();
+        });
+        xhr.send(JSON.stringify({"type": newType}));
     }
 
     onAddImageClickHandler(sceneId) {
         return e => {
-            console.log("Adding file for scene", sceneId);
             this["newfile-" + sceneId].click();
         };
     }
@@ -186,7 +214,7 @@ export default class FileListerEditor extends Riot.Element
         let xhr = new XMLHttpRequest();
         xhr.open("PUT", "/api/stories/" + this.storyId + "/files/" + currentImageId);
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.send(JSON.stringify({"action": "move", "previous": prevImageId}));
+        xhr.send(JSON.stringify({"previous": prevImageId}));
 
         return true;
     }

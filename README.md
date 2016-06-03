@@ -46,7 +46,6 @@ TODO
 
 * Let the user choose the initial file type (image/map)
 * Remove scenes
-* Toggle map/image flag on file
 * Reorder scenes
 * Create playlists
 * Reorder playlists

@@ -75,13 +75,13 @@ function apiStory(req, res) {
 
 function apiPutStoryFile(req, res) {
     const storyId = req.params.id,
-          imageId = parseInt(req.params.fileId, 10),
+          fileId = parseInt(req.params.fileId, 10),
           changeSpec = req.body;
 
-    if (changeSpec.action === "move") {
+    if (changeSpec.previous) {
         store.reorderImage(
             storyId,
-            imageId,
+            fileId,
             parseInt(changeSpec.previous, 10)
         ).then(result => {
             res.send(JSON.stringify({success: result}));
@@ -89,8 +89,10 @@ function apiPutStoryFile(req, res) {
             res.send(JSON.stringify({success: false,
                                      errorMessage: err.toString()}));
         });
-    } else {
-        res.statusCode = 400;
+    }
+
+    if (changeSpec.type) {
+        store.updateFile(storyId, fileId, {type: changeSpec.type});
         res.send("Don't understand action '" + changeSpec.action + "'");
     }
 }
@@ -151,20 +153,15 @@ function apiPostSceneFile(req, res) {
     });
 }
 
-function apiDeleteStoryFiles(req, res) {
+function apiDeleteStoryFile(req, res) {
     const storyId = req.params.id,
-          fileIds = req.body.fileIds;
+          fileId = req.params.fileId;
 
-    const deletionPromises = fileIds.reduce((accPromise, fileId) => {
-        return accPromise.then(() => {
-            return store.deleteFile(storyId, fileId);
-        }).catch(e => {
-            console.error("Error while deleting:", e);
-        });
-    }, Q(true));
-
-    deletionPromises.then(() => {
+    return store.deleteFile(storyId, fileId).then(() => {
         res.end();
+    }).catch(error => {
+        res.send(JSON.stringify({success: false,
+                                 errorMessage: error.toString()}));
     });
 }
 
@@ -182,5 +179,5 @@ function wsConnection(ws) {
 
 export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
-         apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFiles,
+         apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          wsConnection };

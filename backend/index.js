@@ -47,7 +47,7 @@ app.put("/api/stories/:id/files/:fileId", endpoints.apiPutStoryFile);
 app.post("/api/stories/:id/scenes", endpoints.apiPostStoryScene);
 app.put("/api/scenes/:id", endpoints.apiPutScene);
 app.post("/api/scenes/:id/files", endpoints.apiPostSceneFile);
-app.delete("/api/stories/:id/files", endpoints.apiDeleteStoryFiles);
+app.delete("/api/stories/:id/files/:fileId", endpoints.apiDeleteStoryFile);
 
 wsServer.on("connection", endpoints.wsConnection);
 

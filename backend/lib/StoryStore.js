@@ -370,6 +370,19 @@ class StoryStore {
             });
         });
     }
+
+    updateFile(storyId, fileId, update) {
+        if (!update.type) {
+            return Q(false);
+        }
+
+        return Q.ninvoke(
+            this.db,
+            "run",
+            "UPDATE files SET type = ? WHERE id = ?",
+            [update.type, fileId]
+        );
+    }
 }
 
 export default StoryStore;

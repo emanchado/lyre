@@ -42,19 +42,18 @@
       height: 50px;
       padding: 10px;
       margin: 3px;
-      background-color: #00a;
-      line-height: 30px;
+
+      background-color: #22c064;
       vertical-align: middle;
       text-align: center;
+
+      line-height: 30px;
+
       cursor: pointer;
     }
 
     .tool-danger {
-      background-color: #a00;
-    }
-
-    .tool-close {
-      background-color: #aaa;
+      background-color: #d0021b;
     }
   </style>
 
@@ -63,7 +62,7 @@
     <ul class="image-list">
       <li each={ file in scene.files }
           class={ file.type }
-          onclick={ onImageClickHandler(file.id) }
+          onclick={ (onFileClickHandler.bind(this.parent.parent))(file.id) }
           data-id={ file.id }>
         <img show={ file.type === "map" }
              draggable="false"
@@ -72,7 +71,7 @@
         <img src={ file.thumbnailUrl }
              alt={ file.title }
              title={ file.title }
-             class={ selectedFiles[file.id] ? "selected" : "" }
+             class={ selectedFile === file.id ? "selected" : "" }
              draggable="true"
              ondragstart={ onDragStart.bind(this.parent) }
              ondragend={ onDragEnd.bind(this.parent) }
@@ -97,9 +96,10 @@
     <sceneheader-editor scene={ {title: "New Scene"} } ontitleupdate={ this.onSceneCreate.bind(this) }></sceneheader-editor>
   </div>
 
-  <div id="toolbox">
+  <div id="toolbox" show={ selectedFile }>
     <div class="tool tool-danger"
          onclick={ onClickDelete }>Delete</div>
-    <div class="tool tool-close">Close</div>
+    <div class="tool"
+         onclick={ onClickToggleType }>Toggle type</div>
   </div>
 </filelist-editor>
