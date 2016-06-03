@@ -304,7 +304,6 @@ class StoryStore {
                                         finalFilename);
 
             return this.ensureDirsForStory(storyId).then(() => {
-                console.log("Moving", fileProps.path, "to", finalPath);
                 return Q.nfcall(fse.move, fileProps.path, finalPath);
             }).then(() => {
                 const deferred = Q.defer();
@@ -335,6 +334,38 @@ class StoryStore {
                         path: finalFilename,
                         type: fileProps.type
                     };
+                });
+            });
+        });
+    }
+
+    deleteFile(storyId, fileId) {
+        return Q.ninvoke(
+            this.db,
+            "all",
+            "SELECT path " +
+                "FROM files JOIN scenes ON files.scene_id = scenes.id " +
+                "WHERE files.id = ? AND scenes.story_id = ?",
+            [fileId, storyId]
+        ).then(rows => {
+            if (!rows.length) {
+                return false;
+            }
+
+            return Q.ninvoke(
+                this.db,
+                "run",
+                "DELETE FROM files WHERE id = ?",
+                fileId
+            ).then(() => {
+                const basePath = path.join(this.storyDir, storyId, "files"),
+                      filePath = path.join(basePath, rows[0].path),
+                      thumbPath = path.join(basePath,
+                                            "thumbnails",
+                                            rows[0].path);
+
+                return Q.nfcall(fse.unlink, filePath).then(() => {
+                    return Q.nfcall(fse.unlink, thumbPath);
                 });
             });
         });

@@ -143,6 +143,23 @@ function apiPostSceneFile(req, res) {
     });
 }
 
+function apiDeleteStoryFiles(req, res) {
+    const storyId = req.params.id,
+          fileIds = req.body.fileIds;
+
+    const deletionPromises = fileIds.reduce((accPromise, fileId) => {
+        return accPromise.then(() => {
+            return store.deleteFile(storyId, fileId);
+        }).catch(e => {
+            console.error("Error while deleting:", e);
+        });
+    }, Q(true));
+
+    deletionPromises.then(() => {
+        res.end();
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -157,4 +174,5 @@ function wsConnection(ws) {
 
 export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
-         apiPostStoryScene, apiPostSceneFile, wsConnection };
+         apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFiles,
+         wsConnection };

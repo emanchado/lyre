@@ -45,12 +45,47 @@ export default class FileListerEditor extends Riot.Element
     private storyId: number;
     private scenes;
     private currentDraggedItem;
+    private selectedFiles: {[fileId: number]: boolean};
 
     constructor() {
         super();
 
         this.storyId = this.opts.storyId;
         this.scenes = this.opts.scenes;
+        this.selectedFiles = {};
+    }
+
+    onImageClickHandler(fileId) {
+        return () => {
+            if (this.selectedFiles[fileId]) {
+                delete this.selectedFiles[fileId];
+            } else {
+                this.selectedFiles[fileId] = true;
+            }
+        };
+    }
+
+    onClickDelete(e) {
+        const xhr = new XMLHttpRequest();
+
+        xhr.open("DELETE", "/api/stories/" + this.storyId + "/files");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", () => {
+            const deletedIds =
+                Object.keys(this.selectedFiles).map(k => parseInt(k, 10));
+
+            this.selectedFiles = {};
+            this.scenes.forEach(scene => {
+                scene.files = scene.files.filter(file => {
+                    return deletedIds.indexOf(file.id) === -1;
+                });
+            });
+            this.update();
+        });
+
+        xhr.send(JSON.stringify({
+            fileIds: Object.keys(this.selectedFiles)
+        }));
     }
 
     onAddImageClickHandler(sceneId) {

@@ -10,7 +10,6 @@ function makeThumbnail(imagePath) {
     const deferred = Q.defer();
 
     try {
-        console.log("Making thumbnail of", imagePath, "in", thumbnailPath);
         const convertCmd = spawn("convert", [
             "-thumbnail",
             "150x150^",
@@ -21,8 +20,7 @@ function makeThumbnail(imagePath) {
             imagePath,
             thumbnailPath
         ]);
-        convertCmd.on("close", code => {
-            console.log("Convert returned error code", code);
+        convertCmd.on("close", () => {
             deferred.resolve();
         });
     } catch(e) {
