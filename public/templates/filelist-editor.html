@@ -58,7 +58,10 @@
   </style>
 
   <div class="scene" each={ scene in scenes }>
-    <sceneheader-editor scene={ scene } ontitleupdate={ this.onSceneUpdate.bind(this) }></sceneheader-editor>
+    <sceneheader-editor scene={ scene }
+                        showdeletebutton={ scene.files.length === 0 }
+                        ondeletescene={ onClickDeleteScene.bind(this.parent)(scene.id) }
+                        ontitleupdate={ onSceneUpdate.bind(this)} />
     <ul class="image-list">
       <li each={ file in scene.files }
           class={ file.type }

@@ -16,12 +16,16 @@ class SceneHeaderEditor extends Riot.Element {
         this.editMode = false;
     }
 
+    switchViewMode() {
+        this.editMode = false;
+        this.update();
+    }
+
     switchEditMode() {
         this.editMode = true;
-        // For some reason, the value is not updated when pressing Esc
-        // in edit mode, so for now we'll update right after start
-        // editing
-        this.editfield.value = this.opts.scene.title;
+        // Make sure the input field is in the DOM before trying to focus
+        this.update();
+        this.editfield.focus();
     }
 
     onKeyDown(e) {
@@ -29,13 +33,20 @@ class SceneHeaderEditor extends Riot.Element {
 
         if (e.which === ENTER_KEY) {
             onTitleUpdate(this.opts.scene.id, e.target.value);
-            this.editMode = false;
+            this.switchViewMode();
         } else if (e.which === ESC_KEY) {
             this.editfield.value = this.opts.scene.title;
-            this.editMode = false;
+            this.switchViewMode();
         }
         // Return true; otherwise, the event default is prevented
         return true;
+    }
+
+    onBlur(e) {
+        const onTitleUpdate = this.opts.ontitleupdate;
+
+        onTitleUpdate(this.opts.scene.id, e.target.value);
+        this.switchViewMode();
     }
 }
 
