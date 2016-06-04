@@ -1,1 +1,8 @@
-{"esnext": true}
+{"esversion": 6,
+ "unused": "strict",
+ "undef": true,
+ "node": true,
+ "curly": true,
+ "eqeqeq": true,
+ "nocomma": true,
+ "nonew": true}
