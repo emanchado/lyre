@@ -10,10 +10,12 @@ const ESC_KEY = 27;
 class SceneHeaderEditor extends Riot.Element {
     private editMode: boolean;
     private editfield: HTMLInputElement;
+    private toolBoxHovered: boolean;
 
     constructor() {
         super();
         this.editMode = false;
+        this.toolBoxHovered = false;
     }
 
     switchViewMode() {
@@ -32,7 +34,6 @@ class SceneHeaderEditor extends Riot.Element {
         const onTitleUpdate = this.opts.ontitleupdate;
 
         if (e.which === ENTER_KEY) {
-            onTitleUpdate(this.opts.scene.id, e.target.value);
             this.switchViewMode();
         } else if (e.which === ESC_KEY) {
             this.editfield.value = this.opts.scene.title;
@@ -43,10 +44,20 @@ class SceneHeaderEditor extends Riot.Element {
     }
 
     onBlur(e) {
-        const onTitleUpdate = this.opts.ontitleupdate;
-
-        onTitleUpdate(this.opts.scene.id, e.target.value);
+        if (this.opts.scene.title !== e.target.value) {
+            this.opts.ontitleupdate(this.opts.scene.id, e.target.value);
+        }
         this.switchViewMode();
+    }
+
+    onHoverToolbox(e) {
+        this.toolBoxHovered = true;
+        return true;
+    }
+
+    onMouseOutToolbox(e) {
+        this.toolBoxHovered = false;
+        return true;
     }
 }
 
@@ -73,7 +84,7 @@ export default class FileListerEditor extends Riot.Element
         };
     }
 
-    onClickDelete(e) {
+    onClickDeleteFile(e) {
         if (!this.selectedFile) {
             return;
         }
@@ -171,6 +182,7 @@ export default class FileListerEditor extends Riot.Element
         xhr.addEventListener("load", function() {
             const newScene = JSON.parse(this.responseText);
             self.scenes.push(newScene);
+            self.update();
         });
         xhr.send(JSON.stringify({"title": newSceneTitle}));
     }
@@ -188,6 +200,26 @@ export default class FileListerEditor extends Riot.Element
             });
         });
         xhr.send(JSON.stringify({"title": newSceneTitle}));
+    }
+
+    onClickDeleteScene(sceneId) {
+        return (e) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("DELETE", "/api/scenes/" + sceneId);
+            xhr.addEventListener("load", () => {
+                let sceneIndex = null;
+
+                this.scenes.forEach((scene, i) => {
+                    if (scene.id === sceneId) {
+                        sceneIndex = i;
+                    }
+                });
+
+                this.scenes.splice(sceneIndex, 1);
+                this.update();
+            });
+            xhr.send();
+        };
     }
 
     /**

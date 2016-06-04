@@ -1,6 +1,5 @@
 import * as url from "url";
 import path from "path";
-import fse from "fs-extra";
 
 import config from "config";
 import Q from "q";
@@ -148,6 +147,7 @@ function apiPostSceneFile(req, res) {
             });
         });
     }).catch(error => {
+        res.statusCode = 400;
         res.send(JSON.stringify({success: false,
                                  errorMessage: error.toString()}));
     });
@@ -160,6 +160,19 @@ function apiDeleteStoryFile(req, res) {
     return store.deleteFile(storyId, fileId).then(() => {
         res.end();
     }).catch(error => {
+        res.statusCode = 400;
+        res.send(JSON.stringify({success: false,
+                                 errorMessage: error.toString()}));
+    });
+}
+
+function apiDeleteScene(req, res) {
+    const sceneId = req.params.id;
+
+    return store.deleteScene(sceneId).then(() => {
+        res.end();
+    }).catch(error => {
+        res.statusCode = 400;
         res.send(JSON.stringify({success: false,
                                  errorMessage: error.toString()}));
     });
@@ -180,4 +193,4 @@ function wsConnection(ws) {
 export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
-         wsConnection };
+         apiDeleteScene, wsConnection };

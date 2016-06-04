@@ -1,5 +1,5 @@
 {"esversion": 6,
- "unused": "strict",
+ "unused": true,
  "undef": true,
  "node": true,
  "curly": true,

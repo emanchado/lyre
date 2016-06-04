@@ -173,6 +173,33 @@ class StoryStore {
         });
     }
 
+    deleteScene(sceneId) {
+        return Q.ninvoke(
+            this.db,
+            "all",
+            "SELECT scenes.id, COUNT(files.id) AS cnt " +
+                "FROM scenes LEFT JOIN files " +
+                "ON scenes.id = files.scene_id " +
+                "WHERE scenes.id = ?",
+            sceneId
+        ).then(rows => {
+            if (rows.length === 0) {
+                throw new Error("Scene " + sceneId + " does not exist");
+            }
+
+            if (rows[0].cnt > 0) {
+                throw new Error("Scene " + sceneId + " has associated files");
+            }
+
+            return Q.ninvoke(
+                this.db,
+                "run",
+                "DELETE FROM scenes WHERE id = ?",
+                sceneId
+            );
+        });
+    }
+
     reorderImage(storyId, fileId, newPreviousId) {
         let filePosition, newPreviousPosition;
 
