@@ -1,0 +1,57 @@
+<story-editor>
+  <style scoped>
+    #toolbox {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    .tool {
+      width: 100px;
+      height: 50px;
+      padding: 10px;
+      margin: 3px;
+
+      background-color: #22c064;
+      vertical-align: middle;
+      text-align: center;
+
+      line-height: 30px;
+
+      cursor: pointer;
+    }
+
+    .tool-danger {
+      background-color: #d0021b;
+    }
+  </style>
+
+  <div class="top">
+    <img src="/img/lyre.png" />
+    <playlist-editor playlists={ opts.playlists } />
+  </div>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <filelist-editor storyId={ opts.storyid }
+                         scenes={ opts.scenes }
+                         selectedItem={ selectedItem }
+                         onSceneCreate={ onSceneCreate }
+                         onSceneTitleUpdate={ onSceneTitleUpdate }
+                         onSceneDelete={ onSceneDelete }
+                         onFileSelect={ onFileSelect }
+                         onFileMoved={ onFileMoved }
+                         onFileUpload={ onFileUpload } />
+      </div>
+    </div>
+  </div>
+
+  <div id="toolbox" show={ selectedItem.id }>
+    <div class="tool tool-danger"
+         onclick={ onDeleteFileClick }>Delete</div>
+    <div class="tool"
+         show={ selectedItem._type === "file" }
+         onclick={ onToggleTypeClick }>Toggle type</div>
+  </div>
+</story-editor>

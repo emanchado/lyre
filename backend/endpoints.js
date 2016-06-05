@@ -5,7 +5,7 @@ import config from "config";
 import Q from "q";
 import formidable from "formidable";
 
-import StoryStore from "./lib/StoryStore";
+import StoryStore, { BadParameterException } from "./lib/StoryStore";
 
 const webSockets = {narrator: [], audience: []},
       webSocketTypeForUrl = {"/narrator/ws": "narrator",
@@ -77,22 +77,34 @@ function apiPutStoryFile(req, res) {
           fileId = parseInt(req.params.fileId, 10),
           changeSpec = req.body;
 
-    if (changeSpec.previous) {
-        store.reorderImage(
+    if ("previous" in changeSpec) {
+        return store.reorderImage(
             storyId,
             fileId,
             parseInt(changeSpec.previous, 10)
         ).then(result => {
-            res.send(JSON.stringify({success: result}));
-        }).catch(err => {
-            res.send(JSON.stringify({success: false,
-                                     errorMessage: err.toString()}));
+            res.json(result);
+        }).catch(error => {
+            if (error instanceof BadParameterException) {
+                res.statusCode = 400;
+            } else {
+                res.statusCode = 500;
+            }
+            res.json({success: false, errorMessage: error.toString()});
         });
     }
 
     if (changeSpec.type) {
-        store.updateFile(storyId, fileId, {type: changeSpec.type});
-        res.send("Don't understand action '" + changeSpec.action + "'");
+        return store.updateFile(
+            storyId,
+            fileId,
+            {type: changeSpec.type}
+        ).then(file => {
+            res.json(file);
+        }).catch(error => {
+            res.statusCode = 500;
+            res.json({success: false, errorMessage: error.toString()});
+        });
     }
 }
 

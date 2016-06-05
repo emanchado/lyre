@@ -1,3 +1,4 @@
+import util from "util";
 import path from "path";
 import fse from "fs-extra";
 import sqlite3 from "sqlite3";
@@ -5,6 +6,22 @@ import Q from "q";
 
 import { upgradeDb } from "./StoryStoreMigrations";
 import thumbnailer from "./thumbnailer";
+
+export function BadParameterException(message) {
+    Error.captureStackTrace(this, this);
+    this.message = message || "Bad Request";
+}
+util.inherits(BadParameterException, Error);
+
+function fileRowToApi(storyId, file) {
+    const fileBaseUrl = "/stories/" + storyId + "/files";
+
+    return {id: file.id,
+            title: file.original_name,
+            url: fileBaseUrl + "/" + file.path,
+            thumbnailUrl: fileBaseUrl + "/thumbnails/" + file.path,
+            type: file.type};
+}
 
 function sceneFileInfo(storyId, sceneFiles) {
     var scenes = [],
@@ -18,17 +35,9 @@ function sceneFileInfo(storyId, sceneFiles) {
             seenScenes[file.scene_id] = true;
         }
 
-        if (file.file_id) {
-            const currentSceneFiles = scenes[scenes.length - 1].files,
-                  fileBaseUrl = "/stories/" + storyId + "/files";
-            currentSceneFiles.push({
-                id: file.file_id,
-                title: file.file_path,
-                url: fileBaseUrl + "/" + file.file_path,
-                thumbnailUrl: fileBaseUrl + "/thumbnails/" +
-                    file.file_path,
-                type: file.file_type
-            });
+        if (file.id) {
+            const currentSceneFiles = scenes[scenes.length - 1].files;
+            currentSceneFiles.push(fileRowToApi(storyId, file));
         }
     });
 
@@ -105,8 +114,7 @@ class StoryStore {
                 this.db,
                 "all",
                 "SELECT S.id AS scene_id, S.title AS scene_title, " +
-                    "F.id AS file_id, F.type AS file_type, " +
-                    "F.path AS file_path " +
+                    "F.id, F.type, F.original_name, F.path " +
                     "FROM scenes S LEFT JOIN files F " +
                     "ON S.id = F.scene_id WHERE story_id = ? " +
                     "ORDER BY S.position, F.position",
@@ -133,11 +141,14 @@ class StoryStore {
     }
 
     addScene(storyId, sceneProps) {
-        if (!sceneProps.title) {
-            throw new Error("Cannot create scene without a title");
-        }
-
         const deferred = Q.defer();
+
+        if (!sceneProps.title) {
+            deferred.reject(new BadParameterException(
+                "Cannot create scene without a title"
+            ));
+            return deferred.promise;
+        }
 
         this.db.run(
             "INSERT INTO scenes (story_id, title, position) " +
@@ -157,7 +168,11 @@ class StoryStore {
 
     updateScene(sceneId, newProps) {
         if (!newProps.title) {
-            throw new Error("Cannot update scene to an empty title");
+            const deferred = Q.defer();
+            deferred.reject(new BadParameterException(
+                "Cannot update scene to an empty title"
+            ));
+            return deferred.promise;
         }
 
         return Q.ninvoke(
@@ -184,11 +199,15 @@ class StoryStore {
             sceneId
         ).then(rows => {
             if (rows.length === 0) {
-                throw new Error("Scene " + sceneId + " does not exist");
+                throw new BadParameterException(
+                    "Scene " + sceneId + " does not exist"
+                );
             }
 
             if (rows[0].cnt > 0) {
-                throw new Error("Scene " + sceneId + " has associated files");
+                throw new BadParameterException(
+                    "Scene " + sceneId + " has associated files"
+                );
             }
 
             return Q.ninvoke(
@@ -205,7 +224,9 @@ class StoryStore {
 
         // Moving to itself, that's not possible
         if (fileId === newPreviousId) {
-            return Q(false);
+            const deferred = Q.defer();
+            deferred.reject(new BadParameterException("Cannot move file after itself"));
+            return deferred.promise;
         }
 
         // Moving to the beginning is a special case
@@ -246,12 +267,16 @@ class StoryStore {
             [storyId, fileId, newPreviousId]
         ).then(rows => {
             if (rows.length !== 2) {
-                return false;
+                throw new BadParameterException(
+                    "At least one of the files is not part of the story"
+                );
             }
 
             // For now, don't support moving between scenes
             if (rows[0].scene_id !== rows[1].scene_id) {
-                return false;
+                throw new BadParameterException(
+                    "Cannot move a file between scenes"
+                );
             }
             const sceneId = rows[0].scene_id;
 
@@ -370,13 +395,15 @@ class StoryStore {
         return Q.ninvoke(
             this.db,
             "all",
-            "SELECT path " +
+            "SELECT path, files.position " +
                 "FROM files JOIN scenes ON files.scene_id = scenes.id " +
                 "WHERE files.id = ? AND scenes.story_id = ?",
             [fileId, storyId]
         ).then(rows => {
             if (!rows.length) {
-                return false;
+                throw new BadParameterException(
+                    "File does not exist in the appropriate story"
+                );
             }
 
             return Q.ninvoke(
@@ -385,6 +412,14 @@ class StoryStore {
                 "DELETE FROM files WHERE id = ?",
                 fileId
             ).then(() => {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE files SET position = position - 1 " +
+                        "WHERE position > ?",
+                    rows[0].position
+                );
+            }).then(() => {
                 const basePath = path.join(this.storyDir, storyId, "files"),
                       filePath = path.join(basePath, rows[0].path),
                       thumbPath = path.join(basePath,
@@ -408,7 +443,15 @@ class StoryStore {
             "run",
             "UPDATE files SET type = ? WHERE id = ?",
             [update.type, fileId]
-        );
+        ).then(() => {
+            return Q.ninvoke(
+                this.db,
+                "get",
+                "SELECT id, position, original_name as originalName," +
+                    " path, type FROM files WHERE id = ?",
+                fileId
+            );
+        });
     }
 }
 

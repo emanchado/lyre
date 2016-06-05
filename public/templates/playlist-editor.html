@@ -22,10 +22,40 @@
 
         font-weight: bold;
     }
+
+    .selected {
+      border: 5px solid #22c064;
+      margin: 0;
+    }
+
+    .toolbox {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    .tool {
+      width: 100px;
+      height: 50px;
+      padding: 10px;
+      margin: 3px;
+
+      background-color: #22c064;
+      vertical-align: middle;
+      text-align: center;
+
+      line-height: 30px;
+
+      cursor: pointer;
+    }
+
+    .tool-danger {
+      background-color: #d0021b;
+    }
   </style>
 
-  <div each={ pl in opts.playlists } class="playlist-container" onclick={ playPauseHandler(pl.title) }>
-    <div class="playlist playlist-{ playlistStatus(pl.title) }" data-title="{ pl.title }">
+  <div each={ pl in opts.playlists } class="playlist-container" onclick={ getClickPlaylistHandler.bind(this.parent)(pl.id) }>
+    <div class="playlist playlist-{ playlistStatus(pl.title) } { selectedPlaylistId === parseInt(pl.id, 10) ? 'selected' : ''}" data-title="{ pl.title }">
       { pl.title }
 
       <audio each={ track, i in pl.tracks }
@@ -33,5 +63,16 @@
              onended={ endedHandler(pl.title, i) }
              />
     </div>
+  </div>
+
+  <div class="playlist-container" onclick={ onCreatePlaylist }>
+    <div class="playlist">
+      <em>New playlist</em>
+    </div>
+  </div>
+
+  <div class="toolbox" show={ selectedPlaylistId }>
+    <div class="tool">Rename</div>
+    <div class="tool tool-danger">Delete</div>
   </div>
 </playlist-editor>

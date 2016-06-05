@@ -57,15 +57,15 @@
     }
   </style>
 
-  <div class="scene" each={ scene in scenes }>
+  <div class="scene" each={ scene in opts.scenes }>
     <sceneheader-editor scene={ scene }
                         showdeletebutton={ scene.files.length === 0 }
-                        ondeletescene={ onClickDeleteScene.bind(this.parent)(scene.id) }
-                        ontitleupdate={ onSceneUpdate.bind(this)} />
+                        ondelete={ onSceneDelete }
+                        ontitleupdate={ onSceneTitleUpdate } />
     <ul class="image-list">
       <li each={ file in scene.files }
           class={ file.type }
-          onclick={ (onFileClickHandler.bind(this.parent.parent))(file.id) }
+          onclick={ onFileClick }
           data-id={ file.id }>
         <img show={ file.type === "map" }
              draggable="false"
@@ -74,7 +74,7 @@
         <img src={ file.thumbnailUrl }
              alt={ file.title }
              title={ file.title }
-             class={ selectedFile === file.id ? "selected" : "" }
+             class={ isSelected(file.id) ? "selected" : "" }
              draggable="true"
              ondragstart={ onDragStart.bind(this.parent) }
              ondragend={ onDragEnd.bind(this.parent) }
@@ -91,18 +91,12 @@
     </ul>
     <input type="file"
            id={ "newfile-" + scene.id }
+           data-scene-id={ scene.id }
            style="display: none"
-           onChange={ onNewFileChange(scene.id) } />
+           onChange={ onNewFileChanged.bind(this) } />
   </div>
 
   <div class="scene">
-    <sceneheader-editor scene={ {title: "New Scene"} } ontitleupdate={ this.onSceneCreate.bind(this) }></sceneheader-editor>
-  </div>
-
-  <div id="toolbox" show={ selectedFile }>
-    <div class="tool tool-danger"
-         onclick={ onClickDeleteFile }>Delete</div>
-    <div class="tool"
-         onclick={ onClickToggleType }>Toggle type</div>
+    <sceneheader-editor scene={ {title: "New Scene"} } ontitleupdate={ onSceneCreate }></sceneheader-editor>
   </div>
 </filelist-editor>

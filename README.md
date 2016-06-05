@@ -44,15 +44,19 @@ under `public/catalog`.
 TODO
 ----
 
-* Let the user choose the initial file type (image/map)
-* Remove scenes
-* Reorder scenes
+First release:
+
 * Create playlists
 * Reorder playlists
 * Remove playlists
 * Upload tracks
 * Reorder tracks
 * Remove tracks
+
+Later:
+
+* Bug: cannot remove scenes that were added in the last page load
+* Reorder scenes
 * Map markers for characters?
 * Mark unsent map bits?
 

@@ -68,6 +68,9 @@
        show={ opts.showdeletebutton && (editMode || toolBoxHovered) }
        onmouseover={ onHoverToolbox.bind(this) }
        onmouseout={ onMouseOutToolbox.bind(this) }>
-    <div class="tool tool-danger" onclick={ opts.ondeletescene }>Delete</div>
+    <div class="tool tool-danger"
+         onclick={ onDeleteButtonClick.bind(this) }>
+      Delete
+    </div>
   </div>
 </sceneheader-editor>

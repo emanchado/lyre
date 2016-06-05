@@ -1,15 +1,4 @@
-<div class="top">
-  <img src="/img/lyre.png" />
-  <playlist-editor></playlist-editor>
-</div>
-
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-md-12">
-      <filelist-editor></filelist-editor>
-    </div>
-  </div>
-</div>
+<story-editor></story-editor>
 
 <script type="text/javascript" src="/js/require.js"></script>
 <script type="text/javascript" src="/js/compiled/lyre.js"></script>
@@ -20,7 +9,7 @@
  // MapDiscoverer importing tools as external modules and thus turning
  // itself into a module, we have to load all the dependencies
  // explicitly and in order so that all this works.
- require(["PlaylistEditor", "FileListEditor", "lyre"], function(pleditor, fleditor, lyre) {
+ require(["PlaylistEditor", "FileListEditor", "StoryEditor", "lyre"], function(pleditor, fleditor, storyeditor, lyre) {
      lyre.default(<%= id %>);
  });
 </script>

@@ -59,6 +59,10 @@ class SceneHeaderEditor extends Riot.Element {
         this.toolBoxHovered = false;
         return true;
     }
+
+    onDeleteButtonClick(e) {
+        this.opts.ondelete(this.opts.scene.id);
+    }
 }
 
 @template("/templates/filelist-editor.html")
@@ -67,76 +71,39 @@ export default class FileListerEditor extends Riot.Element
     private storyId: number;
     private scenes;
     private currentDraggedItem;
-    private selectedFile: number;
+    private onSceneCreate: Function;
+    private onSceneTitleUpdate: Function;
+    private onSceneDelete: Function;
+    private onFileSelect: Function;
+    private onFileMoved: Function;
+    private onFileUpload: Function;
 
     constructor() {
         super();
 
-        this.storyId = this.opts.storyId;
+        this.storyId = this.opts.storyid;
         this.scenes = this.opts.scenes;
-        this.selectedFile = null;
+        this.onSceneCreate = this.opts.onscenecreate;
+        this.onSceneTitleUpdate = this.opts.onscenetitleupdate;
+        this.onSceneDelete = this.opts.onscenedelete;
+        this.onFileSelect = this.opts.onfileselect;
+        this.onFileMoved = this.opts.onfilemoved;
+        this.onFileUpload = this.opts.onfileupload;
+
+        this.isSelected = this.isSelected.bind(this);
+        this.onFileClick = this.onFileClick.bind(this);
     }
 
-    onFileClickHandler(fileId) {
-        return () => {
-            this.selectedFile =
-                this.selectedFile === fileId ? null : fileId;
-        };
+    isSelected(fileId) {
+        const selectedItem = this.opts.selecteditem;
+
+        return selectedItem._type === "file" && selectedItem.id === fileId;
     }
 
-    onClickDeleteFile(e) {
-        if (!this.selectedFile) {
-            return;
-        }
+    onFileClick(e) {
+        const fileId = parseInt(e.target.parentNode.dataset["id"], 10);
 
-        if (!confirm("Delete selected file?")) {
-            return;
-        }
-
-        const xhr = new XMLHttpRequest(),
-              deleteUrl = "/api/stories/" + this.storyId +
-                              "/files/" + this.selectedFile;
-
-        xhr.open("DELETE", deleteUrl);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", () => {
-            this.scenes.forEach(scene => {
-                scene.files = scene.files.filter(file => {
-                    return file.id !== this.selectedFile;
-                });
-            });
-            this.selectedFile = null;
-            this.update();
-        });
-        xhr.send();
-    }
-
-    onClickToggleType() {
-        if (!this.selectedFile) {
-            return;
-        }
-
-        let selectedFileObject;
-        this.scenes.forEach(scene => {
-            scene.files.forEach(file => {
-                if (file.id === this.selectedFile) {
-                    selectedFileObject = file;
-                }
-            });
-        });
-
-        let xhr = new XMLHttpRequest(),
-            newType = selectedFileObject.type === "image" ? "map" : "image";
-        xhr.open(
-            "PUT",
-            "/api/stories/" + this.storyId + "/files/" + this.selectedFile
-        );
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", () => {
-            selectedFileObject.type = newType;
-            this.update();
-        });
-        xhr.send(JSON.stringify({"type": newType}));
+        this.onFileSelect(fileId);
     }
 
     onAddImageClickHandler(sceneId) {
@@ -145,81 +112,13 @@ export default class FileListerEditor extends Riot.Element
         };
     }
 
-    onNewFileChange(sceneId) {
-        return e => {
-            // The user cancelled, let's not try to create an empty file
-            if (!e.target.value) {
-                return;
-            }
+    onNewFileChanged(e) {
+        if (!e.target.value) {
+            return;
+        }
 
-            const xhr = new XMLHttpRequest(),
-                  formData = new FormData(),
-                  self = this;
-
-            xhr.open("POST", "/api/scenes/" + sceneId + "/files");
-            xhr.addEventListener("load", function() {
-                self.scenes.forEach(scene => {
-                    if (scene.id === sceneId) {
-                        scene.files.push(JSON.parse(this.responseText));
-                        self.update();
-                        return false;
-                    }
-                });
-            });
-
-            formData.append("file", e.target.files[0]);
-            formData.append("type", "image");
-            xhr.send(formData);
-        };
-    }
-
-    onSceneCreate(_sceneId: number, newSceneTitle: string) {
-        const self = this;
-
-        let xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/stories/" + this.storyId + "/scenes");
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", function() {
-            const newScene = JSON.parse(this.responseText);
-            self.scenes.push(newScene);
-            self.update();
-        });
-        xhr.send(JSON.stringify({"title": newSceneTitle}));
-    }
-
-    onSceneUpdate(sceneId: number, newSceneTitle: string) {
-        let xhr = new XMLHttpRequest();
-        xhr.open("PUT", "/api/scenes/" + sceneId);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", () => {
-            this.scenes.forEach(scene => {
-                if (scene.id === sceneId) {
-                    scene.title = newSceneTitle;
-                    this.update();
-                }
-            });
-        });
-        xhr.send(JSON.stringify({"title": newSceneTitle}));
-    }
-
-    onClickDeleteScene(sceneId) {
-        return (e) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("DELETE", "/api/scenes/" + sceneId);
-            xhr.addEventListener("load", () => {
-                let sceneIndex = null;
-
-                this.scenes.forEach((scene, i) => {
-                    if (scene.id === sceneId) {
-                        sceneIndex = i;
-                    }
-                });
-
-                this.scenes.splice(sceneIndex, 1);
-                this.update();
-            });
-            xhr.send();
-        };
+        const sceneId = parseInt(e.target.dataset["sceneId"], 10);
+        this.onFileUpload(sceneId, e.target.files[0]);
     }
 
     /**
@@ -254,11 +153,7 @@ export default class FileListerEditor extends Riot.Element
         this.currentDraggedItem.style.opacity = "";
         this.currentDraggedItem = null;
 
-        let xhr = new XMLHttpRequest();
-        xhr.open("PUT", "/api/stories/" + this.storyId + "/files/" + currentImageId);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.send(JSON.stringify({"previous": prevImageId}));
-
+        this.onFileMoved(currentImageId, prevImageId);
         return true;
     }
 
