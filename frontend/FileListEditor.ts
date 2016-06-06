@@ -71,7 +71,6 @@ export default class FileListerEditor extends Riot.Element
     private storyId: number;
     private scenes;
     private currentDraggedItem;
-    private onSceneCreate: Function;
     private onSceneTitleUpdate: Function;
     private onSceneDelete: Function;
     private onFileSelect: Function;
@@ -83,7 +82,6 @@ export default class FileListerEditor extends Riot.Element
 
         this.storyId = this.opts.storyid;
         this.scenes = this.opts.scenes;
-        this.onSceneCreate = this.opts.onscenecreate;
         this.onSceneTitleUpdate = this.opts.onscenetitleupdate;
         this.onSceneDelete = this.opts.onscenedelete;
         this.onFileSelect = this.opts.onfileselect;

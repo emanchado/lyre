@@ -14,6 +14,7 @@ export default class StoryEditor extends Riot.Element
 {
     private storyId: number;
     private scenes: Array<any>;
+    private playlists: Array<any>;
     private selectedItem: SelectedItem = { id: null, _type: null };
 
     constructor() {
@@ -21,18 +22,32 @@ export default class StoryEditor extends Riot.Element
 
         this.storyId = this.opts.storyid;
         this.scenes = this.opts.scenes;
+        this.playlists = this.opts.playlists;
 
         // Bind event handler methods so that they can be safely
         // passed around
+        this.onSceneCreateClick = this.onSceneCreateClick.bind(this);
         this.onSceneCreate = this.onSceneCreate.bind(this);
         this.onSceneTitleUpdate = this.onSceneTitleUpdate.bind(this);
         this.onSceneDelete = this.onSceneDelete.bind(this);
         this.onFileSelect = this.onFileSelect.bind(this);
         this.onFileMoved = this.onFileMoved.bind(this);
         this.onFileUpload = this.onFileUpload.bind(this);
+        // Playlist-related
+        this.onPlaylistCreateClick = this.onPlaylistCreateClick.bind(this);
+        this.onPlaylistCreate = this.onPlaylistCreate.bind(this);
+        this.onPlaylistTitleUpdate = this.onPlaylistTitleUpdate.bind(this);
     }
 
-    onSceneCreate(_sceneId: number, newSceneTitle: string) {
+    onSceneCreateClick(e) {
+        const newSceneTitle = prompt("Title for the new scene:");
+
+        if (newSceneTitle) {
+            this.onSceneCreate(newSceneTitle);
+        }
+    }
+
+    onSceneCreate(newSceneTitle: string) {
         const self = this;
 
         let xhr = new XMLHttpRequest();
@@ -172,5 +187,43 @@ export default class StoryEditor extends Riot.Element
             this.update();
         });
         xhr.send(JSON.stringify({"type": newType}));
+    }
+
+    onPlaylistCreateClick(e) {
+        const newPlaylistTitle = prompt("Title for the new playlist:");
+
+        if (newPlaylistTitle) {
+            this.onPlaylistCreate(newPlaylistTitle);
+        }
+    }
+
+    onPlaylistCreate(newTitle: string) {
+        const self = this;
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/stories/" + this.storyId + "/playlists");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            console.log("response =", this.responseText);
+            const newPlaylist = JSON.parse(this.responseText);
+
+            self.playlists.push(newPlaylist);
+            self.update();
+        });
+        xhr.send(JSON.stringify({"title": newTitle}));
+    }
+
+    onPlaylistTitleUpdate(playlistId: number, newTitle: string) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/api/playlists/" + playlistId);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", () => {
+            this.playlists = this.playlists.filter(playlist => {
+                return playlist.id !== playlistId;
+            });
+            this.selectedItem.id = null;
+            this.update();
+        });
+        xhr.send(JSON.stringify({"title": newTitle}));
     }
 }

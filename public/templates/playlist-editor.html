@@ -3,76 +3,14 @@
     .playlist-container {
         display: inline-block;
     }
-
-    .playlist {
-        margin: 5px;
-        border-bottom: 3px solid transparent;
-        padding: 8px 15px;
-
-        text-transform: capitalize;
-
-        cursor: pointer;
-    }
-
-    .playlist-playing {
-        border: 0;
-        border-bottom: 3px solid transparent;
-        border-image: linear-gradient(to right, #1c58fe 0%, #22c064 100%);
-        border-image-slice: 1;
-
-        font-weight: bold;
-    }
-
-    .selected {
-      border: 5px solid #22c064;
-      margin: 0;
-    }
-
-    .toolbox {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-    }
-
-    .tool {
-      width: 100px;
-      height: 50px;
-      padding: 10px;
-      margin: 3px;
-
-      background-color: #22c064;
-      vertical-align: middle;
-      text-align: center;
-
-      line-height: 30px;
-
-      cursor: pointer;
-    }
-
-    .tool-danger {
-      background-color: #d0021b;
-    }
   </style>
 
-  <div each={ pl in opts.playlists } class="playlist-container" onclick={ getClickPlaylistHandler.bind(this.parent)(pl.id) }>
-    <div class="playlist playlist-{ playlistStatus(pl.title) } { selectedPlaylistId === parseInt(pl.id, 10) ? 'selected' : ''}" data-title="{ pl.title }">
-      { pl.title }
-
-      <audio each={ track, i in pl.tracks }
-             src={ track.url }
-             onended={ endedHandler(pl.title, i) }
-             />
-    </div>
-  </div>
-
-  <div class="playlist-container" onclick={ onCreatePlaylist }>
-    <div class="playlist">
-      <em>New playlist</em>
-    </div>
-  </div>
-
-  <div class="toolbox" show={ selectedPlaylistId }>
-    <div class="tool">Rename</div>
-    <div class="tool tool-danger">Delete</div>
+  <div each={ pl in opts.playlists }
+       class="playlist-container"
+       onclick={ getClickPlaylistHandler.bind(this.parent)(pl.id) }>
+    <editable-playlist id={ parseInt(pl.id, 10) }
+                       title={ pl.title }
+                       selected={ isPlaylistSelected(pl.id) }
+                       onTitleUpdate={ onPlaylistTitleUpdate } />
   </div>
 </playlist-editor>

@@ -453,6 +453,58 @@ class StoryStore {
             );
         });
     }
+
+    addPlaylist(storyId, props) {
+        if (!props.title) {
+            return Q(false);
+        }
+
+        const deferred = Q.defer();
+
+        this.db.run(
+            "INSERT INTO playlists (story_id, title, position) " +
+                "VALUES (?, ?, " +
+                "(SELECT COUNT(*) + 1 FROM playlists WHERE story_id = ?))",
+            [storyId, props.title, storyId],
+            function(err) {
+                if (err) {
+                    deferred.reject(err);
+                    return;
+                }
+
+                deferred.resolve(this.lastID);
+            }
+        );
+
+        return deferred.promise.then(newPlaylistId => {
+            return Q.ninvoke(
+                this.db,
+                "get",
+                "SELECT id, title, position FROM playlists WHERE id = ?",
+                newPlaylistId
+            );
+        });
+    }
+
+    updatePlaylist(playlistId, newProps) {
+        if (!newProps.title) {
+            return Q(false);
+        }
+
+        return Q.ninvoke(
+            this.db,
+            "run",
+            "UPDATE playlists SET title = ? WHERE id = ?",
+            [newProps.title, playlistId]
+        ).then(() => {
+            return Q.ninvoke(
+                this.db,
+                "get",
+                "SELECT id, title, position FROM playlists WHERE id = ?",
+                playlistId
+            );
+        });
+    }
 }
 
 export default StoryStore;

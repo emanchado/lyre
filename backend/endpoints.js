@@ -68,7 +68,7 @@ function apiStories(req, res) {
 
 function apiStory(req, res) {
     return store.getStory(req.params.id).then(story => {
-        res.send(JSON.stringify(story));
+        res.json(story);
     });
 }
 
@@ -116,7 +116,7 @@ function apiPutScene(req, res) {
         res.send(updatedScene);
     }).catch(err => {
         res.statusCode = 400;
-        res.send(JSON.stringify({error: err}));
+        res.json({error: err});
     });
 }
 
@@ -125,10 +125,10 @@ function apiPostStoryScene(req, res) {
           sceneTitle = req.body.title;
 
     store.addScene(storyId, {title: sceneTitle}).then(newScene => {
-        res.send(JSON.stringify(newScene));
+        res.json(newScene);
     }).catch(err => {
         res.statusCode = 400;
-        res.send(JSON.stringify({error: err.toString()}));
+        res.json({error: err.toString()});
     });
 }
 
@@ -149,19 +149,18 @@ function apiPostSceneFile(req, res) {
             {filename: filename, path: tmpPath, type: type}
         ).then(({id, sceneId, originalName, path, type}) => {
             return store.storyIdForScene(sceneId).then(storyId => {
-                res.send(JSON.stringify({
+                res.json({
                     id: id,
                     title: originalName,
                     type: type,
                     url: "/stories/" + storyId + "/files/" + encodeURI(path),
                     thumbnailUrl: "/stories/" + storyId + "/files/thumbnails/" + encodeURI(path)
-                }));
+                });
             });
         });
     }).catch(error => {
         res.statusCode = 400;
-        res.send(JSON.stringify({success: false,
-                                 errorMessage: error.toString()}));
+        res.json({success: false, errorMessage: error.toString()});
     });
 }
 
@@ -173,8 +172,7 @@ function apiDeleteStoryFile(req, res) {
         res.end();
     }).catch(error => {
         res.statusCode = 400;
-        res.send(JSON.stringify({success: false,
-                                 errorMessage: error.toString()}));
+        res.json({success: false, errorMessage: error.toString()});
     });
 }
 
@@ -185,8 +183,31 @@ function apiDeleteScene(req, res) {
         res.end();
     }).catch(error => {
         res.statusCode = 400;
-        res.send(JSON.stringify({success: false,
-                                 errorMessage: error.toString()}));
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
+function apiPutPlaylist(req, res) {
+    const playlistId = req.params.id,
+          changes = req.body;
+
+    return store.updatePlaylist(playlistId, changes).then(playlist => {
+        res.json(playlist);
+    }).catch(error => {
+        res.statusCode = 400;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
+function apiPostPlaylist(req, res) {
+    const storyId = req.params.id,
+          playlistProps = req.body;
+
+    return store.addPlaylist(storyId, playlistProps).then(playlist => {
+        res.json(playlist);
+    }).catch(error => {
+        res.statusCode = 400;
+        res.json({success: false, errorMessage: error.toString()});
     });
 }
 
@@ -205,4 +226,4 @@ function wsConnection(ws) {
 export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
-         apiDeleteScene, wsConnection };
+         apiDeleteScene, apiPutPlaylist, apiPostPlaylist, wsConnection };
