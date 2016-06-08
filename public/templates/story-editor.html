@@ -29,8 +29,9 @@
   <div class="top">
     <img src="/img/lyre.png" />
     <playlist-editor storyId={ opts.storyid }
-                     playlists={ opts.playlists }
+                     playlists={ playlists }
                      selectedItem={ selectedItem }
+                     onPlaylistSelect={ onPlaylistSelect }
                      onPlaylistTitleUpdate={ onPlaylistTitleUpdate } />
   </div>
 
@@ -38,7 +39,7 @@
     <div class="row">
       <div class="col-md-12">
         <filelist-editor storyId={ opts.storyid }
-                         scenes={ opts.scenes }
+                         scenes={ scenes }
                          selectedItem={ selectedItem }
                          onSceneTitleUpdate={ onSceneTitleUpdate }
                          onSceneDelete={ onSceneDelete }
@@ -49,13 +50,18 @@
     </div>
   </div>
 
-  <!-- Generic menu -->
-  <div id="toolbox" show={ selectedItem.id }>
+  <!-- Menu when a file is selected -->
+  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "file" }>
     <div class="tool tool-danger"
          onclick={ onDeleteFileClick }>Delete</div>
     <div class="tool"
-         show={ selectedItem._type === "file" }
-         onclick={ onToggleTypeClick }>Toggle type</div>
+         onclick={ onToggleFileTypeClick }>Toggle type</div>
+  </div>
+
+  <!-- Menu when a playlist is selected -->
+  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "playlist" }>
+    <div class="tool tool-danger"
+         onclick={ onDeletePlaylistClick }>Delete</div>
   </div>
 
   <!-- Menu when there's something selected -->

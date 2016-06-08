@@ -1,77 +1,21 @@
 /// <reference path="riot-ts.d.ts" />
 
-type Mode = "view" | "edit";
-
-const ENTER_KEY = 13;
-const ESC_KEY = 27;
-
-@template("/templates/editable-playlist.html")
-class EditablePlaylist extends Riot.Element
-{
-    private title: string;
-    private mode: Mode;
-    private titleBeforeEdits: string;
-
-    constructor() {
-        super();
-
-        this.title = this.opts.title;
-        this.mode = "view";
-
-        this.inEditMode = this.inEditMode.bind(this);
-        this.switchEditMode = this.switchEditMode.bind(this);
-        this.onKeyDown = this.onKeyDown.bind(this);
-    }
-
-    inEditMode() {
-        return this.mode === "edit";
-    }
-
-    switchViewMode() {
-        this.mode = "view";
-    }
-
-    switchEditMode() {
-        this.titleBeforeEdits = this.title;
-        this.mode = "edit";
-        this.update(); // Need to update so that the input field exists
-        this["inputfield"].focus();
-    }
-
-    onKeyDown(e) {
-        switch (e.which) {
-        case ESC_KEY:
-            this.title = this.titleBeforeEdits;
-            this.switchViewMode();
-            this.update();
-            break;
-
-        case ENTER_KEY:
-            this.title = e.target.value;
-            this.update();
-            this.switchViewMode();
-            this.opts.ontitleupdate(this.opts.id, e.target.value);
-            break;
-
-        default:
-            this.title = e.target.value;
-            return true;
-        }
-    }
-}
-
 @template("/templates/playlist-editor.html")
 export default class PlaylistEditor extends Riot.Element
 {
     private selectedPlaylistId: number = null;
+    private onPlaylistSelect: Function;
     private onPlaylistCreate: Function;
     private onPlaylistTitleUpdate: Function;
 
     constructor() {
         super();
 
+        this.onPlaylistSelect = this.opts.onplaylistselect;
         this.onPlaylistCreate = this.opts.onplaylistcreate;
         this.onPlaylistTitleUpdate = this.opts.onplaylisttitleupdate;
+
+        this.onPlaylistClick = this.onPlaylistClick.bind(this);
         this.isPlaylistSelected = this.isPlaylistSelected.bind(this);
     }
 
@@ -83,6 +27,15 @@ export default class PlaylistEditor extends Riot.Element
     }
 
     isPlaylistSelected(playlistId: number) {
-        return false;
+        const selectedItem = this.opts.selecteditem;
+
+        return selectedItem._type === "playlist" &&
+            selectedItem.id === playlistId;
+    }
+
+    onPlaylistClick(e) {
+        const playlistId = parseInt(e.target.parentNode.dataset["id"], 10);
+
+        this.onPlaylistSelect(playlistId);
     }
 }

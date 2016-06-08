@@ -3,14 +3,29 @@
     .playlist-container {
         display: inline-block;
     }
+
+    .playlist {
+        margin: 5px;
+        border-bottom: 3px solid transparent;
+        padding: 8px 15px;
+
+        text-transform: capitalize;
+
+        cursor: pointer;
+    }
+
+    .selected {
+      border: 5px solid #22c064;
+      margin: 0;
+    }
   </style>
 
   <div each={ pl in opts.playlists }
        class="playlist-container"
-       onclick={ getClickPlaylistHandler.bind(this.parent)(pl.id) }>
-    <editable-playlist id={ parseInt(pl.id, 10) }
-                       title={ pl.title }
-                       selected={ isPlaylistSelected(pl.id) }
-                       onTitleUpdate={ onPlaylistTitleUpdate } />
+       data-id={ pl.id }
+       onclick={ onPlaylistClick }>
+    <div class="playlist { isPlaylistSelected(pl.id) ? 'selected' : '' }">
+      { pl.title }
+    </div>
   </div>
 </playlist-editor>

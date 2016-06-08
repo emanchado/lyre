@@ -15,7 +15,7 @@ export default class StoryEditor extends Riot.Element
     private storyId: number;
     private scenes: Array<any>;
     private playlists: Array<any>;
-    private selectedItem: SelectedItem = { id: null, _type: null };
+    private selectedItem: SelectedItem;
 
     constructor() {
         super();
@@ -23,6 +23,8 @@ export default class StoryEditor extends Riot.Element
         this.storyId = this.opts.storyid;
         this.scenes = this.opts.scenes;
         this.playlists = this.opts.playlists;
+
+        this.selectedItem = { id: null, _type: null };
 
         // Bind event handler methods so that they can be safely
         // passed around
@@ -34,6 +36,7 @@ export default class StoryEditor extends Riot.Element
         this.onFileMoved = this.onFileMoved.bind(this);
         this.onFileUpload = this.onFileUpload.bind(this);
         // Playlist-related
+        this.onPlaylistSelect = this.onPlaylistSelect.bind(this);
         this.onPlaylistCreateClick = this.onPlaylistCreateClick.bind(this);
         this.onPlaylistCreate = this.onPlaylistCreate.bind(this);
         this.onPlaylistTitleUpdate = this.onPlaylistTitleUpdate.bind(this);
@@ -135,7 +138,7 @@ export default class StoryEditor extends Riot.Element
     }
 
     onDeleteFileClick(e) {
-        if (!this.selectedItem) {
+        if (!this.selectedItem.id) {
             return;
         }
 
@@ -161,8 +164,8 @@ export default class StoryEditor extends Riot.Element
         xhr.send();
     }
 
-    onToggleTypeClick() {
-        if (!this.selectedItem) {
+    onToggleFileTypeClick() {
+        if (!this.selectedItem.id) {
             return;
         }
 
@@ -197,6 +200,18 @@ export default class StoryEditor extends Riot.Element
         }
     }
 
+    onPlaylistSelect(playlistId: number) {
+        const { id, _type } = this.selectedItem;
+
+        if (id === playlistId && _type === "playlist") {
+            this.selectedItem = { id: null, _type: null };
+        } else {
+            this.selectedItem = { id: playlistId, _type: "playlist" };
+        }
+
+        this.update();
+    }
+
     onPlaylistCreate(newTitle: string) {
         const self = this;
 
@@ -204,7 +219,6 @@ export default class StoryEditor extends Riot.Element
         xhr.open("POST", "/api/stories/" + this.storyId + "/playlists");
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
-            console.log("response =", this.responseText);
             const newPlaylist = JSON.parse(this.responseText);
 
             self.playlists.push(newPlaylist);
@@ -225,5 +239,36 @@ export default class StoryEditor extends Riot.Element
             this.update();
         });
         xhr.send(JSON.stringify({"title": newTitle}));
+    }
+
+    onDeletePlaylistClick(e) {
+        if (!this.selectedItem.id) {
+            return;
+        }
+
+        if (!confirm("Delete selected playlist?")) {
+            return;
+        }
+
+        const xhr = new XMLHttpRequest(),
+              deleteUrl = "/api/playlists/" + this.selectedItem.id,
+              self = this;
+
+        xhr.open("DELETE", deleteUrl);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status === 400) {
+                alert("Cannot delete playlist. Does it have any " +
+                          "associated tracks?");
+                return;
+            }
+
+            self.playlists = self.playlists.filter(playlist => {
+                return playlist.id !== self.selectedItem.id;
+            });
+            self.selectedItem.id = null;
+            self.update();
+        });
+        xhr.send();
     }
 }

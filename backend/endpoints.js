@@ -169,6 +169,7 @@ function apiDeleteStoryFile(req, res) {
           fileId = req.params.fileId;
 
     return store.deleteFile(storyId, fileId).then(() => {
+        res.statusCode = 204;
         res.end();
     }).catch(error => {
         res.statusCode = 400;
@@ -180,6 +181,7 @@ function apiDeleteScene(req, res) {
     const sceneId = req.params.id;
 
     return store.deleteScene(sceneId).then(() => {
+        res.statusCode = 204;
         res.end();
     }).catch(error => {
         res.statusCode = 400;
@@ -211,6 +213,18 @@ function apiPostPlaylist(req, res) {
     });
 }
 
+function apiDeletePlaylist(req, res) {
+    const playlistId = req.params.id;
+
+    return store.deletePlaylist(playlistId).then(() => {
+        res.statusCode = 204;
+        res.end();
+    }).catch(error => {
+        res.statusCode = 400;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -226,4 +240,5 @@ function wsConnection(ws) {
 export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
-         apiDeleteScene, apiPutPlaylist, apiPostPlaylist, wsConnection };
+         apiDeleteScene, apiPutPlaylist, apiPostPlaylist,
+         apiDeletePlaylist, wsConnection };

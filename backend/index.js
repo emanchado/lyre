@@ -43,14 +43,15 @@ app.get("/stories/listen/:id", endpoints.storyListen);
 // API endpoints. No authentication for now, but need to have!
 app.get("/api/stories", endpoints.apiStories);
 app.get("/api/stories/:id", endpoints.apiStory);
-app.put("/api/stories/:id/files/:fileId", endpoints.apiPutStoryFile);
 app.post("/api/stories/:id/scenes", endpoints.apiPostStoryScene);
 app.put("/api/scenes/:id", endpoints.apiPutScene);
 app.post("/api/scenes/:id/files", endpoints.apiPostSceneFile);
+app.put("/api/stories/:id/files/:fileId", endpoints.apiPutStoryFile);
 app.delete("/api/stories/:id/files/:fileId", endpoints.apiDeleteStoryFile);
 app.delete("/api/scenes/:id", endpoints.apiDeleteScene);
 app.put("/api/playlists/:id", endpoints.apiPutPlaylist);
 app.post("/api/stories/:id/playlists", endpoints.apiPostPlaylist);
+app.delete("/api/playlists/:id", endpoints.apiDeletePlaylist);
 
 wsServer.on("connection", endpoints.wsConnection);
 

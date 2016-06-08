@@ -192,7 +192,8 @@ class StoryStore {
         return Q.ninvoke(
             this.db,
             "all",
-            "SELECT scenes.id, COUNT(files.id) AS cnt " +
+            "SELECT scenes.story_id, scenes.position, " +
+                "COUNT(files.id) AS cnt " +
                 "FROM scenes LEFT JOIN files " +
                 "ON scenes.id = files.scene_id " +
                 "WHERE scenes.id = ?",
@@ -215,7 +216,15 @@ class StoryStore {
                 "run",
                 "DELETE FROM scenes WHERE id = ?",
                 sceneId
-            );
+            ).then(() => {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE scenes SET position = position - 1 " +
+                        "WHERE story_id = ? AND position > ?",
+                    [rows[0].story_id, rows[0].position]
+                );
+            });
         });
     }
 
@@ -503,6 +512,46 @@ class StoryStore {
                 "SELECT id, title, position FROM playlists WHERE id = ?",
                 playlistId
             );
+        });
+    }
+
+    deletePlaylist(playlistId) {
+        return Q.ninvoke(
+            this.db,
+            "all",
+            "SELECT playlists.position, playlists.story_id, " +
+                "COUNT(tracks.id) AS cnt " +
+                "FROM playlists " +
+                "LEFT JOIN tracks ON playlists.id = tracks.playlist_id " +
+                "WHERE playlists.id = ?",
+            playlistId
+        ).then(rows => {
+            if (!rows.length) {
+                throw new BadParameterException(
+                    "Playlist does not exist in the given story"
+                );
+            }
+
+            if (rows[0].cnt > 0) {
+                throw new BadParameterException(
+                    "Playlist " + playlistId + " has associated tracks"
+                );
+            }
+
+            return Q.ninvoke(
+                this.db,
+                "run",
+                "DELETE FROM playlists WHERE id = ?",
+                playlistId
+            ).then(() => {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE playlists SET position = position - 1 " +
+                        "WHERE position > ?",
+                    rows[0].position
+                );
+            });
         });
     }
 }
