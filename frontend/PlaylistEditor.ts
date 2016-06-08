@@ -1,5 +1,17 @@
 /// <reference path="riot-ts.d.ts" />
 
+@template("/templates/tracklist-editor.html")
+class TracklistEditor extends Riot.Element
+{
+    private onUnzoom: Function;
+
+    constructor() {
+        super();
+
+        this.onUnzoom = this.opts.onunzoom;
+    }
+}
+
 @template("/templates/playlist-editor.html")
 export default class PlaylistEditor extends Riot.Element
 {

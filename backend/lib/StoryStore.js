@@ -60,6 +60,8 @@ function playlistTrackInfo(storyId, playlistTracks) {
             const currentPlaylistTracks =
                       playlists[playlists.length - 1].tracks;
             currentPlaylistTracks.push({
+                id: track.track_id,
+                name: track.track_name,
                 url: "/stories/" + storyId + "/audio/" + track.track_path
             });
         }
@@ -124,7 +126,8 @@ class StoryStore {
                 this.db,
                 "all",
                 "SELECT P.id AS playlist_id, P.title AS playlist_title, " +
-                    "T.path AS track_path " +
+                    "T.id AS track_id, T.path AS track_path, " +
+                    "T.original_name AS track_name " +
                     "FROM playlists P LEFT JOIN tracks T " +
                     "ON p.id = T.playlist_id WHERE story_id = ? " +
                     "ORDER BY P.position, T.position",

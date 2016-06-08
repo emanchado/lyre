@@ -16,6 +16,7 @@ export default class StoryEditor extends Riot.Element
     private scenes: Array<any>;
     private playlists: Array<any>;
     private selectedItem: SelectedItem;
+    private zoomedPlaylist;
 
     constructor() {
         super();
@@ -25,6 +26,7 @@ export default class StoryEditor extends Riot.Element
         this.playlists = this.opts.playlists;
 
         this.selectedItem = { id: null, _type: null };
+        this.zoomedPlaylist = null;
 
         // Bind event handler methods so that they can be safely
         // passed around
@@ -40,6 +42,8 @@ export default class StoryEditor extends Riot.Element
         this.onPlaylistCreateClick = this.onPlaylistCreateClick.bind(this);
         this.onPlaylistCreate = this.onPlaylistCreate.bind(this);
         this.onPlaylistTitleUpdate = this.onPlaylistTitleUpdate.bind(this);
+        this.onTracksPlaylistClick = this.onTracksPlaylistClick.bind(this);
+        this.unzoomPlaylist = this.unzoomPlaylist.bind(this);
     }
 
     onSceneCreateClick(e) {
@@ -270,5 +274,23 @@ export default class StoryEditor extends Riot.Element
             self.update();
         });
         xhr.send();
+    }
+
+    isPlaylistZoomed() {
+        return !!this.zoomedPlaylist;
+    }
+
+    onTracksPlaylistClick(e) {
+        this.playlists.forEach(playlist => {
+            if (playlist.id === this.selectedItem.id) {
+                this.zoomedPlaylist = playlist;
+            }
+        })
+        this.selectedItem.id = null;
+    }
+
+    unzoomPlaylist() {
+        this.zoomedPlaylist = null;
+        this.update();
     }
 }

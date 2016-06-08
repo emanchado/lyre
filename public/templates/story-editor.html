@@ -27,12 +27,17 @@
   </style>
 
   <div class="top">
-    <img src="/img/lyre.png" />
-    <playlist-editor storyId={ opts.storyid }
+    <img class="logo" src="/img/lyre.png" />
+    <playlist-editor show={ !isPlaylistZoomed() }
+                     storyId={ opts.storyid }
                      playlists={ playlists }
                      selectedItem={ selectedItem }
                      onPlaylistSelect={ onPlaylistSelect }
                      onPlaylistTitleUpdate={ onPlaylistTitleUpdate } />
+    <tracklist-editor show={ isPlaylistZoomed() }
+                      playlist={ zoomedPlaylist }
+                      selectedItem={ selectedItem }
+                      onUnzoom={ unzoomPlaylist } />
   </div>
 
   <div class="container-fluid">
@@ -55,13 +60,15 @@
     <div class="tool tool-danger"
          onclick={ onDeleteFileClick }>Delete</div>
     <div class="tool"
-         onclick={ onToggleFileTypeClick }>Toggle type</div>
+         onclick={ onToggleFileTypeClick }>Toggle Type</div>
   </div>
 
   <!-- Menu when a playlist is selected -->
   <div id="toolbox" show={ selectedItem.id && selectedItem._type === "playlist" }>
     <div class="tool tool-danger"
          onclick={ onDeletePlaylistClick }>Delete</div>
+    <div class="tool"
+         onclick={ onTracksPlaylistClick }>See Tracks</div>
   </div>
 
   <!-- Menu when there's something selected -->

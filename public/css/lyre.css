@@ -56,10 +56,14 @@ input {
     z-index: 10;
 
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
 
     background-color: #222;
+}
+
+.top .logo {
+    margin-right: 30px;
 }
 
 .container-fluid {

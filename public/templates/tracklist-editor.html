@@ -1,0 +1,69 @@
+<tracklist-editor>
+  <style scoped>
+    :scope {
+      width: 100%;
+    }
+
+    .playlist-container {
+      display: flex;
+      justify-content: space-between;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .tracklist-container {
+        display: flex;
+        flex-flow: column wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+
+        height: 64px;
+        margin-left: 10px;
+        padding-top: 5px;
+    }
+
+    .track {
+        width: 300px;
+        height: 18px;
+        margin: 0 15px;
+
+        font-size: 12px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+
+        cursor: pointer;
+    }
+
+    .selected {
+      border: 5px solid #22c064;
+      margin: 0;
+    }
+
+    .back-button {
+      width: 2em;
+      height: 64px;
+
+      background-color: #494949;
+
+      line-height: 64px;
+      text-align: center;
+      cursor: pointer;
+    }
+  </style>
+
+  <div class="playlist-container">
+    <div class="tracklist-container">
+      <div each={ track in opts.playlist.tracks }
+           data-id={ track.id }
+           title={ track.name }
+           class="track { isTrackSelected(track.id) ? 'selected' : '' }">
+        { track.name }
+      </div>
+    </div>
+
+    <div class="back-button"
+         onclick={ onUnzoom }>←</div>
+  </div>
+</tracklist-editor>

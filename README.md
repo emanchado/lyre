@@ -46,12 +46,14 @@ TODO
 
 First release:
 
-* Create playlists
 * Reorder playlists
-* Remove playlists
 * Upload tracks
 * Reorder tracks
 * Remove tracks
+* Clean up the mapping tool styles
+* Maybe add "Audience View" to the AV?
+* Allow managing stories
+* Remove code for galleries, jQuery, etc.
 
 Later:
 
