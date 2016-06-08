@@ -3,12 +3,30 @@
 @template("/templates/tracklist-editor.html")
 class TracklistEditor extends Riot.Element
 {
+    private onTrackUpload: Function;
     private onUnzoom: Function;
 
     constructor() {
         super();
 
+        this.onTrackUpload = this.opts.ontrackupload;
         this.onUnzoom = this.opts.onunzoom;
+
+        this.onAddNewTrackClick = this.onAddNewTrackClick.bind(this);
+        this.onNewTrackChange = this.onNewTrackChange.bind(this);
+    }
+
+    onAddNewTrackClick(e) {
+        this["new-track"].click();
+    }
+
+    onNewTrackChange(e) {
+        if (!e.target.value) {
+            return;
+        }
+
+        const playlistId = parseInt(e.target.dataset["id"], 10);
+        this.onTrackUpload(playlistId, e.target.files[0]);
     }
 }
 

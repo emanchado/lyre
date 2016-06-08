@@ -13,27 +13,32 @@
     }
 
     .tracklist-container {
-        display: flex;
-        flex-flow: column wrap;
-        justify-content: flex-start;
-        align-items: flex-start;
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: flex-start;
+      align-items: flex-start;
 
-        height: 64px;
-        margin-left: 10px;
-        padding-top: 5px;
+      height: 64px;
+      margin-left: 10px;
+      padding-top: 5px;
     }
 
     .track {
-        width: 300px;
-        height: 18px;
-        margin: 0 15px;
+      width: 300px;
+      height: 18px;
+      margin: 0 15px;
 
-        font-size: 12px;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
 
-        cursor: pointer;
+      cursor: pointer;
+    }
+
+    .add-new {
+      font-weight: bold;
+      font-style: italic;
     }
 
     .selected {
@@ -57,10 +62,21 @@
     <div class="tracklist-container">
       <div each={ track in opts.playlist.tracks }
            data-id={ track.id }
-           title={ track.name }
+           title={ track.title }
            class="track { isTrackSelected(track.id) ? 'selected' : '' }">
-        { track.name }
+        { track.title }
       </div>
+
+      <div class="track add-new"
+           onclick={ onAddNewTrackClick }>
+        Add new track
+      </div>
+      <input name="new-track"
+             id={ "new-track-" + opts.playlist.id }
+             style="display: none"
+             type="file"
+             data-id={ opts.playlist.id }
+             onchange={ onNewTrackChange } />
     </div>
 
     <div class="back-button"

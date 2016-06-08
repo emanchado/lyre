@@ -147,7 +147,7 @@ function apiPostSceneFile(req, res) {
         return store.addFile(
             sceneId,
             {filename: filename, path: tmpPath, type: type}
-        ).then(({id, sceneId, originalName, path, type}) => {
+        ).then(({id, originalName, path, type}) => {
             return store.storyIdForScene(sceneId).then(storyId => {
                 res.json({
                     id: id,
@@ -225,6 +225,35 @@ function apiDeletePlaylist(req, res) {
     });
 }
 
+function apiPostPlaylistTrack(req, res) {
+    const playlistId = req.params.id;
+
+    const form = new formidable.IncomingForm();
+    form.uploadDir = config.tmpPath;
+
+    Q.ninvoke(form, "parse", req).spread(function(fields, files) {
+        var uploadedFileInfo = files.file,
+            filename = path.basename(uploadedFileInfo.name),
+            tmpPath = uploadedFileInfo.path;
+
+        return store.addTrack(
+            playlistId,
+            {filename: filename, path: tmpPath}
+        ).then(({id, originalName, path}) => {
+            return store.storyIdForPlaylist(playlistId).then(storyId => {
+                res.json({
+                    id: id,
+                    title: originalName,
+                    url: "/stories/" + storyId + "/audio/" + encodeURI(path)
+                });
+            });
+        });
+    }).catch(error => {
+        res.statusCode = 400;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -241,4 +270,4 @@ export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,
-         apiDeletePlaylist, wsConnection };
+         apiDeletePlaylist, apiPostPlaylistTrack, wsConnection };

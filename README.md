@@ -54,6 +54,7 @@ First release:
 * Maybe add "Audience View" to the AV?
 * Allow managing stories
 * Remove code for galleries, jQuery, etc.
+* Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)
 
 Later:
 

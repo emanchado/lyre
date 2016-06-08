@@ -61,7 +61,7 @@ function playlistTrackInfo(storyId, playlistTracks) {
                       playlists[playlists.length - 1].tracks;
             currentPlaylistTracks.push({
                 id: track.track_id,
-                name: track.track_name,
+                title: track.track_name,
                 url: "/stories/" + storyId + "/audio/" + track.track_path
             });
         }
@@ -378,7 +378,7 @@ class StoryStore {
                         "(SELECT COUNT(*) + 1 FROM files WHERE scene_id = ?))",
                     [sceneId, fileProps.filename, finalFilename,
                      fileProps.type, sceneId],
-                    function(err, result) {
+                    function(err/*, result*/) {
                         if (err) {
                             deferred.reject(err);
                             return;
@@ -554,6 +554,59 @@ class StoryStore {
                         "WHERE position > ?",
                     rows[0].position
                 );
+            });
+        });
+    }
+
+    storyIdForPlaylist(playlistId) {
+        return Q.ninvoke(
+            this.db,
+            "get",
+            "SELECT story_id FROM playlists WHERE id = ?",
+            playlistId
+        ).then(row => row.story_id);
+    }
+
+    addTrack(playlistId, fileProps) {
+        const originalExtension = fileProps.filename.replace(/.*\./, ""),
+              finalFilename = poorMansUuid() + "." + originalExtension;
+
+        return this.storyIdForScene(playlistId).then(storyId => {
+            const finalPath = path.join(this.storyDir,
+                                        storyId.toString(),
+                                        "audio",
+                                        finalFilename);
+
+            return this.ensureDirsForStory(storyId).then(() => {
+                return Q.nfcall(fse.move, fileProps.path, finalPath);
+            }).then(() => {
+                const deferred = Q.defer();
+
+                this.db.run(
+                    "INSERT INTO tracks (playlist_id, original_name, path, " +
+                        "position) VALUES (?, ?, ?, " +
+                        "(SELECT COUNT(*) + 1 FROM tracks " +
+                        "WHERE playlist_id = ?))",
+                    [playlistId, fileProps.filename, finalFilename,
+                     playlistId],
+                    function(err/*, result*/) {
+                        if (err) {
+                            deferred.reject(err);
+                            return;
+                        }
+
+                        deferred.resolve(this.lastID);
+                    }
+                );
+
+                return deferred.promise;
+            }).then(function(lastId) {
+                return {
+                    id: lastId,
+                    playlistId: playlistId,
+                    originalName: fileProps.filename,
+                    path: finalFilename
+                };
             });
         });
     }

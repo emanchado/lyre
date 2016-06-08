@@ -43,6 +43,7 @@ export default class StoryEditor extends Riot.Element
         this.onPlaylistCreate = this.onPlaylistCreate.bind(this);
         this.onPlaylistTitleUpdate = this.onPlaylistTitleUpdate.bind(this);
         this.onTracksPlaylistClick = this.onTracksPlaylistClick.bind(this);
+        this.onTrackUpload = this.onTrackUpload.bind(this);
         this.unzoomPlaylist = this.unzoomPlaylist.bind(this);
     }
 
@@ -292,5 +293,25 @@ export default class StoryEditor extends Riot.Element
     unzoomPlaylist() {
         this.zoomedPlaylist = null;
         this.update();
+    }
+
+    onTrackUpload(playlistId: number, fileData) {
+        const xhr = new XMLHttpRequest(),
+        formData = new FormData(),
+        self = this;
+
+        xhr.open("POST", "/api/playlists/" + playlistId + "/tracks");
+        xhr.addEventListener("load", function() {
+            self.playlists.forEach(playlist => {
+                if (playlist.id === playlistId) {
+                    playlist.tracks.push(JSON.parse(this.responseText));
+                    self.update();
+                    return false;
+                }
+            });
+        });
+
+        formData.append("file", fileData);
+        xhr.send(formData);
     }
 }

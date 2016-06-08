@@ -76,7 +76,7 @@ function upgradeDb(db) {
 
                 return true;
             }).catch(err => {
-                console.log("There was some horrible error???");
+                console.error("There was some horrible error???", err);
             });
         });
     });

@@ -52,6 +52,7 @@ app.delete("/api/scenes/:id", endpoints.apiDeleteScene);
 app.put("/api/playlists/:id", endpoints.apiPutPlaylist);
 app.post("/api/stories/:id/playlists", endpoints.apiPostPlaylist);
 app.delete("/api/playlists/:id", endpoints.apiDeletePlaylist);
+app.post("/api/playlists/:id/tracks", endpoints.apiPostPlaylistTrack);
 
 wsServer.on("connection", endpoints.wsConnection);
 
