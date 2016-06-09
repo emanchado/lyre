@@ -78,7 +78,7 @@ function apiPutStoryFile(req, res) {
           changeSpec = req.body;
 
     if ("previous" in changeSpec) {
-        return store.reorderImage(
+        return store.reorderFile(
             storyId,
             fileId,
             parseInt(changeSpec.previous, 10)
@@ -254,6 +254,35 @@ function apiPostPlaylistTrack(req, res) {
     });
 }
 
+function apiPutStoryTrack(req, res) {
+    const storyId = req.params.id,
+          trackId = parseInt(req.params.trackId, 10),
+          changeSpec = req.body;
+
+    if ("previous" in changeSpec) {
+        return store.reorderTrack(
+            storyId,
+            trackId,
+            parseInt(changeSpec.previous, 10)
+        ).then(result => {
+            res.json(result);
+        }).catch(error => {
+            if (error instanceof BadParameterException) {
+                res.statusCode = 400;
+            } else {
+                res.statusCode = 500;
+            }
+            res.json({success: false, errorMessage: error.toString()});
+        });
+    }
+
+    res.statusCode = 400;
+    res.json({
+        success: false,
+        errorMessage: "Unsupported operation: " + JSON.stringify(req.body)
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -270,4 +299,5 @@ export { index, storyManage, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,
-         apiDeletePlaylist, apiPostPlaylistTrack, wsConnection };
+         apiDeletePlaylist, apiPostPlaylistTrack, apiPutStoryTrack,
+         wsConnection };

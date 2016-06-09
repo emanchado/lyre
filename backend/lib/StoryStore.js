@@ -231,7 +231,7 @@ class StoryStore {
         });
     }
 
-    reorderImage(storyId, fileId, newPreviousId) {
+    reorderFile(storyId, fileId, newPreviousId) {
         let filePosition, newPreviousPosition;
 
         // Moving to itself, that's not possible
@@ -608,6 +608,112 @@ class StoryStore {
                     path: finalFilename
                 };
             });
+        });
+    }
+
+    reorderTrack(storyId, trackId, newPreviousId) {
+        let trackPosition, newPreviousPosition;
+
+        // Moving to itself, that's not possible
+        if (trackId === newPreviousId) {
+            const deferred = Q.defer();
+            deferred.reject(new BadParameterException("Cannot move track after itself"));
+            return deferred.promise;
+        }
+
+        // Moving to the beginning is a special case
+        if (!newPreviousId) {
+            return Q.ninvoke(
+                this.db,
+                "get",
+                "SELECT playlist_id, tracks.position FROM tracks " +
+                    "JOIN playlists ON tracks.playlist_id = playlists.id " +
+                    "WHERE tracks.id = ? AND playlists.story_id = ?",
+                [trackId, storyId]
+            ).then(row => {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE tracks SET position = position + 1" +
+                        " WHERE playlist_id = ? AND position < ?",
+                    [row.playlist_id, row.position]
+                ).then(() => {
+                    return Q.ninvoke(
+                        this.db,
+                        "run",
+                        "UPDATE tracks SET position = 1" +
+                            " WHERE playlist_id = ? AND id = ?",
+                        [row.playlist_id, trackId]
+                    );
+                });
+            });
+        }
+
+        // General case
+        return Q.ninvoke(
+            this.db,
+            "all",
+            "SELECT tracks.id, tracks.position, playlist_id FROM tracks " +
+                "JOIN playlists ON tracks.playlist_id = playlists.id " +
+                "WHERE story_id = ? AND tracks.id IN (?, ?)",
+            [storyId, trackId, newPreviousId]
+        ).then(rows => {
+            if (rows.length !== 2) {
+                throw new BadParameterException(
+                    "At least one of the tracks is not part of the story"
+                );
+            }
+
+            // For now, don't support moving between playlists
+            if (rows[0].playlist_id !== rows[1].playlist_id) {
+                throw new BadParameterException(
+                    "Cannot move a track between playlists"
+                );
+            }
+            const playlistId = rows[0].playlist_id;
+
+            rows.forEach(row => {
+                if (row.id === trackId) {
+                    trackPosition = row.position;
+                } else {
+                    newPreviousPosition = row.position;
+                }
+            });
+
+            // Moving right-to-left or left-to-right is slightly different
+            if (trackPosition > newPreviousPosition) {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE tracks SET position = position + 1 " +
+                        "WHERE playlist_id = ? AND position > ? " +
+                        "AND position < ?",
+                    [playlistId, newPreviousPosition, trackPosition]
+                ).then(() => {
+                    return Q.ninvoke(
+                        this.db,
+                        "run",
+                        "UPDATE tracks SET position = ? WHERE id = ?",
+                        [newPreviousPosition + 1, trackId]
+                    );
+                });
+            } else {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE tracks SET position = position - 1 " +
+                        "WHERE playlist_id = ? AND position > ? " +
+                        "AND position <= ?",
+                    [playlistId, trackPosition, newPreviousPosition]
+                ).then(() => {
+                    return Q.ninvoke(
+                        this.db,
+                        "run",
+                        "UPDATE tracks SET position = ? WHERE id = ?",
+                        [newPreviousPosition, trackId]
+                    );
+                });
+            }
         });
     }
 }

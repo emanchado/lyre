@@ -37,8 +37,10 @@
     <tracklist-editor show={ isPlaylistZoomed() }
                       playlist={ zoomedPlaylist }
                       selectedItem={ selectedItem }
+                      onTrackSelect={ onTrackSelect }
                       onTrackUpload={ onTrackUpload }
-                      onUnzoom={ unzoomPlaylist } />
+                      onUnzoom={ unzoomPlaylist }
+                      onTrackMoved={ onTrackMoved } />
   </div>
 
   <div class="container-fluid">

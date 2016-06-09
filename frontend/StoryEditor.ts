@@ -5,6 +5,8 @@ interface SelectedItem {
     _type: string
 }
 
+type SelectionType = "file" | "playlist" | "track";
+
 function readProp(obj, propName) {
     return obj[propName];
 }
@@ -43,8 +45,10 @@ export default class StoryEditor extends Riot.Element
         this.onPlaylistCreate = this.onPlaylistCreate.bind(this);
         this.onPlaylistTitleUpdate = this.onPlaylistTitleUpdate.bind(this);
         this.onTracksPlaylistClick = this.onTracksPlaylistClick.bind(this);
+        this.onTrackSelect = this.onTrackSelect.bind(this);
         this.onTrackUpload = this.onTrackUpload.bind(this);
         this.unzoomPlaylist = this.unzoomPlaylist.bind(this);
+        this.onTrackMoved = this.onTrackMoved.bind(this);
     }
 
     onSceneCreateClick(e) {
@@ -102,16 +106,20 @@ export default class StoryEditor extends Riot.Element
         xhr.send();
     }
 
-    onFileSelect(fileId: number) {
+    select(newType: SelectionType, newId: number) {
         const { id, _type } = this.selectedItem;
 
-        if (id === fileId && _type === "file") {
+        if (_type === newType && id === newId) {
             this.selectedItem = { id: null, _type: null };
         } else {
-            this.selectedItem = { id: fileId, _type: "file" };
+            this.selectedItem = { id: newId, _type: newType };
         }
 
         this.update();
+    }
+
+    onFileSelect(fileId: number) {
+        this.select("file", fileId);
     }
 
     onFileMoved(fileId, newPreviousId) {
@@ -206,15 +214,7 @@ export default class StoryEditor extends Riot.Element
     }
 
     onPlaylistSelect(playlistId: number) {
-        const { id, _type } = this.selectedItem;
-
-        if (id === playlistId && _type === "playlist") {
-            this.selectedItem = { id: null, _type: null };
-        } else {
-            this.selectedItem = { id: playlistId, _type: "playlist" };
-        }
-
-        this.update();
+        this.select("playlist", playlistId);
     }
 
     onPlaylistCreate(newTitle: string) {
@@ -290,6 +290,10 @@ export default class StoryEditor extends Riot.Element
         this.selectedItem.id = null;
     }
 
+    onTrackSelect(trackId: number) {
+        this.select("track", trackId);
+    }
+
     unzoomPlaylist() {
         this.zoomedPlaylist = null;
         this.update();
@@ -313,5 +317,12 @@ export default class StoryEditor extends Riot.Element
 
         formData.append("file", fileData);
         xhr.send(formData);
+    }
+
+    onTrackMoved(trackId, newPreviousId) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/api/stories/" + this.storyId + "/tracks/" + trackId);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.send(JSON.stringify({"previous": newPreviousId}));
     }
 }
