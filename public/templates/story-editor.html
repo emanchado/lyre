@@ -74,6 +74,12 @@
          onclick={ onTracksPlaylistClick }>See Tracks</div>
   </div>
 
+  <!-- Menu when a playlist is selected -->
+  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "track" }>
+    <div class="tool tool-danger"
+         onclick={ onDeleteTrackClick }>Delete</div>
+  </div>
+
   <!-- Menu when there's something selected -->
   <div id="toolbox" show={ !selectedItem.id }>
     <div class="tool" onclick={ onSceneCreateClick }>New Scene</div>

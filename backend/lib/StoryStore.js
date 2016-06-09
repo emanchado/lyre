@@ -716,6 +716,43 @@ class StoryStore {
             }
         });
     }
+
+    deleteTrack(trackId) {
+        return Q.ninvoke(
+            this.db,
+            "all",
+            "SELECT path, tracks.position, playlists.story_id " +
+                "FROM tracks JOIN playlists " +
+                "ON tracks.playlist_id = playlists.id " +
+                "WHERE tracks.id = ?",
+            trackId
+        ).then(rows => {
+            if (!rows.length) {
+                throw new BadParameterException("Track does not exist");
+            }
+
+            return Q.ninvoke(
+                this.db,
+                "run",
+                "DELETE FROM tracks WHERE id = ?",
+                trackId
+            ).then(() => {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE tracks SET position = position - 1 " +
+                        "WHERE position > ?",
+                    rows[0].position
+                );
+            }).then(() => {
+                const storyIdString = String(rows[0].story_id),
+                      basePath = path.join(this.storyDir, storyIdString, "audio"),
+                      filePath = path.join(basePath, rows[0].path);
+
+                return Q.nfcall(fse.unlink, filePath);
+            });
+        });
+    }
 }
 
 export default StoryStore;

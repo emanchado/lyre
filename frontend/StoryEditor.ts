@@ -325,4 +325,37 @@ export default class StoryEditor extends Riot.Element
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.send(JSON.stringify({"previous": newPreviousId}));
     }
+
+    onDeleteTrackClick(e) {
+        if (!this.selectedItem.id) {
+            return;
+        }
+
+        if (!confirm("Delete selected track?")) {
+            return;
+        }
+
+        const xhr = new XMLHttpRequest(),
+              deleteUrl = "/api/tracks/" + this.selectedItem.id,
+              self = this;
+
+        xhr.open("DELETE", deleteUrl);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status === 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not delete track: " + response.errorMessage);
+                return;
+            }
+
+            self.playlists.forEach(playlist => {
+                playlist.tracks = playlist.tracks.filter(track => {
+                    return track.id !== self.selectedItem.id;
+                });
+            });
+            self.selectedItem.id = null;
+            self.update();
+        });
+        xhr.send();
+    }
 }

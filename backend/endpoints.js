@@ -283,6 +283,18 @@ function apiPutStoryTrack(req, res) {
     });
 }
 
+function apiDeleteTrack(req, res) {
+    const trackId = req.params.id;
+
+    return store.deleteTrack(trackId).then(() => {
+        res.statusCode = 204;
+        res.end();
+    }).catch(error => {
+        res.statusCode = 400;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
 function wsConnection(ws) {
     const location = url.parse(ws.upgradeReq.url, true),
           webSocketType = webSocketTypeForUrl[location.path];
@@ -300,4 +312,4 @@ export { index, storyManage, storyNarrate, storyListen,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,
          apiDeletePlaylist, apiPostPlaylistTrack, apiPutStoryTrack,
-         wsConnection };
+         apiDeleteTrack, wsConnection };

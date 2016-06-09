@@ -47,9 +47,8 @@ TODO
 First release:
 
 * Reorder playlists
-* Upload tracks
-* Reorder tracks
-* Remove tracks
+* Rename playlists
+* Remove scenes
 * Clean up the mapping tool styles
 * Maybe add "Audience View" to the AV?
 * Allow managing stories
@@ -58,7 +57,6 @@ First release:
 
 Later:
 
-* Bug: cannot remove scenes that were added in the last page load
 * Reorder scenes
 * Map markers for characters?
 * Mark unsent map bits?
