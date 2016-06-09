@@ -500,7 +500,11 @@ class StoryStore {
 
     updatePlaylist(playlistId, newProps) {
         if (!newProps.title) {
-            return Q(false);
+            const deferred = Q.defer();
+            deferred.reject(new BadParameterException(
+                "Cannot update a playlist without title"
+            ));
+            return deferred.promise;
         }
 
         return Q.ninvoke(
@@ -515,6 +519,108 @@ class StoryStore {
                 "SELECT id, title, position FROM playlists WHERE id = ?",
                 playlistId
             );
+        });
+    }
+
+    reorderPlaylist(playlistId, newPreviousId) {
+        let playlistPosition, newPreviousPosition;
+
+        // Moving to itself, that's not possible
+        if (playlistId === newPreviousId) {
+            const deferred = Q.defer();
+            deferred.reject(new BadParameterException("Cannot move file after itself"));
+            return deferred.promise;
+        }
+
+        // Moving to the beginning is a special case
+        if (!newPreviousId) {
+            return Q.ninvoke(
+                this.db,
+                "get",
+                "SELECT story_id, position FROM playlists " +
+                    "WHERE playlists.id = ?",
+                playlistId
+            ).then(row => {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE playlists SET position = position + 1" +
+                        " WHERE story_id = ? AND position < ?",
+                    [row.story_id, row.position]
+                ).then(() => {
+                    return Q.ninvoke(
+                        this.db,
+                        "run",
+                        "UPDATE playlists SET position = 1" +
+                            " WHERE story_id = ? AND id = ?",
+                        [row.story_id, playlistId]
+                    );
+                });
+            });
+        }
+
+        // General case
+        return Q.ninvoke(
+            this.db,
+            "all",
+            "SELECT playlists.id, playlists.position, story_id " +
+                "FROM playlists WHERE playlists.id IN (?, ?)",
+            [playlistId, newPreviousId]
+        ).then(rows => {
+            if (rows.length !== 2) {
+                throw new BadParameterException(
+                    "At least one of the playlists does not exist"
+                );
+            }
+
+            // For now, don't support moving between stories
+            if (rows[0].story_id !== rows[1].story_id) {
+                throw new BadParameterException(
+                    "Cannot move a playlist between stories"
+                );
+            }
+            const storyId = rows[0].story_id;
+
+            rows.forEach(row => {
+                if (row.id === playlistId) {
+                    playlistPosition = row.position;
+                } else {
+                    newPreviousPosition = row.position;
+                }
+            });
+
+            // Moving right-to-left or left-to-right is slightly different
+            if (playlistPosition > newPreviousPosition) {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE playlists SET position = position + 1 " +
+                        "WHERE story_id = ? AND position > ? AND position < ?",
+                    [storyId, newPreviousPosition, playlistPosition]
+                ).then(() => {
+                    return Q.ninvoke(
+                        this.db,
+                        "run",
+                        "UPDATE playlists SET position = ? WHERE id = ?",
+                        [newPreviousPosition + 1, playlistId]
+                    );
+                });
+            } else {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "UPDATE playlists SET position = position - 1 " +
+                        "WHERE story_id = ? AND position > ? AND position <= ?",
+                    [storyId, playlistPosition, newPreviousPosition]
+                ).then(() => {
+                    return Q.ninvoke(
+                        this.db,
+                        "run",
+                        "UPDATE playlists SET position = ? WHERE id = ?",
+                        [newPreviousPosition, playlistId]
+                    );
+                });
+            }
         });
     }
 

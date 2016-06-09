@@ -107,6 +107,8 @@ export default class PlaylistEditor extends Riot.Element
     private onPlaylistSelect: Function;
     private onPlaylistCreate: Function;
     private onPlaylistTitleUpdate: Function;
+    private onPlaylistMoved: Function;
+    private currentDraggedItem;
 
     constructor() {
         super();
@@ -114,9 +116,13 @@ export default class PlaylistEditor extends Riot.Element
         this.onPlaylistSelect = this.opts.onplaylistselect;
         this.onPlaylistCreate = this.opts.onplaylistcreate;
         this.onPlaylistTitleUpdate = this.opts.onplaylisttitleupdate;
+        this.onPlaylistMoved = this.opts.onplaylistmoved;
 
         this.onPlaylistClick = this.onPlaylistClick.bind(this);
         this.isPlaylistSelected = this.isPlaylistSelected.bind(this);
+        this.onDragStart = this.onDragStart.bind(this);
+        this.onDragEnd = this.onDragEnd.bind(this);
+        this.onDragEnter = this.onDragEnter.bind(this);
     }
 
     getClickPlaylistHandler(playlistId) {
@@ -137,5 +143,53 @@ export default class PlaylistEditor extends Riot.Element
         const playlistId = parseInt(e.target.parentNode.dataset["id"], 10);
 
         this.onPlaylistSelect(playlistId);
+    }
+
+    /**
+     * Sometimes we can get Text nodes if we simply get to
+     * .previousSibling, hence this method to make sure we get the
+     * previous playlist element.
+     */
+    private previousPlaylistEl(fileEl) {
+        const previousSibling = fileEl.previousSibling;
+
+        if (!previousSibling) {
+            return null;
+        }
+        if (!(previousSibling instanceof HTMLElement)) {
+            return this.previousPlaylistEl(previousSibling);
+        }
+
+        return previousSibling;
+    }
+
+    onDragStart(e) {
+        this.currentDraggedItem = e.target.parentNode;
+        this.currentDraggedItem.style.opacity = "0.3";
+        return true;
+    }
+
+    onDragEnd(e) {
+        const currentPlaylistId = this.currentDraggedItem.dataset.id,
+              prevPlaylist = this.previousPlaylistEl(this.currentDraggedItem),
+              prevPlaylistId = (prevPlaylist && prevPlaylist.dataset) ? prevPlaylist.dataset.id : null;
+
+        this.currentDraggedItem.style.opacity = "";
+        this.currentDraggedItem = null;
+
+        this.onPlaylistMoved(currentPlaylistId, prevPlaylistId);
+        return true;
+    }
+
+    onDragEnter(e) {
+        const targetTrack = e.target.parentNode;
+
+        if (targetTrack !== this.currentDraggedItem) {
+            if (this.currentDraggedItem) {
+                const parent = this.currentDraggedItem.parentNode;
+                parent.insertBefore(this.currentDraggedItem, targetTrack);
+            }
+        }
+        return true;
     }
 }

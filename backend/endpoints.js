@@ -190,15 +190,34 @@ function apiDeleteScene(req, res) {
 }
 
 function apiPutPlaylist(req, res) {
-    const playlistId = req.params.id,
-          changes = req.body;
+    const playlistId = parseInt(req.params.id, 10),
+          changeSpec = req.body;
 
-    return store.updatePlaylist(playlistId, changes).then(playlist => {
-        res.json(playlist);
-    }).catch(error => {
-        res.statusCode = 400;
-        res.json({success: false, errorMessage: error.toString()});
-    });
+    if ("previous" in changeSpec) {
+        return store.reorderPlaylist(
+            playlistId,
+            parseInt(changeSpec.previous, 10)
+        ).then(result => {
+            res.json(result);
+        }).catch(error => {
+            if (error instanceof BadParameterException) {
+                res.statusCode = 400;
+            } else {
+                res.statusCode = 500;
+            }
+            res.json({success: false, errorMessage: error.toString()});
+        });
+    }
+
+    if (changeSpec.title) {
+        return store.updatePlaylist(playlistId, changeSpec).then(playlist => {
+            res.json(playlist);
+        }).catch(error => {
+            res.statusCode = 400;
+            res.json({success: false, errorMessage: error.toString()});
+        });
+    }
+
 }
 
 function apiPostPlaylist(req, res) {

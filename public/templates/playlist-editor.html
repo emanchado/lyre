@@ -25,7 +25,11 @@
        class="playlist-container"
        data-id={ pl.id }
        onclick={ onPlaylistClick }>
-    <div class="playlist { isPlaylistSelected(pl.id) ? 'selected' : '' }">
+    <div class="playlist { isPlaylistSelected(pl.id) ? 'selected' : ''}"
+         draggable="true"
+         ondragstart={ onDragStart }
+         ondragend={ onDragEnd }
+         ondragenter={ onDragEnter }>
       { pl.title }
     </div>
   </div>

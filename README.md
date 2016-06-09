@@ -46,7 +46,6 @@ TODO
 
 First release:
 
-* Reorder playlists
 * Rename playlists
 * Remove scenes
 * Clean up the mapping tool styles

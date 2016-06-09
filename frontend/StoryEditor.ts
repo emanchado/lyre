@@ -47,6 +47,7 @@ export default class StoryEditor extends Riot.Element
         this.onTracksPlaylistClick = this.onTracksPlaylistClick.bind(this);
         this.onTrackSelect = this.onTrackSelect.bind(this);
         this.onTrackUpload = this.onTrackUpload.bind(this);
+        this.onPlaylistMoved = this.onPlaylistMoved.bind(this);
         this.unzoomPlaylist = this.unzoomPlaylist.bind(this);
         this.onTrackMoved = this.onTrackMoved.bind(this);
     }
@@ -275,6 +276,20 @@ export default class StoryEditor extends Riot.Element
             self.update();
         });
         xhr.send();
+    }
+
+    onPlaylistMoved(playlistId, newPreviousId) {
+        let xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/api/playlists/" + playlistId);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status >= 300) {
+                const response = JSON.parse(this.responseText);
+
+                alert("Could not move the playlist: " + response.errorMessage);
+            }
+        });
+        xhr.send(JSON.stringify({"previous": newPreviousId}));
     }
 
     isPlaylistZoomed() {
