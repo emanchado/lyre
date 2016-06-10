@@ -37,11 +37,7 @@
     </div>
   </div>
 
-  <div show={ mapMode() }>
-    <div onclick={ switchToFileListMode }>
-      &#8592; Back
-    </div>
-
-    <mapdiscoverer socket={ socket }></mapdiscoverer>
-  </div>
+  <mapdiscoverer show={ mapMode() }
+                 socket={ socket }
+                 onClose={ switchToFileListMode } />
 </filelister-app>

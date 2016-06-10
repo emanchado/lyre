@@ -46,8 +46,6 @@ TODO
 
 First release:
 
-* Clean up the mapping tool styles
-* Maybe add "Audience View" to the AV?
 * Allow managing stories
 * Remove code for galleries, jQuery, etc.
 * Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)

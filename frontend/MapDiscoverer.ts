@@ -10,6 +10,7 @@ export default class MapDiscovererApp extends Riot.Element
 {
     currentMapUrl: string;
     private socket: WebSocket;
+    private onClose: Function;
     private loadedMaps: {[url: string]: DiscoverableMap};
     private uiHints: HTMLCanvasElement;
     private mapContainer: HTMLElement;
@@ -22,12 +23,16 @@ export default class MapDiscovererApp extends Riot.Element
         super();
 
         this.socket = opts.socket;
+        this.onClose = opts.onclose;
         this.loadedMaps = {};
         this.currentMapUrl = null;
         this.paintMode = "uncover";
         this.paintTools = [new PencilTool(), new RectangleTool()];
         this.currentPaintTool = this.paintTools[0];
         this.penSize = 40;
+
+        this.paintToolClass = this.paintToolClass.bind(this);
+        this.onPaintToolClickHandler = this.onPaintToolClickHandler.bind(this);
     }
 
     mounted() {
@@ -122,9 +127,9 @@ export default class MapDiscovererApp extends Riot.Element
     }
 
     onPaintToolClickHandler(tool) {
-        return function(e) {
+        return e => {
             this.currentPaintTool = tool;
-        }.bind(this.parent);
+        };
     }
 
     private compositeOperationForMode(paintMode) {

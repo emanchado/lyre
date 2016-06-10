@@ -2,6 +2,7 @@
   <style scoped>
     .playlist-container {
         display: inline-block;
+        margin: 5px 0 5px 10px;
     }
 
     .playlist {
@@ -24,8 +25,11 @@
     }
   </style>
 
-  <div each={ pl in opts.playlists } class="playlist-container" onclick={ playPauseHandler(pl.title) }>
-    <div class="playlist playlist-{ playlistStatus(pl.title) }" data-title="{ pl.title }">
+  <div each={ pl in opts.playlists }
+       class="playlist-container"
+       onclick={ playPauseHandler(pl.title) }>
+    <div class="playlist playlist-{ playlistStatus(pl.title) }"
+         data-title="{ pl.title }">
       { pl.title }
 
       <audio each={ track, i in pl.tracks }

@@ -2,23 +2,60 @@
   <style scoped>
     .toolbox {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
     }
 
-    button {
-      height: 30px;
-    }
-    button img {
+    .tool {
+      display: inline-block;
+
+      min-width: 90px;
+      max-width: 150px;
+      height: 50px;
+
+      margin: 3px;
+      border: 0;
+      padding: 10px 20px;
+
+      background-color: #22c064;
+
       vertical-align: middle;
+      text-align: center;
+      line-height: 30px;
+
+      cursor: pointer;
     }
-    button.active {
+
+    .tool.active {
       background-color: #666;
       color: #ddd;
     }
 
+    .tool-publish {
+      min-width: 65px;
+      margin: -15px;
+    }
+
+    .tool-pen-size {
+      padding-right: 0;
+      min-width: 50px;
+      background-color: transparent;
+    }
+    .pen-size {
+      display: inline-block;
+      width: 1.5em;
+    }
+
+    button img {
+      display: none;
+      vertical-align: middle;
+    }
+
     input[type="range"] {
-      width: 150px;
+      width: 50px;
+      margin-right: 5px;
+      display: inline-block;
+      vertical-align: middle;
     }
 
     .map-container {
@@ -34,6 +71,8 @@
       left: 0;
       border: 5px solid #55f;
       z-index: 5;
+
+      cursor: crosshair;
     }
 
     .map-img {
@@ -44,34 +83,42 @@
     }
   </style>
 
-  <div id="top-header">
-    <div class="toolbox">
-      <button accesskey="z" onclick={ undo }>
+  <div class="toolbox">
+    <button class="tool tool-publish" accesskey="s" onclick={ sendToAudience }>
+      <img src="/img/projector.png" /> Publish
+    </button>
+
+    <div class="misc-tools">
+      <button class="tool" accesskey="z" onclick={ undo }>
         <img src="/img/undo.png" /> Undo
       </button>
-      <button accesskey="y" onclick={ redo }>
+      <button class="tool" accesskey="y" onclick={ redo }>
         <img src="/img/redo.png" /> Redo
       </button>
-      <button accesskey="s" onclick={ sendToAudience }>
-        <img src="/img/projector.png" /> Send to audience
+      <button class="tool { paintMode === "cover" ? "active" : "" }" accesskey="c" onclick={ coverUncover }>
+        <img src="/img/eraser.png" /> { paintMode === "cover" ? "Cover" : "Uncover" }
       </button>
-      <button accesskey="c" onclick={ coverUncover }>
-        <img src="/img/eraser.png" /> { paintMode === "cover" ? "Cover" : "Uncover" } mode
-      </button>
-      <input type="range"
-             min="10" max="100" step="15"
-             value={ penSize }
-             onchange={ changePenSize } />
-      Size: { penSize }
+    </div>
+
+    <div class="paint-tools">
+      <div class="tool tool-pen-size">
+        <input type="range"
+               min="5" max="95" step="15"
+               value={ penSize }
+               onchange={ changePenSize } />
+        <span class="pen-size">{ penSize }</span>
+      </div>
 
       <!-- Paint tools -->
       <button each={ paintTool in paintTools }
-              class={ paintToolClass(paintTool) }
+              class="tool { paintToolClass(paintTool) }"
               accesskey={ paintTool.constructor.accessKey }
               onclick={ onPaintToolClickHandler(paintTool) }>
         <img src="/img/{ paintTool.constructor.img }" /> { paintTool.constructor.title }
       </button>
     </div>
+
+    <button class="tool" onclick={ onClose }>Close</button>
   </div>
 
   <div class="map-container">

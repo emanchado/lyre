@@ -6,7 +6,7 @@ import ReconnectingWebSocket from "./ReconnectingWebSocket";
 const WEBSOCKET_URL = location.protocol.replace("http", "ws") +
             location.host + "/narrator/ws";
 
-const enum FileListerAppModes { FileList, Map };
+type FileListerAppModes = "filelist" | "map";
 
 @template("/templates/filelister.html")
 export default class FileListerApp extends Riot.Element
@@ -22,11 +22,14 @@ export default class FileListerApp extends Riot.Element
         this.scenes = this.opts.scenes;
 
         this.mappingApp = this.tags.mapdiscoverer;
-        this.mode = FileListerAppModes.FileList;
+        this.mode = "filelist";
 
         this.socket = new ReconnectingWebSocket(WEBSOCKET_URL);
         this.socket.on("open", () => { this.update(); });
         this.socket.on("close", () => { this.update(); });
+
+        this.switchToFileListMode = this.switchToFileListMode.bind(this);
+        this.onImageClickHandler = this.onImageClickHandler.bind(this);
     }
 
     isOnline(): boolean {
@@ -34,15 +37,16 @@ export default class FileListerApp extends Riot.Element
     }
 
     switchToFileListMode() {
-        this.mode = FileListerAppModes.FileList;
+        this.mode = "filelist";
+        this.update();
     }
 
     fileListMode() {
-        return this.mode === FileListerAppModes.FileList;
+        return this.mode === "filelist";
     }
 
     mapMode() {
-        return this.mode === FileListerAppModes.Map;
+        return this.mode === "map";
     }
 
     onImageClickHandler(imageProps) {
@@ -55,10 +59,10 @@ export default class FileListerApp extends Riot.Element
                 }));
             };
         } else {
-            return function(e) {
-                this.mode = FileListerAppModes.Map;
+            return e => {
+                this.mode = "map";
                 this.mappingApp.loadMap(imageProps.url);
-            }.bind(this.parent);
+            };
         }
     }
 }

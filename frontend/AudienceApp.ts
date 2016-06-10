@@ -17,7 +17,7 @@ export default class AudienceApp extends Riot.Element
         super();
 
         this.mode = "image";
-        this.imageUrl = "/img/lyre.png";
+        this.imageUrl = "/img/av.png";
 
         // This is a named element, see the template
         const mapCanvas = this.mapcanvas;
