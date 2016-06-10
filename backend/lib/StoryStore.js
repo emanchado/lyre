@@ -494,7 +494,11 @@ class StoryStore {
                 "get",
                 "SELECT id, title, position FROM playlists WHERE id = ?",
                 newPlaylistId
-            );
+            ).then(playlistInfo => {
+                playlistInfo.tracks = [];
+
+                return playlistInfo;
+            });
         });
     }
 
@@ -677,7 +681,7 @@ class StoryStore {
         const originalExtension = fileProps.filename.replace(/.*\./, ""),
               finalFilename = poorMansUuid() + "." + originalExtension;
 
-        return this.storyIdForScene(playlistId).then(storyId => {
+        return this.storyIdForPlaylist(playlistId).then(storyId => {
             const finalPath = path.join(this.storyDir,
                                         storyId.toString(),
                                         "audio",

@@ -24,11 +24,20 @@
       text-transform: uppercase;
       flex-basis: auto;
     }
+
+    h1.selected {
+      border: 3px solid #22c064;
+      padding-top: 3px;
+      padding-bottom: 3px;
+    }
   </style>
 
   <div class="scene-header">
     <div class="line"></div>
-    <h1><yield/></h1>
+    <h1 onclick={ onSceneClick }
+        class={ isSelected() ? "selected" : "" }>
+      { opts.title }
+    </h1>
     <div class="line"></div>
   </div>
 </sceneheader>

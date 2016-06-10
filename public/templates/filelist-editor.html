@@ -58,10 +58,10 @@
   </style>
 
   <div class="scene" each={ scene in opts.scenes }>
-    <sceneheader-editor id={ scene.id }
-                        title={ scene.title }
-                        selectedItem={ parent.opts.selecteditem }
-                        onSceneSelect={ onSceneSelect } />
+    <sceneheader id={ scene.id }
+                 title={ scene.title }
+                 selectedItem={ parent.opts.selecteditem }
+                 onSceneSelect={ onSceneSelect } />
     <ul class="image-list">
       <li each={ file in scene.files }
           class={ file.type }

@@ -24,7 +24,8 @@
 
   <div show={ fileListMode() }>
     <div class="scene" each={ scene in scenes }>
-      <sceneheader>{ scene.title }</sceneheader>
+      <sceneheader id={ scene.id }
+                   title={ scene.title } />
       <ul class="image-list">
         <li each={ file in scene.files }
             class={ file.type }

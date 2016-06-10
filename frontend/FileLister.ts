@@ -8,9 +8,6 @@ const WEBSOCKET_URL = location.protocol.replace("http", "ws") +
 
 const enum FileListerAppModes { FileList, Map };
 
-@template("/templates/sceneheader.html")
-class SceneHeader extends Riot.Element {}
-
 @template("/templates/filelister.html")
 export default class FileListerApp extends Riot.Element
 {
