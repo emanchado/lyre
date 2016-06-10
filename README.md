@@ -46,7 +46,6 @@ TODO
 
 First release:
 
-* Rename playlists
 * Remove scenes
 * Clean up the mapping tool styles
 * Maybe add "Audience View" to the AV?

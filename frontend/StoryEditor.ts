@@ -45,6 +45,7 @@ export default class StoryEditor extends Riot.Element
         this.onPlaylistCreate = this.onPlaylistCreate.bind(this);
         this.onPlaylistTitleUpdate = this.onPlaylistTitleUpdate.bind(this);
         this.onTracksPlaylistClick = this.onTracksPlaylistClick.bind(this);
+        this.onRenamePlaylistClick = this.onRenamePlaylistClick.bind(this);
         this.onTrackSelect = this.onTrackSelect.bind(this);
         this.onTrackUpload = this.onTrackUpload.bind(this);
         this.onPlaylistMoved = this.onPlaylistMoved.bind(this);
@@ -303,6 +304,30 @@ export default class StoryEditor extends Riot.Element
             }
         })
         this.selectedItem.id = null;
+    }
+
+    onRenamePlaylistClick(e) {
+        let playlist;
+
+        this.playlists.forEach(pl => {
+            if (pl.id === this.selectedItem.id) {
+                playlist = pl;
+            }
+        });
+
+        const newTitle = prompt(
+            "New title for playlist '" + playlist.title + "'",
+            playlist.title
+        );
+
+        if (newTitle !== null && newTitle.trim() !== "") {
+            playlist.title = newTitle.trim();
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("PUT", "/api/playlists/" + playlist.id);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(JSON.stringify({"title": playlist.title}));
+        }
     }
 
     onTrackSelect(trackId: number) {
