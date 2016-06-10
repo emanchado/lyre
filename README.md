@@ -46,7 +46,6 @@ TODO
 
 First release:
 
-* Remove scenes
 * Clean up the mapping tool styles
 * Maybe add "Audience View" to the AV?
 * Allow managing stories

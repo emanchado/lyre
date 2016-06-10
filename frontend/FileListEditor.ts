@@ -3,65 +3,26 @@
 import MapDiscoverer from "./MapDiscoverer";
 import ReconnectingWebSocket from "./ReconnectingWebSocket";
 
-const ENTER_KEY = 13;
-const ESC_KEY = 27;
-
 @template("/templates/sceneheader-editor.html")
 class SceneHeaderEditor extends Riot.Element {
-    private editMode: boolean;
-    private editfield: HTMLInputElement;
-    private toolBoxHovered: boolean;
+    private sceneId: number;
 
     constructor() {
         super();
-        this.editMode = false;
-        this.toolBoxHovered = false;
+
+        this.sceneId = this.opts.id;
+        this.onSceneClick = this.onSceneClick.bind(this);
     }
 
-    switchViewMode() {
-        this.editMode = false;
-        this.update();
+    isSelected() {
+        return this.opts.selecteditem._type === "scene" &&
+            this.opts.selecteditem.id === this.opts.id;
     }
 
-    switchEditMode() {
-        this.editMode = true;
-        // Make sure the input field is in the DOM before trying to focus
-        this.update();
-        this.editfield.focus();
-    }
+    onSceneClick(e) {
+        const onSceneSelect = this.opts.onsceneselect || function() {};
 
-    onKeyDown(e) {
-        const onTitleUpdate = this.opts.ontitleupdate;
-
-        if (e.which === ENTER_KEY) {
-            this.switchViewMode();
-        } else if (e.which === ESC_KEY) {
-            this.editfield.value = this.opts.scene.title;
-            this.switchViewMode();
-        }
-        // Return true; otherwise, the event default is prevented
-        return true;
-    }
-
-    onBlur(e) {
-        if (this.opts.scene.title !== e.target.value) {
-            this.opts.ontitleupdate(this.opts.scene.id, e.target.value);
-        }
-        this.switchViewMode();
-    }
-
-    onHoverToolbox(e) {
-        this.toolBoxHovered = true;
-        return true;
-    }
-
-    onMouseOutToolbox(e) {
-        this.toolBoxHovered = false;
-        return true;
-    }
-
-    onDeleteButtonClick(e) {
-        this.opts.ondelete(this.opts.scene.id);
+        onSceneSelect(this.sceneId);
     }
 }
 
@@ -71,6 +32,7 @@ export default class FileListerEditor extends Riot.Element
     private storyId: number;
     private scenes;
     private currentDraggedItem;
+    private onSceneSelect: Function;
     private onSceneTitleUpdate: Function;
     private onSceneDelete: Function;
     private onFileSelect: Function;
@@ -82,6 +44,7 @@ export default class FileListerEditor extends Riot.Element
 
         this.storyId = this.opts.storyid;
         this.scenes = this.opts.scenes;
+        this.onSceneSelect = this.opts.onsceneselect;
         this.onSceneTitleUpdate = this.opts.onscenetitleupdate;
         this.onSceneDelete = this.opts.onscenedelete;
         this.onFileSelect = this.opts.onfileselect;

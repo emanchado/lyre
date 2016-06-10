@@ -25,52 +25,19 @@
       flex-basis: auto;
     }
 
-    .toolbox {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-    }
-
-    .tool {
-      width: 100px;
-      height: 50px;
-      padding: 10px;
-      margin: 3px;
-
-      background-color: #22c064;
-      vertical-align: middle;
-      text-align: center;
-
-      line-height: 30px;
-
-      cursor: pointer;
-    }
-
-    .tool-danger {
-      background-color: #d0021b;
+    h1.selected {
+      border: 3px solid #22c064;
+      padding-top: 3px;
+      padding-bottom: 3px;
     }
   </style>
 
   <div class="scene-header">
     <div class="line"></div>
-    <h1 show={ !editMode } onclick={ switchEditMode }>{ opts.scene.title }</h1>
-    <h1 show={ editMode }>
-      <input id="editfield"
-             type="text"
-             value={ opts.scene.title }
-             onkeydown={ onKeyDown.bind(this) }
-             onblur={ onBlur.bind(this) } />
+    <h1 onclick={ onSceneClick }
+        class={ isSelected() ? "selected" : "" }>
+      { opts.title }
     </h1>
     <div class="line"></div>
-  </div>
-
-  <div class="toolbox"
-       show={ opts.showdeletebutton && (editMode || toolBoxHovered) }
-       onmouseover={ onHoverToolbox.bind(this) }
-       onmouseout={ onMouseOutToolbox.bind(this) }>
-    <div class="tool tool-danger"
-         onclick={ onDeleteButtonClick.bind(this) }>
-      Delete
-    </div>
   </div>
 </sceneheader-editor>

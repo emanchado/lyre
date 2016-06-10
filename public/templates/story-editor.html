@@ -50,6 +50,7 @@
         <filelist-editor storyId={ opts.storyid }
                          scenes={ scenes }
                          selectedItem={ selectedItem }
+                         onSceneSelect={ onSceneSelect }
                          onSceneTitleUpdate={ onSceneTitleUpdate }
                          onSceneDelete={ onSceneDelete }
                          onFileSelect={ onFileSelect }
@@ -57,6 +58,14 @@
                          onFileUpload={ onFileUpload } />
       </div>
     </div>
+  </div>
+
+  <!-- Menu when a scene is selected -->
+  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "scene" }>
+    <div class="tool tool-danger"
+         onclick={ onDeleteSceneClick }>Delete</div>
+    <div class="tool"
+         onclick={ onRenameSceneClick }>Rename</div>
   </div>
 
   <!-- Menu when a file is selected -->
@@ -77,7 +86,7 @@
          onclick={ onRenamePlaylistClick }>Rename</div>
   </div>
 
-  <!-- Menu when a playlist is selected -->
+  <!-- Menu when a track is selected -->
   <div id="toolbox" show={ selectedItem.id && selectedItem._type === "track" }>
     <div class="tool tool-danger"
          onclick={ onDeleteTrackClick }>Delete</div>

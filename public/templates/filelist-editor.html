@@ -26,7 +26,7 @@
       right: 5px;
     }
 
-    .selected {
+    img.selected {
       border: 5px solid #22c064;
       margin: -5px;
     }
@@ -58,10 +58,10 @@
   </style>
 
   <div class="scene" each={ scene in opts.scenes }>
-    <sceneheader-editor scene={ scene }
-                        showdeletebutton={ scene.files.length === 0 }
-                        ondelete={ onSceneDelete }
-                        ontitleupdate={ onSceneTitleUpdate } />
+    <sceneheader-editor id={ scene.id }
+                        title={ scene.title }
+                        selectedItem={ parent.opts.selecteditem }
+                        onSceneSelect={ onSceneSelect } />
     <ul class="image-list">
       <li each={ file in scene.files }
           class={ file.type }

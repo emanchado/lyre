@@ -5,7 +5,7 @@ interface SelectedItem {
     _type: string
 }
 
-type SelectionType = "file" | "playlist" | "track";
+type SelectionType = "scene" | "file" | "playlist" | "track";
 
 function readProp(obj, propName) {
     return obj[propName];
@@ -34,8 +34,8 @@ export default class StoryEditor extends Riot.Element
         // passed around
         this.onSceneCreateClick = this.onSceneCreateClick.bind(this);
         this.onSceneCreate = this.onSceneCreate.bind(this);
+        this.onSceneSelect = this.onSceneSelect.bind(this);
         this.onSceneTitleUpdate = this.onSceneTitleUpdate.bind(this);
-        this.onSceneDelete = this.onSceneDelete.bind(this);
         this.onFileSelect = this.onFileSelect.bind(this);
         this.onFileMoved = this.onFileMoved.bind(this);
         this.onFileUpload = this.onFileUpload.bind(this);
@@ -75,6 +75,10 @@ export default class StoryEditor extends Riot.Element
         xhr.send(JSON.stringify({"title": newSceneTitle}));
     }
 
+    onSceneSelect(sceneId: number) {
+        this.select("scene", sceneId);
+    }
+
     onSceneTitleUpdate(sceneId: number, newSceneTitle: string) {
         let xhr = new XMLHttpRequest();
         xhr.open("PUT", "/api/scenes/" + sceneId);
@@ -88,24 +92,6 @@ export default class StoryEditor extends Riot.Element
             });
         });
         xhr.send(JSON.stringify({"title": newSceneTitle}));
-    }
-
-    onSceneDelete(sceneId) {
-        const xhr = new XMLHttpRequest();
-        xhr.open("DELETE", "/api/scenes/" + sceneId);
-        xhr.addEventListener("load", () => {
-            let sceneIndex = null;
-
-            this.scenes.forEach((scene, i) => {
-                if (scene.id === sceneId) {
-                    sceneIndex = i;
-                }
-            });
-
-            this.scenes.splice(sceneIndex, 1);
-            this.update();
-        });
-        xhr.send();
     }
 
     select(newType: SelectionType, newId: number) {
@@ -150,6 +136,57 @@ export default class StoryEditor extends Riot.Element
         formData.append("file", fileData);
         formData.append("type", "image");
         xhr.send(formData);
+    }
+
+    onDeleteSceneClick(e) {
+        let scene, sceneIndex;
+        this.scenes.forEach((s, i) => {
+            if (s.id === this.selectedItem.id) {
+                scene = s;
+                sceneIndex = i;
+            }
+        });
+
+        if (scene.files.length) {
+            alert("Sorry, cannot delete scenes that have associated files");
+            return;
+        }
+
+        if (!confirm("Delete selected scene?")) {
+            return;
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("DELETE", "/api/scenes/" + scene.id);
+        xhr.addEventListener("load", () => {
+            this.scenes.splice(sceneIndex, 1);
+            this.update();
+        });
+        xhr.send();
+    }
+
+    onRenameSceneClick(e) {
+        let scene;
+
+        this.scenes.forEach(pl => {
+            if (pl.id === this.selectedItem.id) {
+                scene = pl;
+            }
+        });
+
+        const newTitle = prompt(
+            "New title for scene '" + scene.title + "'",
+            scene.title
+        );
+
+        if (newTitle !== null && newTitle.trim() !== "") {
+            scene.title = newTitle.trim();
+
+            let xhr = new XMLHttpRequest();
+            xhr.open("PUT", "/api/scenes/" + scene.id);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.send(JSON.stringify({"title": scene.title}));
+        }
     }
 
     onDeleteFileClick(e) {
