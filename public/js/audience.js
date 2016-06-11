@@ -155,4 +155,8 @@ window.addEventListener("load", function() {
     document.addEventListener("resize", function(/*evt*/) {
         currentDocumentHeight = document.body.clientHeight;
     }, false);
+
+    content.style.display = 'none';
+    pictures.style.display = 'none';
+    showPicture({originalUrl: "/img/lyre-big.png"});
 }, false);
