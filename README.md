@@ -47,5 +47,10 @@ TODO
 
 Credits
 -------
+* Initial UI sketches by Henrik Johnsen
+* Concept, code, and logo by Esteban Manchado Velázquez
 * Compass icon by [jhnri4](https://openclipart.org/detail/87583/compass-symbol)
 * Most other icons from flaticon.com
+
+You can assume the good parts of the UI come from the initial
+sketches, and the bad parts were introduced by Esteban :-)
