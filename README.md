@@ -37,8 +37,6 @@ Once that is done, you will have Lyre available at:
 TODO
 ----
 
-* Add logo for the initial listen
-
 * Remove code for galleries, jQuery, etc.
 * Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)
 * Reorder scenes
