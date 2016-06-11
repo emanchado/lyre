@@ -61,7 +61,6 @@ export default class PlaylistApp extends Riot.Element
 
     playTrackHandler(playlistTitle: string, trackIndex: number) {
         return function(e) {
-            console.log("Starting track", trackIndex, "in", playlistTitle);
             this.playTrack(playlistTitle, trackIndex);
         }.bind(this.parent);
     }

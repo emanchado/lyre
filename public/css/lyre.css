@@ -70,23 +70,98 @@ input {
     margin-top: 70px;
 }
 
+button {
+    min-width: 100px;
+    height: 50px;
+    margin: 3px;
+    border: 0;
+    padding: 10px 15px;
+
+    background-color: #22c064;
+    vertical-align: middle;
+    text-align: center;
+
+    line-height: 30px;
+
+    cursor: pointer;
+}
+
+
 footer {
     font-size: 80%;
 }
 
-audienceview-app {
-    width: 64px;
+.floating-toolbox {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+
+    display: flex;
+    flex-direction: column;
 }
 
-.panel-body h2 {
-    margin-top: 0;
+.tool, a.tool {
+    display: inline-block;
+    min-width: 100px;
+    height: 50px;
+    padding: 10px 15px;
+    margin: 3px;
+
+    color: inherit;
+    background-color: #22c064;
+    vertical-align: middle;
+    text-align: center;
+    text-decoration: none;
+
+    line-height: 30px;
+
+    cursor: pointer;
 }
 
-.scenario-details {
-    font-size: 80%;
-    color: #444;
+.tool-danger, a.tool-danger {
+    background-color: #d0021b;
 }
 
-#map-discoverer {
-    overflow: auto;
+.story {
+    display: flex;
+    justify-content: space-between;
+
+    height: 60px;
+
+    margin-left: 30px;
+    margin-right: 30px;
+}
+
+a.story-link {
+    color: inherit;
+
+    vertical-align: middle;
+    line-height: 60px;
+
+    text-decoration: none;
+    font-size: 18px;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.story-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+label.big {
+    margin-top: 20px;
+
+    font-size: 24px;
+    font-weight: normal;
+}
+
+.story-form input {
+    height: 40px;
+    flex-grow: 1;
+
+    font-size: 24px;
 }

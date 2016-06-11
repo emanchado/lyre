@@ -1,31 +1,4 @@
 <story-editor>
-  <style scoped>
-    #toolbox {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-    }
-
-    .tool {
-      width: 100px;
-      height: 50px;
-      padding: 10px;
-      margin: 3px;
-
-      background-color: #22c064;
-      vertical-align: middle;
-      text-align: center;
-
-      line-height: 30px;
-
-      cursor: pointer;
-    }
-
-    .tool-danger {
-      background-color: #d0021b;
-    }
-  </style>
-
   <div class="top">
     <img class="logo" src="/img/lyre.png" />
     <playlist-editor show={ !isPlaylistZoomed() }
@@ -61,7 +34,7 @@
   </div>
 
   <!-- Menu when a scene is selected -->
-  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "scene" }>
+  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "scene" }>
     <div class="tool tool-danger"
          onclick={ onDeleteSceneClick }>Delete</div>
     <div class="tool"
@@ -69,7 +42,7 @@
   </div>
 
   <!-- Menu when a file is selected -->
-  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "file" }>
+  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "file" }>
     <div class="tool tool-danger"
          onclick={ onDeleteFileClick }>Delete</div>
     <div class="tool"
@@ -77,7 +50,7 @@
   </div>
 
   <!-- Menu when a playlist is selected -->
-  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "playlist" }>
+  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "playlist" }>
     <div class="tool tool-danger"
          onclick={ onDeletePlaylistClick }>Delete</div>
     <div class="tool"
@@ -87,14 +60,16 @@
   </div>
 
   <!-- Menu when a track is selected -->
-  <div id="toolbox" show={ selectedItem.id && selectedItem._type === "track" }>
+  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "track" }>
     <div class="tool tool-danger"
          onclick={ onDeleteTrackClick }>Delete</div>
   </div>
 
   <!-- Menu when there's something selected -->
-  <div id="toolbox" show={ !selectedItem.id }>
+  <div class="floating-toolbox" show={ !selectedItem.id }>
     <div class="tool" onclick={ onSceneCreateClick }>New Scene</div>
     <div class="tool" onclick={ onPlaylistCreateClick }>New Playlist</div>
+    <a class="tool" href="/stories/narrate/{ storyId }">Narrate</a>
+    <a class="tool tool-danger" href="/">Close</a>
   </div>
 </story-editor>

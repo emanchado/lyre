@@ -23,8 +23,7 @@ const webSockets = {narrator: [], audience: []},
 
 const store = new StoryStore(config.storyStore.dbPath,
                              config.storyStore.path);
-// TODO: This returns a promise, but there's no good way to wait for
-// it here
+// This returns a promise, but there's no good way to wait for it here
 store.connect();
 
 function index(req, res) {
@@ -33,8 +32,102 @@ function index(req, res) {
             storyList: storyList
         });
     }).catch(function(err) {
+        res.statusCode = 500;
         res.render("error", {
             errorMessage: "There was an error: " + err
+        });
+    });
+}
+
+function storyNew(req, res) {
+    res.render("story-new");
+}
+
+function storyCreate(req, res) {
+    const newStoryTitle = req.body["story-title"];
+
+    store.addStory({title: newStoryTitle}).then(() => {
+        res.redirect("/");
+    }).catch(error => {
+        res.statusCode = 400;
+        res.render("error", {
+            success: false,
+            errorMessage: error.toString()
+        });
+    });
+}
+
+function storyEdit(req, res) {
+    const storyId = req.params.id;
+
+    store.getStory(storyId).then(story => {
+        res.render("story-edit", {
+            id: storyId,
+            title: story.title
+        });
+    }).catch(() => {
+        res.statusCode = 400;
+        res.render("error", {
+            success: false,
+            errorMessage: "Story " + storyId + " doesn't exist"
+        });
+    });
+}
+
+function storyUpdate(req, res) {
+    const storyId = req.params.id,
+          newStoryTitle = req.body["story-title"];
+
+    store.updateStory(storyId, {title: newStoryTitle}).then(() => {
+        res.redirect("/");
+    }).catch(error => {
+        res.render("error", {
+            success: false,
+            errorMessage: error.toString()
+        });
+    });
+}
+
+function storyConfirmDelete(req, res) {
+    const storyId = req.params.id;
+
+    store.getStory(storyId).then(story => {
+        const numberScenes = story.scenes.length,
+              numberFiles = story.scenes.
+                  reduce((acc, scene) => acc + scene.files.length,
+                         0),
+              numberPlaylists = story.playlists.length,
+              numberTracks = story.playlists.
+                  reduce((acc, playlist) => acc + playlist.tracks.length,
+                         0);
+
+        res.render("story-confirm-delete", {
+            id: story.id,
+            title: story.title,
+            numberScenes,
+            numberFiles,
+            numberPlaylists,
+            numberTracks
+        });
+    }).catch(error => {
+        res.statusCode = 500;
+        res.render("error", {
+            success: false,
+            errorMessage: error.toString()
+        });
+    });
+}
+
+function storyDelete(req, res) {
+    const storyId = req.params.id;
+
+    store.deleteStory(storyId).then(() => {
+        res.redirect("/");
+    }).catch(error => {
+        res.statusCode = 400;
+        res.render("error", {
+            success: false,
+            errorMessage: error.toString()
         });
     });
 }
@@ -326,7 +419,9 @@ function wsConnection(ws) {
     webSockets[webSocketType].push(ws);
 }
 
-export { index, storyManage, storyNarrate, storyListen,
+export { index, storyNew, storyCreate, storyEdit, storyUpdate,
+         storyConfirmDelete, storyDelete, storyManage, storyNarrate,
+         storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,

@@ -35,6 +35,12 @@ app.use("/stories", express.static(config.storyStore.path));
 app.use(expressLayout());
 
 app.all("/", authMiddleware, endpoints.index);
+app.all("/stories/new", authMiddleware, endpoints.storyNew);
+app.post("/stories/create", authMiddleware, endpoints.storyCreate);
+app.all("/stories/edit/:id", authMiddleware, endpoints.storyEdit);
+app.post("/stories/update/:id", authMiddleware, endpoints.storyUpdate);
+app.all("/stories/confirm-delete/:id", authMiddleware, endpoints.storyConfirmDelete);
+app.post("/stories/delete/:id", authMiddleware, endpoints.storyDelete);
 app.all("/stories/manage/:id", authMiddleware, endpoints.storyManage);
 app.all("/stories/narrate/:id", authMiddleware, endpoints.storyNarrate);
 // These endpoints do NOT have authentication!

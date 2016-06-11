@@ -1,0 +1,13 @@
+<div class="top">
+  <img class="logo" src="/img/lyre.png" />
+  <h1>Lyre &ndash; Stories</h1>
+</div>
+
+<div class="container-fluid">
+  <label class="big" for="story-title">Title of the new story:</label>
+  <form id="story-title" class="story-form" method="post" action="/stories/create">
+    <input type="text" name="story-title" placeholder="New story…" />
+    <button type="submit">Create</button>
+    <button class="tool-danger" onclick="location.href = '/'; return false;">Cancel</button>
+  </form>
+</div>

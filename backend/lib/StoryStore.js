@@ -89,6 +89,35 @@ class StoryStore {
         return upgradeDb(this.db);
     }
 
+    addStory(storyProps) {
+        const deferred = Q.defer();
+
+        if (!storyProps.title) {
+            deferred.reject(new BadParameterException(
+                "Cannot create scene without a title"
+            ));
+            return deferred.promise;
+        }
+
+        this.db.run(
+            "INSERT INTO stories (title) VALUES (?)",
+            storyProps.title,
+            function(err) {
+                if (err) {
+                    deferred.reject(err);
+                    return;
+                }
+
+                deferred.resolve({
+                    id: this.lastID,
+                    title: storyProps.title
+                });
+            }
+        );
+
+        return deferred.promise;
+    }
+
     listStories() {
         return Q.ninvoke(
             this.db,
@@ -143,6 +172,53 @@ class StoryStore {
         });
     }
 
+    updateStory(storyId, newProps) {
+        if (!newProps.title) {
+            const deferred = Q.defer();
+            deferred.reject(new BadParameterException(
+                "Need a non-empty title to update a story"
+            ));
+            return deferred.promise;
+        }
+
+        return Q.ninvoke(
+            this.db,
+            "run",
+            "UPDATE stories SET title = ? WHERE id = ?",
+            [newProps.title, storyId]
+        ).then(() => {
+            return this.getStory(storyId);
+        });
+    }
+
+    deleteStory(storyId) {
+        return this.getStory(storyId).then(story => {
+            const sceneDelPromises = story.scenes.map(scene => {
+                return Q.all(scene.files.map(file => {
+                    return this.deleteFile(storyId, file.id);
+                })).then(() => {
+                    return this.deleteScene(scene.id);
+                });
+            });
+            const playlistDelPromises = story.playlists.map(playlist => {
+                return Q.all(playlist.tracks.map(track => {
+                    return this.deleteTrack(track.id);
+                })).then(() => {
+                    return this.deletePlaylist(playlist.id);
+                });
+            });
+
+            return Q.all(sceneDelPromises, playlistDelPromises).then(() => {
+                return Q.ninvoke(
+                    this.db,
+                    "run",
+                    "DELETE FROM stories WHERE id = ?",
+                    storyId
+                );
+            });
+        });
+    }
+
     addScene(storyId, sceneProps) {
         const deferred = Q.defer();
 
@@ -161,7 +237,8 @@ class StoryStore {
             function() {
                 deferred.resolve({
                     id: this.lastID,
-                    title: sceneProps.title
+                    title: sceneProps.title,
+                    files: []
                 });
             }
         );

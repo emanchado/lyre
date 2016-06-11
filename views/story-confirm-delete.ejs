@@ -1,0 +1,27 @@
+<div class="top">
+  <img class="logo" src="/img/lyre.png" />
+  <h1>Lyre &ndash; Stories</h1>
+</div>
+
+<div class="container-fluid">
+  <h2>Confirm deletion</h2>
+  <% if (numberScenes || numberPlaylists) { %>
+    <p>The story <em><%= title %></em> has:</p>
+
+    <ul>
+      <li><strong><%= numberScenes %> scene(s)</strong>,
+        with <%= numberFiles %> file(s) total; and</li>
+      <li><strong><%= numberPlaylists %> playlist(s)</strong>,
+        with <%= numberTracks %> track(s) total.</li>
+    </ul>
+  <% } else { %>
+    <p>Story "<%= title %>" has no content.</p>
+  <% } %>
+
+  <p>Are you sure you want to delete it?</p>
+
+  <form id="story-title" class="story-form" method="post" action="/stories/delete/<%= id %>">
+    <button class="tool tool-danger" type="submit">Delete</button>
+    <a class="tool" href="/">No</a>
+  </form>
+</div>

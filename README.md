@@ -19,8 +19,8 @@ The contents of `local-development.js` have to be:
 
 Once that is done, open two browser tabs with the following URLs:
 
-1. http://localhost:3000/scenarios/narrate/1
-1. http://localhost:3000/scenarios/listen/1
+1. http://localhost:3000/stories/narrate/1
+1. http://localhost:3000/stories/listen/1
 
 The first one will usually be loaded in the narrator's laptop, and the
 second will be loaded in a device shared by the players (eg. a tablet).
@@ -44,14 +44,8 @@ under `public/catalog`.
 TODO
 ----
 
-First release:
-
-* Allow managing stories
 * Remove code for galleries, jQuery, etc.
 * Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)
-
-Later:
-
 * Reorder scenes
 * Map markers for characters?
 * Mark unsent map bits?

@@ -1,21 +1,35 @@
-<div class="row">
-  <div class="col-md-12">
-    <h1>Stories</h1>
+<div class="top">
+  <img class="logo" src="/img/lyre.png" />
+  <h1>Lyre &ndash; Stories</h1>
+</div>
 
+<div class="container-fluid">
     <% if (storyList.length) { %>
       <% storyList.forEach(function(story) { %>
-        <div class="col-md-12">
-          <a href="/stories/manage/<%= story.id %>">
-            <div class="panel panel-default">
-              <div class="panel-body">
-                <%= story.title %>
-              </div>
+        <div class="story">
+            <a class="story-link" href="/stories/manage/<%= story.id %>">
+              <%= story.title %>
+            </a>
+
+            <div class="options">
+              <a class="tool" href="/stories/edit/<%= story.id %>">Rename</a>
+              <a class="tool tool-danger" href="/stories/confirm-delete/<%= story.id %>">Delete</a>
             </div>
-          </a>
         </div>
       <% }); %>
     <% } else { %>
-      <em>No stories.</em>
+      <div class="row">
+        <div class="col-md-12">
+          <em>No stories.</em>
+        </div>
+      </div>
     <% } %>
   </div>
+</div>
+
+<div class="floating-toolbox">
+  <button onclick="location.href = '/stories/new'">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    New story
+  </button>
 </div>
