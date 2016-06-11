@@ -42,6 +42,7 @@ app.post("/stories/update/:id", authMiddleware, endpoints.storyUpdate);
 app.all("/stories/confirm-delete/:id", authMiddleware, endpoints.storyConfirmDelete);
 app.post("/stories/delete/:id", authMiddleware, endpoints.storyDelete);
 app.all("/stories/manage/:id", authMiddleware, endpoints.storyManage);
+app.all("/stories/narrate-instructions/:id", authMiddleware, endpoints.storyNarrateInstructions);
 app.all("/stories/narrate/:id", authMiddleware, endpoints.storyNarrate);
 // These endpoints do NOT have authentication!
 app.get("/stories/listen/:id", endpoints.storyListen);

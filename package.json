@@ -4,10 +4,13 @@
   "description": "A web application to help storytellers",
   "author": "Esteban Manchado Velázquez <emanchado@demiurgo.org>",
   "scripts": {
-    "start": "node build/index.js",
+    "start": "cd build/ && node index.js",
     "startdev": "cd build/ && nodemon index.js",
     "watchfe": "tsc -w -p frontend --outFile public/js/compiled/lyre.js",
-    "watchbe": "babel -w --modules common -d build/ backend/"
+    "watchbe": "babel -w --modules common -d build/ backend/",
+    "compilefe": "tsc -p frontend --outFile public/js/compiled/lyre.js",
+    "compilebe": "babel --modules common -d build/ backend/",
+    "compile": "npm run compilefe && npm run compilebe"
   },
   "dependencies": {
     "body-parser": "^1.15.0",

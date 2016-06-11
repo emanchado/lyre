@@ -89,4 +89,27 @@
            style="display: none"
            onChange={ onNewFileChanged.bind(this) } />
   </div>
+
+  <div class="instructions" show={ opts.scenes.length === 0 }>
+    <h2>Instructions</h2>
+
+    <p>Create scenes and playlists with the buttons at the bottom
+    right.</p>
+
+    <p><strong>Scenes</strong> are collections of files, which can be
+    <em>regular images</em> or <em>maps</em>. The latter are images
+    that you want to uncover slowly and send to the audience bit by
+    bit.</p>
+
+    <p><strong>Playlists</strong> are collections of audio tracks that
+    will play in a loop until you stop them. Typically you have
+    playlists for specific moods
+    (<em>action</em>, <em>suspense</em>, <em>epilogue</em>, etc.)
+    and/or specific scenes (<em>creepy
+    church</em>, <em>swamp</em>, <em>interrogation</em>, etc.).</p>
+
+    <p>When you're ready to tell your story, hit "Narrate". An address
+    will appear on screen: load it in a browser on one or more devices
+    to be used by the audience, then hit "Start".</p>
+  </div>
 </filelist-editor>

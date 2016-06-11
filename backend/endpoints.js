@@ -145,9 +145,15 @@ function storyManage(req, res) {
     });
 }
 
+function storyNarrateInstructions(req, res) {
+    res.render("story-narrate-instructions", {id: req.params.id});
+}
+
 function storyNarrate(req, res) {
+    const storyId = req.params.id;
+
     res.render("story-narrate", {
-        id: 1
+        id: storyId
     });
 }
 
@@ -420,8 +426,8 @@ function wsConnection(ws) {
 }
 
 export { index, storyNew, storyCreate, storyEdit, storyUpdate,
-         storyConfirmDelete, storyDelete, storyManage, storyNarrate,
-         storyListen,
+         storyConfirmDelete, storyDelete, storyManage,
+         storyNarrateInstructions, storyNarrate, storyListen,
          apiStories, apiStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,

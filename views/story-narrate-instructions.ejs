@@ -1,0 +1,37 @@
+<div class="instructions">
+  <h2>Ready?</h2>
+
+  <p>First of all, load the following address in a browser on the
+    audience's device:</p>
+
+  <div class="url-container">
+    <input class="audience-url"
+           type="text"
+           id="audience-url"
+           readonly
+           size="50"
+           value="/stories/listen/<%= id %>" />
+  </div>
+
+  <p>Then press "Start", below. From that moment on you can click on
+    the playlists to play them, and click on images to send them to
+    the audience's device. Clicking on a map will bring a special
+    interface to uncover the parts you want, and send the uncovered
+    area to the audience.</p>
+
+  <p><a href="https://en.wikipedia.org/wiki/Break_a_leg">Break a leg!</a></p>
+</div>
+
+<div class="floating-toolbox">
+  <a class="tool" href="/stories/manage/<%= id %>">Back</a>
+  <a class="tool tool-danger" href="/stories/narrate/<%= id %>">Start</a>
+</div>
+
+<script>
+ var audienceUrlBox = document.getElementById("audience-url"),
+     storyId = <%= id %>;
+
+ audienceUrlBox.value = location.protocol + location.host +
+                        "/stories/listen/" + storyId;
+ audienceUrlBox.select();
+</script>

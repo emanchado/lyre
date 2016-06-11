@@ -6,7 +6,7 @@
 <div class="container-fluid">
   <label class="big" for="story-title">Title of the new story:</label>
   <form id="story-title" class="story-form" method="post" action="/stories/create">
-    <input type="text" name="story-title" placeholder="New story…" />
+    <input type="text" name="story-title" placeholder="New story…" autofocus />
     <button type="submit">Create</button>
     <button class="tool-danger" onclick="location.href = '/'; return false;">Cancel</button>
   </form>

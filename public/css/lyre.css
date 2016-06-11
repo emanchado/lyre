@@ -165,3 +165,20 @@ label.big {
 
     font-size: 24px;
 }
+
+.instructions {
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 50em;
+}
+
+.url-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.audience-url {
+    text-align: center;
+    font-size: 18px;
+}

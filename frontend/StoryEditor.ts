@@ -160,6 +160,7 @@ export default class StoryEditor extends Riot.Element
         xhr.open("DELETE", "/api/scenes/" + scene.id);
         xhr.addEventListener("load", () => {
             this.scenes.splice(sceneIndex, 1);
+            this.selectedItem.id = null;
             this.update();
         });
         xhr.send();

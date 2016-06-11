@@ -6,7 +6,7 @@
 <div class="container-fluid">
   <label class="big" for="story-title">New story title:</label>
   <form id="story-title" class="story-form" method="post" action="/stories/update/<%= id %>">
-    <input type="text" name="story-title" placeholder="New story title…" value="<%= title %>"/>
+    <input type="text" name="story-title" placeholder="New story title…" value="<%= title %>" autofocus />
     <button type="submit">Rename</button>
     <a class="tool tool-danger" href="/">Cancel</a>
   </form>
