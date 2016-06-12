@@ -4,17 +4,28 @@ Lyre
 This is a web-based storyteller helper program. It allows a narrator
 to use images and music to support the storytelling.
 
-The idea is that the narrator will use a computer and the audience
-will use another device, maybe a tablet. Then, the narrator can play
-music, and also choose images that will appear on the audience's
+The idea is that, for each story, the narrator will prepare a set of
+images and audio tracks for it. Then, when telling the story, the
+narrator will use a computer and the audience will use another device,
+maybe a tablet. As the story progresses, the narrator can play music,
+and also choose images that will appear on the audience's
 device. There's also special support for maps, which the narrator will
 be able to uncover bit by bit and send only the uncovered parts to the
 audience.
 
+See https://emanchado.github.io/lyre for more information and
+examples.
+
 Running Lyre
 ------------
 
-To get started, you have to:
+Unfortunately you need a server to run Lyre on. You can use your own
+computer, but you have to know how to make other devices connect to it
+(eg. find out your IP). Worst case scenario, you can use Lyre to play
+the music.
+
+To get started, make sure you have [Node](http://nodejs.org) **and**
+[ImageMagick](http://imagemagick.org/) installed and then:
 
 1. Run `npm install` to get dependencies.
 1. Create `backend/config/local-development.js` (see below).
@@ -23,13 +34,14 @@ To get started, you have to:
 1. Run `npm run compile`.
 1. Run `npm run start`.
 
-The contents of `local-development.js` have to be:
+The contents of `local-development.js` should at least be:
 
     module.exports = {
         secretPassphrase: "<my secret passphrase>"
     };
 
-Once that is done, you will have Lyre available at:
+Once that is done, you will be able to login to Lyre using the above
+passphrase, at:
 
     http://localhost:3000/
 
@@ -41,7 +53,7 @@ TODO
 * Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)
 * Reorder scenes
 * Map markers for characters?
-* Mark unsent map bits?
+* Highlight unsent map bits?
 
 Credits
 -------
