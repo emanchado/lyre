@@ -15,6 +15,7 @@ function readProp(obj, propName) {
 export default class StoryEditor extends Riot.Element
 {
     private storyId: number;
+    private storyTitle: string;
     private scenes: Array<any>;
     private playlists: Array<any>;
     private selectedItem: SelectedItem;
@@ -24,6 +25,7 @@ export default class StoryEditor extends Riot.Element
         super();
 
         this.storyId = this.opts.storyid;
+        this.storyTitle = this.opts.storytitle;
         this.scenes = this.opts.scenes;
         this.playlists = this.opts.playlists;
 
@@ -32,6 +34,9 @@ export default class StoryEditor extends Riot.Element
 
         // Bind event handler methods so that they can be safely
         // passed around
+        this.onRenameStoryClick = this.onRenameStoryClick.bind(this);
+        this.onStoryRename = this.onStoryRename.bind(this);
+        // Scene-related
         this.onSceneCreateClick = this.onSceneCreateClick.bind(this);
         this.onSceneCreate = this.onSceneCreate.bind(this);
         this.onSceneSelect = this.onSceneSelect.bind(this);
@@ -53,6 +58,30 @@ export default class StoryEditor extends Riot.Element
         this.onTrackMoved = this.onTrackMoved.bind(this);
     }
 
+    onRenameStoryClick(e) {
+        const newStoryTitle = prompt("New story title:", this.storyTitle);
+
+        if (newStoryTitle) {
+            this.onStoryRename(newStoryTitle);
+        }
+    }
+
+    onStoryRename(newStoryTitle: string) {
+        const self = this;
+
+        let xhr = new XMLHttpRequest();
+        xhr.open("PUT", "/api/stories/" + this.storyId);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status >= 200 && this.status < 400) {
+                self.storyTitle = newStoryTitle;
+                console.log("Calling update, now storyTitle =", self.storyTitle);
+                self.update();
+            }
+        });
+        xhr.send(JSON.stringify({"title": newStoryTitle}));
+    }
+
     onSceneCreateClick(e) {
         const newSceneTitle = prompt("Title for the new scene:");
 
@@ -65,7 +94,7 @@ export default class StoryEditor extends Riot.Element
         const self = this;
 
         let xhr = new XMLHttpRequest();
-        xhr.open("POST", "/api/stories/" + this.opts.storyid + "/scenes");
+        xhr.open("POST", "/api/stories/" + this.storyId + "/scenes");
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
             const newScene = JSON.parse(this.responseText);
@@ -200,7 +229,7 @@ export default class StoryEditor extends Riot.Element
         }
 
         const xhr = new XMLHttpRequest(),
-              deleteUrl = "/api/stories/" + this.opts.storyid +
+              deleteUrl = "/api/stories/" + this.storyId +
                               "/files/" + this.selectedItem.id;
 
         xhr.open("DELETE", deleteUrl);
@@ -235,7 +264,7 @@ export default class StoryEditor extends Riot.Element
             newType = selectedFileObject.type === "image" ? "map" : "image";
         xhr.open(
             "PUT",
-            "/api/stories/" + this.opts.storyid + "/files/" + this.selectedItem.id
+            "/api/stories/" + this.storyId + "/files/" + this.selectedItem.id
         );
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", () => {

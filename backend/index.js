@@ -37,8 +37,6 @@ app.use(expressLayout());
 app.all("/", authMiddleware, endpoints.index);
 app.all("/stories/new", authMiddleware, endpoints.storyNew);
 app.post("/stories/create", authMiddleware, endpoints.storyCreate);
-app.all("/stories/edit/:id", authMiddleware, endpoints.storyEdit);
-app.post("/stories/update/:id", authMiddleware, endpoints.storyUpdate);
 app.all("/stories/confirm-delete/:id", authMiddleware, endpoints.storyConfirmDelete);
 app.post("/stories/delete/:id", authMiddleware, endpoints.storyDelete);
 app.all("/stories/manage/:id", authMiddleware, endpoints.storyManage);
@@ -50,6 +48,7 @@ app.get("/stories/listen/:id", endpoints.storyListen);
 // API endpoints. No authentication for now, but need to have!
 app.get("/api/stories", endpoints.apiStories);
 app.get("/api/stories/:id", endpoints.apiStory);
+app.put("/api/stories/:id", endpoints.apiPutStory);
 app.post("/api/stories/:id/scenes", endpoints.apiPostStoryScene);
 app.put("/api/scenes/:id", endpoints.apiPutScene);
 app.post("/api/scenes/:id/files", endpoints.apiPostSceneFile);

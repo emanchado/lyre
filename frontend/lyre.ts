@@ -9,6 +9,7 @@ export default function mountAll(storyId) {
         riot.mount('playlist-app', {playlists: data.playlists});
         riot.mount('filelister-app', {scenes: data.scenes});
         riot.mount('story-editor', {storyid: data.id,
+                                    storytitle: data.title,
                                     scenes: data.scenes,
                                     playlists: data.playlists});
         // riot.mount('playlist-editor', {storyId: data.id,

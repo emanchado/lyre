@@ -57,37 +57,6 @@ function storyCreate(req, res) {
     });
 }
 
-function storyEdit(req, res) {
-    const storyId = req.params.id;
-
-    store.getStory(storyId).then(story => {
-        res.render("story-edit", {
-            id: storyId,
-            title: story.title
-        });
-    }).catch(() => {
-        res.statusCode = 400;
-        res.render("error", {
-            success: false,
-            errorMessage: "Story " + storyId + " doesn't exist"
-        });
-    });
-}
-
-function storyUpdate(req, res) {
-    const storyId = req.params.id,
-          newStoryTitle = req.body["story-title"];
-
-    store.updateStory(storyId, {title: newStoryTitle}).then(() => {
-        res.redirect("/");
-    }).catch(error => {
-        res.render("error", {
-            success: false,
-            errorMessage: error.toString()
-        });
-    });
-}
-
 function storyConfirmDelete(req, res) {
     const storyId = req.params.id;
 
@@ -168,6 +137,18 @@ function apiStories(req, res) {
 function apiStory(req, res) {
     return store.getStory(req.params.id).then(story => {
         res.json(story);
+    });
+}
+
+function apiPutStory(req, res) {
+    const storyId = req.params.id,
+          newStoryTitle = req.body.title;
+
+    return store.updateStory(storyId, {title: newStoryTitle}).then(story => {
+        res.json(story);
+    }).catch(error => {
+        res.statusCode = 400;
+        res.json({success: false, errorMessage: error.toString()});
     });
 }
 
@@ -425,11 +406,14 @@ function wsConnection(ws) {
     webSockets[webSocketType].push(ws);
 }
 
-export { index, storyNew, storyCreate, storyEdit, storyUpdate,
-         storyConfirmDelete, storyDelete, storyManage,
-         storyNarrateInstructions, storyNarrate, storyListen,
-         apiStories, apiStory, apiPutStoryFile, apiPutScene,
+export { index, storyNew, storyCreate, storyConfirmDelete,
+         storyDelete, storyManage, storyNarrateInstructions,
+         storyNarrate, storyListen,
+
+         apiStories, apiStory, apiPutStory, apiPutStoryFile, apiPutScene,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,
          apiDeletePlaylist, apiPostPlaylistTrack, apiPutStoryTrack,
-         apiDeleteTrack, wsConnection };
+         apiDeleteTrack,
+
+         wsConnection };

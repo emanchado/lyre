@@ -1,4 +1,12 @@
 <story-editor>
+  <style scoped>
+    .story-title {
+      text-align: center;
+      font-variant: small-caps;
+      font-size: 24px;
+    }
+  </style>
+
   <div class="top">
     <img class="logo" src="/img/lyre.png" />
     <playlist-editor show={ !isPlaylistZoomed() }
@@ -20,6 +28,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
+        <div class="story-title">{ storyTitle }</div>
         <filelist-editor storyId={ opts.storyid }
                          scenes={ scenes }
                          selectedItem={ selectedItem }
@@ -69,7 +78,7 @@
   <div class="floating-toolbox" show={ !selectedItem.id }>
     <div class="tool" onclick={ onSceneCreateClick }>New Scene</div>
     <div class="tool" onclick={ onPlaylistCreateClick }>New Playlist</div>
-    <a class="tool" href="/stories/narrate-instructions/{ storyId }">Narrate</a>
+    <div class="tool" onclick={ onRenameStoryClick }>Rename Story</div>
     <a class="tool tool-danger" href="/">Close</a>
   </div>
 </story-editor>
