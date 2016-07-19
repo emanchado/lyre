@@ -49,11 +49,18 @@ passphrase, at:
 TODO
 ----
 
+* Make sure this works for several concurrent narrations (at least of
+  different stories)
+* Maybe add security to the narrator WebSocket interaction
+* Find the reordering bug (big deal for playlists!)
 * Remove code for galleries, jQuery, etc.
 * Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)
 * Reorder scenes
 * Map markers for characters?
 * Highlight unsent map bits?
+* Allow sharing of text bits? How would that work? Would that be saved
+  for the session, so it can be sent again?
+* Allow pasting or dropping an image to share right away, without preparation
 
 Credits
 -------
