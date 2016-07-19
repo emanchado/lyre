@@ -49,11 +49,8 @@ passphrase, at:
 TODO
 ----
 
-* Make sure this works for several concurrent narrations (at least of
-  different stories)
 * Maybe add security to the narrator WebSocket interaction
 * Find the reordering bug (big deal for playlists!)
-* Remove code for galleries, jQuery, etc.
 * Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)
 * Reorder scenes
 * Map markers for characters?

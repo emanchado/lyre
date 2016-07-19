@@ -90,8 +90,7 @@ function createWebSocket(url, props) {
 
 function setupAudience(storyId) {
     var content = document.getElementById("content"),
-        picture = document.getElementById("picture"),
-        pictures = document.getElementById("pictures");
+        picture = document.getElementById("picture");
 
     document.getElementById("fullscreen-btn").addEventListener("click", function() {
         var element = document.body;
@@ -120,23 +119,17 @@ function setupAudience(storyId) {
 
                     if (data.type === 'map-metadata') {
                         picture.style.display = 'none';
-                        pictures.style.display = 'none';
                         content.style.display = '';
                         content.width = data.width;
                         content.height = data.height;
                         content.style.maxHeight = currentDocumentHeight + "px";
                         content.style.maxWidth = currentDocumentWidth + "px";
                     } else if (data.type === 'pictures') {
+                        // For now we only support one. If more are
+                        // sent, we could show a gallery or something.
                         content.style.display = 'none';
-                        if (data.pictures.length > 1) {
-                            picture.style.display = 'none';
-                            pictures.style.display = '';
-                            showGallery(data.pictures);
-                        } else {
-                            picture.style.display = '';
-                            pictures.style.display = 'none';
-                            showPicture(data.pictures[0]);
-                        }
+                        picture.style.display = '';
+                        showPicture(data.pictures[0]);
                     }
                 } catch(e) {
                     console.warn("dafuq did I just read?", msg.data);
@@ -157,6 +150,5 @@ function setupAudience(storyId) {
     }, false);
 
     content.style.display = 'none';
-    pictures.style.display = 'none';
     showPicture({originalUrl: "/img/lyre-big.png"});
 }
