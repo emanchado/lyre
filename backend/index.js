@@ -1,4 +1,5 @@
 import * as endpoints from "./endpoints";
+import * as wsEndpoints from "./wsEndpoints";
 import * as middlewares from "./middlewares";
 import config from "config";
 import express from "express";
@@ -62,7 +63,7 @@ app.post("/api/playlists/:id/tracks", endpoints.apiPostPlaylistTrack);
 app.put("/api/stories/:id/tracks/:trackId", endpoints.apiPutStoryTrack);
 app.delete("/api/tracks/:id", endpoints.apiDeleteTrack);
 
-wsServer.on("connection", endpoints.wsConnection);
+wsServer.on("connection", wsEndpoints.wsConnection);
 
 httpServer.listen(config.port, function() {
     console.log("Listening on http://localhost:" + config.port);

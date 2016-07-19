@@ -1,4 +1,3 @@
-import * as url from "url";
 import path from "path";
 
 import config from "config";
@@ -6,20 +5,6 @@ import Q from "q";
 import formidable from "formidable";
 
 import StoryStore, { BadParameterException } from "./lib/StoryStore";
-
-const webSockets = {narrator: [], audience: []},
-      webSocketTypeForUrl = {"/narrator/ws": "narrator",
-                             "/audience/ws": "audience"},
-      webSocketDispatcher = {
-          narrator: function(message) {
-              webSockets.audience.forEach(function(socket) {
-                  if (socket.readyState === 1) {
-                      socket.send(message);
-                  }
-              });
-          },
-          audience: function(/*message*/) {}
-      };
 
 const store = new StoryStore(config.storyStore.dbPath,
                              config.storyStore.path);
@@ -127,7 +112,7 @@ function storyNarrate(req, res) {
 }
 
 function storyListen(req, res) {
-    res.render("story-listen", {layout: false});
+    res.render("story-listen", {layout: false, id: req.params.id});
 }
 
 function apiStories(req, res) {
@@ -394,18 +379,6 @@ function apiDeleteTrack(req, res) {
     });
 }
 
-function wsConnection(ws) {
-    const location = url.parse(ws.upgradeReq.url, true),
-          webSocketType = webSocketTypeForUrl[location.path];
-
-    if (!(webSocketType in webSockets)) {
-        ws.close();
-        return;
-    }
-    ws.on("message", webSocketDispatcher[webSocketType]);
-    webSockets[webSocketType].push(ws);
-}
-
 export { index, storyNew, storyCreate, storyConfirmDelete,
          storyDelete, storyManage, storyNarrateInstructions,
          storyNarrate, storyListen,
@@ -414,6 +387,4 @@ export { index, storyNew, storyCreate, storyConfirmDelete,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,
          apiDeletePlaylist, apiPostPlaylistTrack, apiPutStoryTrack,
-         apiDeleteTrack,
-
-         wsConnection };
+         apiDeleteTrack };

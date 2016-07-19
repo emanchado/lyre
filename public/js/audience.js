@@ -88,7 +88,7 @@ function createWebSocket(url, props) {
     return socket;
 }
 
-window.addEventListener("load", function() {
+function setupAudience(storyId) {
     var content = document.getElementById("content"),
         picture = document.getElementById("picture"),
         pictures = document.getElementById("pictures");
@@ -104,7 +104,7 @@ window.addEventListener("load", function() {
     }, false);
 
     var wsUrl = location.protocol.replace("http", "ws") +
-            location.host + "/audience/ws";
+            location.host + "/audience/ws/" + storyId;
 
     createWebSocket(wsUrl, {
         onopen: function() {
@@ -159,4 +159,4 @@ window.addEventListener("load", function() {
     content.style.display = 'none';
     pictures.style.display = 'none';
     showPicture({originalUrl: "/img/lyre-big.png"});
-}, false);
+}

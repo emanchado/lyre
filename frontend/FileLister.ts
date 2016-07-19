@@ -11,6 +11,7 @@ type FileListerAppModes = "filelist" | "map";
 @template("/templates/filelister.html")
 export default class FileListerApp extends Riot.Element
 {
+    private storyId: number;
     private scenes;
     private socket: ReconnectingWebSocket;
     private mode: FileListerAppModes;
@@ -19,12 +20,14 @@ export default class FileListerApp extends Riot.Element
     constructor() {
         super();
 
+        this.storyId = this.opts.storyid;
         this.scenes = this.opts.scenes;
 
         this.mappingApp = this.tags.mapdiscoverer;
         this.mode = "filelist";
 
-        this.socket = new ReconnectingWebSocket(WEBSOCKET_URL);
+        const wsUrl = WEBSOCKET_URL + "/" + this.storyId;
+        this.socket = new ReconnectingWebSocket(wsUrl);
         this.socket.on("open", () => { this.update(); });
         this.socket.on("close", () => { this.update(); });
 

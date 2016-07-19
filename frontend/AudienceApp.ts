@@ -8,6 +8,7 @@ const AUDIENCE_WEBSOCKET_URL = location.protocol.replace("http", "ws") +
 @template("/templates/audienceview.html")
 export default class AudienceApp extends Riot.Element
 {
+    private storyId: number;
     private socket: ReconnectingWebSocket;
     private mode: string;
     private imageUrl: string;
@@ -16,12 +17,14 @@ export default class AudienceApp extends Riot.Element
     constructor() {
         super();
 
+        this.storyId = this.opts.storyid;
         this.mode = "image";
         this.imageUrl = "/img/av.png";
 
         // This is a named element, see the template
         const mapCanvas = this.mapcanvas;
-        this.socket = new ReconnectingWebSocket(AUDIENCE_WEBSOCKET_URL);
+        const wsUrl = AUDIENCE_WEBSOCKET_URL + "/" + this.storyId;
+        this.socket = new ReconnectingWebSocket(wsUrl);
         this.socket.on("open", () => { this.update(); });
         this.socket.on("close", () => { this.update(); });
         this.socket.on("message", (msg) => {

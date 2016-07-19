@@ -5,9 +5,10 @@ export default function mountAll(storyId) {
     xhr.addEventListener("load", function() {
         let data = JSON.parse(this.responseText);
 
-        riot.mount('audienceview-app');
+        riot.mount('audienceview-app', {storyid: data.id});
         riot.mount('playlist-app', {playlists: data.playlists});
-        riot.mount('filelister-app', {scenes: data.scenes});
+        riot.mount('filelister-app', {storyid: data.id,
+                                      scenes: data.scenes});
         riot.mount('story-editor', {storyid: data.id,
                                     storytitle: data.title,
                                     scenes: data.scenes,
