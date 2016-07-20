@@ -49,15 +49,14 @@ passphrase, at:
 TODO
 ----
 
-* Maybe add security to the narrator WebSocket interaction
-* Find the reordering bug (big deal for playlists!)
-* Catch API response errors in the frontend, esp. when trying to upload new stuff (check right types, too?)
-* Reorder scenes
 * Map markers for characters?
-* Highlight unsent map bits?
 * Allow sharing of text bits? How would that work? Would that be saved
   for the session, so it can be sent again?
 * Allow pasting or dropping an image to share right away, without preparation
+* Highlight unsent map bits?
+* Maybe add security to the narrator WebSocket interaction
+* Find the reordering bug (big deal for playlists!)
+* Reorder scenes
 
 Credits
 -------

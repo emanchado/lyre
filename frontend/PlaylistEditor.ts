@@ -106,7 +106,6 @@ export default class PlaylistEditor extends Riot.Element
     private selectedPlaylistId: number = null;
     private onPlaylistSelect: Function;
     private onPlaylistCreate: Function;
-    private onPlaylistTitleUpdate: Function;
     private onPlaylistMoved: Function;
     private currentDraggedItem;
 
@@ -115,7 +114,6 @@ export default class PlaylistEditor extends Riot.Element
 
         this.onPlaylistSelect = this.opts.onplaylistselect;
         this.onPlaylistCreate = this.opts.onplaylistcreate;
-        this.onPlaylistTitleUpdate = this.opts.onplaylisttitleupdate;
         this.onPlaylistMoved = this.opts.onplaylistmoved;
 
         this.onPlaylistClick = this.onPlaylistClick.bind(this);

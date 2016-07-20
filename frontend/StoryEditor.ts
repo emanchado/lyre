@@ -40,7 +40,6 @@ export default class StoryEditor extends Riot.Element
         this.onSceneCreateClick = this.onSceneCreateClick.bind(this);
         this.onSceneCreate = this.onSceneCreate.bind(this);
         this.onSceneSelect = this.onSceneSelect.bind(this);
-        this.onSceneTitleUpdate = this.onSceneTitleUpdate.bind(this);
         this.onFileSelect = this.onFileSelect.bind(this);
         this.onFileMoved = this.onFileMoved.bind(this);
         this.onFileUpload = this.onFileUpload.bind(this);
@@ -48,7 +47,6 @@ export default class StoryEditor extends Riot.Element
         this.onPlaylistSelect = this.onPlaylistSelect.bind(this);
         this.onPlaylistCreateClick = this.onPlaylistCreateClick.bind(this);
         this.onPlaylistCreate = this.onPlaylistCreate.bind(this);
-        this.onPlaylistTitleUpdate = this.onPlaylistTitleUpdate.bind(this);
         this.onTracksPlaylistClick = this.onTracksPlaylistClick.bind(this);
         this.onRenamePlaylistClick = this.onRenamePlaylistClick.bind(this);
         this.onTrackSelect = this.onTrackSelect.bind(this);
@@ -73,11 +71,14 @@ export default class StoryEditor extends Riot.Element
         xhr.open("PUT", "/api/stories/" + this.storyId);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
-            if (this.status >= 200 && this.status < 400) {
-                self.storyTitle = newStoryTitle;
-                console.log("Calling update, now storyTitle =", self.storyTitle);
-                self.update();
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not rename story: " + response.errorMessage);
+                return;
             }
+
+            self.storyTitle = newStoryTitle;
+            self.update();
         });
         xhr.send(JSON.stringify({"title": newStoryTitle}));
     }
@@ -97,6 +98,12 @@ export default class StoryEditor extends Riot.Element
         xhr.open("POST", "/api/stories/" + this.storyId + "/scenes");
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not create the scene: " + response.errorMessage);
+                return;
+            }
+
             const newScene = JSON.parse(this.responseText);
             self.scenes.push(newScene);
             self.update();
@@ -106,21 +113,6 @@ export default class StoryEditor extends Riot.Element
 
     onSceneSelect(sceneId: number) {
         this.select("scene", sceneId);
-    }
-
-    onSceneTitleUpdate(sceneId: number, newSceneTitle: string) {
-        let xhr = new XMLHttpRequest();
-        xhr.open("PUT", "/api/scenes/" + sceneId);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", () => {
-            this.scenes.forEach(scene => {
-                if (scene.id === sceneId) {
-                    scene.title = newSceneTitle;
-                    this.update();
-                }
-            });
-        });
-        xhr.send(JSON.stringify({"title": newSceneTitle}));
     }
 
     select(newType: SelectionType, newId: number) {
@@ -143,6 +135,12 @@ export default class StoryEditor extends Riot.Element
         let xhr = new XMLHttpRequest();
         xhr.open("PUT", "/api/stories/" + this.storyId + "/files/" + fileId);
         xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not move file: " + response.errorMessage);
+            }
+        });
         xhr.send(JSON.stringify({"previous": newPreviousId}));
     }
 
@@ -153,6 +151,12 @@ export default class StoryEditor extends Riot.Element
 
         xhr.open("POST", "/api/scenes/" + sceneId + "/files");
         xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not upload file: " + response.errorMessage);
+                return;
+            }
+
             self.scenes.forEach(scene => {
                 if (scene.id === sceneId) {
                     scene.files.push(JSON.parse(this.responseText));
@@ -187,10 +191,17 @@ export default class StoryEditor extends Riot.Element
 
         const xhr = new XMLHttpRequest();
         xhr.open("DELETE", "/api/scenes/" + scene.id);
-        xhr.addEventListener("load", () => {
-            this.scenes.splice(sceneIndex, 1);
-            this.selectedItem.id = null;
-            this.update();
+        const self = this;
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not delete scene: " + response.errorMessage);
+                return;
+            }
+
+            self.scenes.splice(sceneIndex, 1);
+            self.selectedItem.id = null;
+            self.update();
         });
         xhr.send();
     }
@@ -210,11 +221,21 @@ export default class StoryEditor extends Riot.Element
         );
 
         if (newTitle !== null && newTitle.trim() !== "") {
+            const oldTitle = scene.title;
             scene.title = newTitle.trim();
 
             let xhr = new XMLHttpRequest();
             xhr.open("PUT", "/api/scenes/" + scene.id);
             xhr.setRequestHeader("Content-Type", "application/json");
+            const self = this;
+            xhr.addEventListener("load", function() {
+                if (this.status >= 400) {
+                    const response = JSON.parse(this.responseText);
+                    alert("Could not rename scene: " + response.errorMessage);
+                    scene.title = oldTitle;
+                    self.update();
+                }
+            });
             xhr.send(JSON.stringify({"title": scene.title}));
         }
     }
@@ -234,14 +255,21 @@ export default class StoryEditor extends Riot.Element
 
         xhr.open("DELETE", deleteUrl);
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", () => {
-            this.scenes.forEach(scene => {
+        const self = this;
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not rename scene: " + response.errorMessage);
+                return;
+            }
+
+            self.scenes.forEach(scene => {
                 scene.files = scene.files.filter(file => {
-                    return file.id !== this.selectedItem.id;
+                    return file.id !== self.selectedItem.id;
                 });
             });
-            this.selectedItem.id = null;
-            this.update();
+            self.selectedItem.id = null;
+            self.update();
         });
         xhr.send();
     }
@@ -267,9 +295,16 @@ export default class StoryEditor extends Riot.Element
             "/api/stories/" + this.storyId + "/files/" + this.selectedItem.id
         );
         xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", () => {
+        const self = this;
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not change image type: " + response.errorMessage);
+                return;
+            }
+
             selectedFileObject.type = newType;
-            this.update();
+            self.update();
         });
         xhr.send(JSON.stringify({"type": newType}));
     }
@@ -293,24 +328,15 @@ export default class StoryEditor extends Riot.Element
         xhr.open("POST", "/api/stories/" + this.storyId + "/playlists");
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
-            const newPlaylist = JSON.parse(this.responseText);
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not create playlist: " + response.errorMessage);
+                return;
+            }
 
+            const newPlaylist = JSON.parse(this.responseText);
             self.playlists.push(newPlaylist);
             self.update();
-        });
-        xhr.send(JSON.stringify({"title": newTitle}));
-    }
-
-    onPlaylistTitleUpdate(playlistId: number, newTitle: string) {
-        let xhr = new XMLHttpRequest();
-        xhr.open("PUT", "/api/playlists/" + playlistId);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.addEventListener("load", () => {
-            this.playlists = this.playlists.filter(playlist => {
-                return playlist.id !== playlistId;
-            });
-            this.selectedItem.id = null;
-            this.update();
         });
         xhr.send(JSON.stringify({"title": newTitle}));
     }
@@ -331,9 +357,9 @@ export default class StoryEditor extends Riot.Element
         xhr.open("DELETE", deleteUrl);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
-            if (this.status === 400) {
-                alert("Cannot delete playlist. Does it have any " +
-                          "associated tracks?");
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not delete playlist: " + response.errorMessage);
                 return;
             }
 
@@ -351,10 +377,9 @@ export default class StoryEditor extends Riot.Element
         xhr.open("PUT", "/api/playlists/" + playlistId);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
-            if (this.status >= 300) {
+            if (this.status >= 400) {
                 const response = JSON.parse(this.responseText);
-
-                alert("Could not move the playlist: " + response.errorMessage);
+                alert("Could not move playlist: " + response.errorMessage);
             }
         });
         xhr.send(JSON.stringify({"previous": newPreviousId}));
@@ -388,11 +413,21 @@ export default class StoryEditor extends Riot.Element
         );
 
         if (newTitle !== null && newTitle.trim() !== "") {
+            const oldTitle = playlist.title;
             playlist.title = newTitle.trim();
 
             let xhr = new XMLHttpRequest();
             xhr.open("PUT", "/api/playlists/" + playlist.id);
             xhr.setRequestHeader("Content-Type", "application/json");
+            const self = this;
+            xhr.addEventListener("load", function() {
+                if (this.status >= 400) {
+                    const response = JSON.parse(this.responseText);
+                    alert("Could not rename playlist: " + response.errorMessage);
+                    playlist.title = oldTitle;
+                    self.update();
+                }
+            });
             xhr.send(JSON.stringify({"title": playlist.title}));
         }
     }
@@ -403,6 +438,7 @@ export default class StoryEditor extends Riot.Element
 
     unzoomPlaylist() {
         this.zoomedPlaylist = null;
+        this.selectedItem.id = null;
         this.update();
     }
 
@@ -413,6 +449,12 @@ export default class StoryEditor extends Riot.Element
 
         xhr.open("POST", "/api/playlists/" + playlistId + "/tracks");
         xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not upload track: " + response.errorMessage);
+                return;
+            }
+
             self.playlists.forEach(playlist => {
                 if (playlist.id === playlistId) {
                     playlist.tracks.push(JSON.parse(this.responseText));
@@ -430,6 +472,12 @@ export default class StoryEditor extends Riot.Element
         let xhr = new XMLHttpRequest();
         xhr.open("PUT", "/api/stories/" + this.storyId + "/tracks/" + trackId);
         xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not move track: " + response.errorMessage);
+            }
+        });
         xhr.send(JSON.stringify({"previous": newPreviousId}));
     }
 
@@ -449,7 +497,7 @@ export default class StoryEditor extends Riot.Element
         xhr.open("DELETE", deleteUrl);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.addEventListener("load", function() {
-            if (this.status === 400) {
+            if (this.status >= 400) {
                 const response = JSON.parse(this.responseText);
                 alert("Could not delete track: " + response.errorMessage);
                 return;

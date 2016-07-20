@@ -6,3 +6,4 @@ build/
 backend/config/local-*.js
 stories/
 lyre.db
+robohydra.log
