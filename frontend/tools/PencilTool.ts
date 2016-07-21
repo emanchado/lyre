@@ -1,4 +1,4 @@
-import {MapDiscovererTool, CoordinateEvent} from "./MapDiscovererTool";
+import {MapDiscovererTool, MapOperation, PenProperties} from "./MapDiscovererTool";
 
 export default class PencilTool implements MapDiscovererTool {
     private started: boolean;
@@ -12,64 +12,55 @@ export default class PencilTool implements MapDiscovererTool {
         this.started = false;
     }
 
-    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
+    onStart({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
         this.started = true;
-
-        ctx.fillStyle = "rgba(0,0,0,1)";
-        ctx.beginPath();
-        ctx.arc(offsetX,
-                offsetY,
-                penSize / 2,
-                (Math.PI/180)*0,
-                (Math.PI/180)*360,
-                false);
-        ctx.fill();
-        ctx.closePath();
-
-        this.clearUiHints(uiCtx);
 
         this.lastX = offsetX;
         this.lastY = offsetY;
+
+        return [
+            {op: "circle",
+             layer: "veil",
+             fillStyle: "black",
+             center: [offsetX, offsetY],
+             diameter: props.penSize},
+            {op: "clear", layer: "ui"}
+        ];
     }
 
-    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
-        if (this.started) {
-            ctx.lineCap = 'round';
-            ctx.lineWidth = penSize;
-            ctx.beginPath();
-            ctx.moveTo(this.lastX, this.lastY);
-            ctx.lineTo(offsetX, offsetY);
-            ctx.stroke();
-            ctx.closePath();
-
-            this.lastX = offsetX;
-            this.lastY = offsetY;
-        } else {
-            this.clearUiHints(uiCtx);
-            this.drawCircleHint(offsetX, offsetY, penSize, uiCtx);
+    onMove({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
+        if (!this.started) {
+            return [
+                {op: "clear", layer: "ui"},
+                {op: "circle",
+                 layer: "ui",
+                 strokeStyle: "blue",
+                 fillStyle: "transparent",
+                 center: [offsetX, offsetY],
+                 diameter: props.penSize}
+            ];
         }
+
+        const [lastX, lastY] = [this.lastX, this.lastY];
+        this.lastX = offsetX;
+        this.lastY = offsetY;
+        return [
+            {op: "line",
+             layer: "veil",
+             width: props.penSize,
+             start: [lastX, lastY],
+             end: [offsetX, offsetY]}
+        ];
     }
 
-    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
+    onStop({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
         this.started = false;
 
-        this.drawCircleHint(offsetX, offsetY, penSize, uiCtx);
-    }
-
-    clearUiHints(uiCtx: CanvasRenderingContext2D) {
-        uiCtx.clearRect(0, 0, uiCtx.canvas.width, uiCtx.canvas.height);
-    }
-
-    drawCircleHint(x: number, y: number, penSize: number, uiCtx: CanvasRenderingContext2D) {
-        uiCtx.strokeStyle = "blue";
-        uiCtx.beginPath();
-        uiCtx.arc(x,
-                  y,
-                  penSize / 2,
-                  (Math.PI/180)*0,
-                  (Math.PI/180)*360,
-                  false);
-        uiCtx.stroke();
-        uiCtx.closePath();
+        return [
+            {op: "circle",
+             layer: "ui",
+             center: [offsetX, offsetY],
+             diameter: props.penSize}
+        ];
     }
 }

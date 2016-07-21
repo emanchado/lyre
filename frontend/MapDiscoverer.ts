@@ -3,7 +3,61 @@
 import PencilTool from "./tools/PencilTool";
 import RectangleTool from "./tools/RectangleTool";
 import DiscoverableMap from "./DiscoverableMap";
-import MapDiscovererTool from "./tools/MapDiscovererTool";
+import { MapDiscovererTool, MapOperation, ClearOperation, CircleOperation, LineOperation, RectangleOperation } from "./tools/MapDiscovererTool";
+
+const DISPATCHERS = {
+    clear: function clear(operation: ClearOperation, layers) {
+        const layer = layers[operation.layer],
+              { width, height } = layer.canvas;
+
+        layer.clearRect(0, 0, width, height);
+    },
+
+    circle: function circle(operation: CircleOperation, layers) {
+        const layer = layers[operation.layer];
+
+        layer.strokeStyle = operation.strokeStyle;
+        layer.fillStyle = operation.fillStyle;
+        layer.beginPath();
+        layer.arc(operation.center[0],
+                  operation.center[1],
+                  operation.diameter / 2,
+                  (Math.PI/180)*0,
+                  (Math.PI/180)*360,
+                  false);
+        layer.stroke();
+        layer.fill();
+        layer.closePath();
+    },
+
+    line: function line(operation: LineOperation, layers) {
+        const layer = layers[operation.layer];
+
+        layer.strokeStyle = operation.strokeStyle;
+        layer.fillStyle = operation.fillStyle;
+        layer.lineCap = 'round';
+        layer.lineWidth = operation.width || 1;
+        layer.beginPath();
+        layer.moveTo(operation.start[0], operation.start[1]);
+        layer.lineTo(operation.end[0], operation.end[1]);
+        layer.stroke();
+        layer.closePath();
+    },
+
+    rect: function rect(operation: RectangleOperation, layers) {
+        const layer = layers[operation.layer];
+
+        layer.strokeStyle = operation.strokeStyle || "transparent";
+        layer.fillStyle = operation.fillStyle || "transparent";
+
+        layer.lineWidth = operation.lineWidth || 1;
+        layer.beginPath();
+        layer.rect(operation.start[0], operation.start[1],
+                   operation.end[0], operation.end[1]);
+        layer.stroke();
+        layer.fill();
+    }
+};
 
 @template("/templates/mapdiscoverer.html")
 export default class MapDiscovererApp extends Riot.Element
@@ -97,24 +151,47 @@ export default class MapDiscovererApp extends Riot.Element
         this.penSize = parseInt(evt.target.value, 10);
     }
 
-    onmousedown(evt) {
-        this.withPencil((ctx, uiHintsCtx, penSize) => {
-            this.currentPaintTool.onStart(evt, ctx, uiHintsCtx, penSize);
+    private dispatchOperation(operation: MapOperation, layers) {
+        const dispatcher = DISPATCHERS[operation.op];
+
+        if (!dispatcher) {
+            console.error("Invalid operation", operation);
+            return;
+        }
+
+        dispatcher(operation, layers);
+    }
+
+    private dispatchAction(aType, evt) {
+        if (!this.currentMapUrl) {
+            return;
+        }
+
+        const methodName = "on" + aType[0].toUpperCase() + aType.slice(1);
+
+        this.withPencil((layers, props) => {
+            const operations = this.currentPaintTool[methodName](evt, props);
+            if (!operations) {
+                return;
+            }
+
+            operations.forEach(operation => this.dispatchOperation(operation,
+                                                                   layers));
         });
     }
 
+    onmousedown(evt) {
+        this.dispatchAction("start", evt);
+    }
+
     onmouseup(evt) {
-        this.withPencil((ctx, uiHintsCtx, penSize) => {
-            this.currentPaintTool.onStop(evt, ctx, uiHintsCtx, penSize);
-        });
+        this.dispatchAction("stop", evt);
         // Take a snapshot of the map for undo purposes
         this.loadedMaps[this.currentMapUrl].saveCheckpoint();
     }
 
     onmousemove(evt) {
-        this.withPencil((ctx, uiHintsCtx, penSize) => {
-            this.currentPaintTool.onMove(evt, ctx, uiHintsCtx, penSize);
-        });
+        this.dispatchAction("move", evt);
     }
 
     onmouseout(evt) {
@@ -138,12 +215,13 @@ export default class MapDiscovererApp extends Riot.Element
 
     private withPencil(operation) {
         const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
-              uiHintsCtx = this.uiHints.getContext("2d");
+              uiHintsCtx = this.uiHints.getContext("2d"),
+              layers = {veil: ctx, ui: uiHintsCtx, markers: null};
 
         ctx.save();
         ctx.globalCompositeOperation =
             this.paintMode === "uncover" ? "destination-out" : "source-over";
-        operation(ctx, uiHintsCtx, this.penSize);
+        operation(layers, {penSize: this.penSize});
         ctx.restore();
     }
 }

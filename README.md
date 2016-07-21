@@ -50,6 +50,13 @@ TODO
 ----
 
 * Map markers for characters?
+    * Use mouseover and mousemove and such, not drag and drop
+    * Treat it as a tool, probably with a dropdown of characters to
+      choose from
+    * Deleting is a challenge, look into it (special tool for
+      deleting characters?)
+    * How do we tell apart adding in a position and moving an existing
+      character around?
 * Allow sharing of text bits? How would that work? Would that be saved
   for the session, so it can be sent again?
 * Allow pasting or dropping an image to share right away, without preparation

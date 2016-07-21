@@ -1,4 +1,4 @@
-import {MapDiscovererTool, CoordinateEvent} from "./MapDiscovererTool";
+import {MapDiscovererTool, MapOperation, PenProperties} from "./MapDiscovererTool";
 
 export default class RectangleTool implements MapDiscovererTool {
     private started: boolean;
@@ -12,44 +12,40 @@ export default class RectangleTool implements MapDiscovererTool {
         this.started = false;
     }
 
-    onStart({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
+    onStart({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
         [this.initialX, this.initialY] = [offsetX, offsetY];
-        this.clearUiHints(uiCtx);
         this.started = true;
+
+        return [
+            {op: "clear", layer: "ui"}
+        ];
     }
 
-    onMove({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
-        this.clearUiHints(uiCtx);
+    onMove({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
+        const actions = [{op: "clear", layer: "ui"}];
 
         if (this.started) {
-            uiCtx.save();
-
-            uiCtx.strokeStyle = "blue";
-
-            uiCtx.lineWidth = 1;
-            uiCtx.beginPath();
-            uiCtx.rect(this.initialX,           this.initialY,
-                       offsetX - this.initialX, offsetY - this.initialY);
-            uiCtx.stroke();
-
-            uiCtx.restore();
+            return [
+                {op: "clear", layer: "ui"},
+                {op: "rect",
+                 layer: "ui",
+                 strokeStyle: "blue",
+                 start: [this.initialX, this.initialY],
+                 end: [offsetX - this.initialX, offsetY - this.initialY]}
+            ];
         }
     }
 
-    onStop({offsetX, offsetY}, ctx: CanvasRenderingContext2D, uiCtx: CanvasRenderingContext2D, penSize: number) {
-        this.clearUiHints(uiCtx);
-
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.rect(this.initialX, this.initialY,
-                      offsetX - this.initialX, offsetY - this.initialY);
-        ctx.fill();
-        ctx.stroke();
-
+    onStop({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
         this.started = false;
-    }
 
-    clearUiHints(uiCtx: CanvasRenderingContext2D) {
-        uiCtx.clearRect(0, 0, uiCtx.canvas.width, uiCtx.canvas.height);
+        return [
+            {op: "clear", layer: "ui"},
+            {op: "rect",
+             layer: "veil",
+             fillStyle: "black",
+             start: [this.initialX, this.initialY],
+             end: [offsetX - this.initialX, offsetY - this.initialY]}
+        ];
     }
 }
