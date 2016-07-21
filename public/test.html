@@ -1,0 +1,26 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Test page</title>
+    <script type="text/javascript" src="/js/riot+compiler.min.js"></script>
+    <script type="text/javascript" src="/js/riot-ts.js"></script>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <testpage></testpage>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="/js/require.js"></script>
+    <script type="text/javascript" src="/js/compiled/lyre.js"></script>
+    <script type="text/javascript">
+      require(["MapDiscoverer", "TestPage"], function(md, tp) {
+        riot.mount("testpage");
+      });
+    </script>
+  </body>
+</html>
