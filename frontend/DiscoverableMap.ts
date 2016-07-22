@@ -1,10 +1,15 @@
+import { minimumRectangle } from "./ImageProcessing";
+import { MapMarkerSet } from "./MapMarkers";
+
 export default class DiscoverableMap {
     public containerEl: HTMLDivElement;
+    public markers: MapMarkerSet;
 
-    private overlayEl: HTMLCanvasElement;
+    private veilEl: HTMLCanvasElement;
+    private markerEl: HTMLCanvasElement;
     private mapImageEl: HTMLImageElement;
     private checkpointIndex: number;
-    private checkpoints: Array<ImageData>;
+    private checkpoints: Array<{veil: ImageData, markers: ImageData}>;
     private eventHandlers;
     private onLoadCallback: Function;
 
@@ -27,20 +32,27 @@ export default class DiscoverableMap {
         this.mapImageEl.style.top = "0";
         this.mapImageEl.style.left = "0";
         this.mapImageEl.style.visibility = "hidden"; // Reset on load
-        this.overlayEl = document.createElement("canvas");
-        this.overlayEl.style.position = "absolute";
-        this.overlayEl.style.top = "0";
-        this.overlayEl.style.left = "0";
-        this.overlayEl.style.opacity = "0.7";
-        this.overlayEl.style.cursor = "crosshair";
+        this.veilEl = document.createElement("canvas");
+        this.veilEl.style.position = "absolute";
+        this.veilEl.style.top = "0";
+        this.veilEl.style.left = "0";
+        this.veilEl.style.opacity = "0.7";
+        this.veilEl.style.cursor = "crosshair";
+        this.markerEl = document.createElement("canvas");
+        this.markerEl.style.position = "absolute";
+        this.markerEl.style.top = "0";
+        this.markerEl.style.left = "0";
+        this.markerEl.style.cursor = "crosshair";
 
         this.containerEl.appendChild(this.mapImageEl);
-        this.containerEl.appendChild(this.overlayEl);
+        this.containerEl.appendChild(this.markerEl);
+        this.containerEl.appendChild(this.veilEl);
 
         this.eventHandlers = {};
         this.resetCheckpoints();
 
         this.addImageLoadHandler(this.mapImageEl);
+        this.markers = new MapMarkerSet(this.markerEl);
 
         // Setting "src" will load the image, and the "load" event
         // will take care of the rest
@@ -49,11 +61,11 @@ export default class DiscoverableMap {
 
     addImageLoadHandler(imgEl) {
         imgEl.addEventListener("load", () => {
-            this.overlayEl.height = imgEl.height;
-            this.overlayEl.width = imgEl.width;
+            [this.veilEl.width, this.veilEl.height] = [imgEl.width, imgEl.height];
+            let ctx = this.veilEl.getContext("2d");
+            ctx.fillRect(0, 0, this.veilEl.width, this.veilEl.height);
+            [this.markerEl.width, this.markerEl.height] = [imgEl.width, imgEl.height];
 
-            let ctx = this.overlayEl.getContext("2d");
-            ctx.fillRect(0, 0, this.overlayEl.width, this.overlayEl.height);
             this.resetCheckpoints();
 
             imgEl.style.visibility = "";
@@ -69,109 +81,95 @@ export default class DiscoverableMap {
     }
 
     saveCheckpoint() {
-        let ctx = this.getContext();
+        let veilCtx = this.getVeilContext(),
+            markerCtx = this.getMarkerContext();
 
         // Clear up "future" redo actions
         this.checkpoints = this.checkpoints.slice(0, this.checkpointIndex + 1);
 
-        this.checkpoints.push(ctx.getImageData(0,
-                                               0,
-                                               this.overlayEl.width,
-                                               this.overlayEl.height));
+        const { width, height } = this.veilEl;
+        this.checkpoints.push({veil: veilCtx.getImageData(0,
+                                                          0,
+                                                          width,
+                                                          height),
+                               markers: markerCtx.getImageData(0,
+                                                               0,
+                                                               width,
+                                                               height)});
         this.checkpointIndex++;
     }
 
     undo() {
         if (this.checkpointIndex > 0) {
             this.checkpointIndex--;
-            this.getContext().putImageData(
-                this.checkpoints[this.checkpointIndex],
-                0,
-                0
-            );
+            const { veil, markers } = this.checkpoints[this.checkpointIndex];
+            this.getVeilContext().putImageData(veil, 0, 0);
+            this.getMarkerContext().putImageData(markers, 0, 0);
         }
     }
 
     redo() {
         if (this.checkpointIndex + 1 < this.checkpoints.length) {
             this.checkpointIndex++;
-            this.getContext().putImageData(
-                this.checkpoints[this.checkpointIndex],
-                0,
-                0
-            );
+            const { veil, markers } = this.checkpoints[this.checkpointIndex];
+            this.getVeilContext().putImageData(veil, 0, 0);
+            this.getMarkerContext().putImageData(markers, 0, 0);
         }
     }
 
-    /**
-     * Given a canvas element, it returns the coordinates of the top-left
-     * and bottom-right corners of the smallest rectangle that contains
-     * all of the transparent pixels in the given canvas.
-     */
-    rectangleCoords(): Array<number> {
-        var ctx = this.getContext(),
-        data = ctx.getImageData(0, 0, this.width, this.height).data,
-        coords = [this.width - 1, this.height - 1, 0, 0];
-
-        for (var j = 0, h = this.height; j < h; j++) {
-            for (var i = 0, w = this.width; i < w; i++) {
-                // Each coordinate is four numbers (RGBA), we're only
-                // interested in the last one, the alpha channel
-                var dataIndex = (j * w + i) * 4 + 3;
-
-                if (!data[dataIndex]) {
-                    coords[0] = Math.min(coords[0], i);
-                    coords[1] = Math.min(coords[1], j);
-                    coords[2] = Math.max(coords[2], i);
-                    coords[3] = Math.max(coords[3], j);
-                }
-            }
-        }
-
-        if (coords[0] > coords[2] || coords[1] > coords[3]) {
-            return [0, 0, 0, 0];
-        }
-        return coords;
-    }
-
-    calculateDiscoveredMapArea(): [Array<number>, ImageData] {
-        let rCoords = this.rectangleCoords();
+    calculateDiscoveredMapArea(): ImageData {
+        const rCoords = minimumRectangle(this.veilEl, (r,g,b,a) => a === 0);
 
         if (rCoords.every((c) => c === 0)) {
-            return [rCoords, null];
+            return null;
         }
 
-        let mapImgCanvas = document.createElement("canvas");
+        const [x, y, w, h] = [rCoords[0],
+                              rCoords[1],
+                              rCoords[2] - rCoords[0] + 1,
+                              rCoords[3] - rCoords[1] + 1];
+
+        const mapImgCanvas = document.createElement("canvas");
         mapImgCanvas.style.display = "none";
         document.body.appendChild(mapImgCanvas);
         mapImgCanvas.width = this.width;
         mapImgCanvas.height = this.height;
-        let mapImgCanvasCtx = mapImgCanvas.getContext("2d");
+        const mapImgCanvasCtx = mapImgCanvas.getContext("2d");
         mapImgCanvasCtx.drawImage(this.mapImageEl, 0, 0);
-        let rectangleImageData = mapImgCanvasCtx.getImageData(
-            rCoords[0],
-            rCoords[1],
-            rCoords[2] - rCoords[0],
-            rCoords[3] - rCoords[1]
-        );
-        let filterImageData = this.getContext().getImageData(
-            rCoords[0],
-            rCoords[1],
-            rCoords[2] - rCoords[0],
-            rCoords[3] - rCoords[1]
-        );
-        for (var i = 3, len = filterImageData.data.length; i < len; i += 4) {
-            if (filterImageData.data[i]) {
-                rectangleImageData.data[i-3] = 0;
-                rectangleImageData.data[i-2] = 0;
-                rectangleImageData.data[i-1] = 0;
+
+        // Start with the relevant image rectangle
+        const resultImageData = mapImgCanvasCtx.getImageData(x, y, w, h);
+        document.body.removeChild(mapImgCanvas);
+
+        // Add markers
+        const mapMarkerData = this.getMarkerContext().getImageData(x, y, w, h);
+        for (var i = 0, len = mapMarkerData.data.length; i < len; i += 4) {
+            if (mapMarkerData.data[i+3]) {
+                resultImageData.data[i] = mapMarkerData.data[i];
+                resultImageData.data[i+1] = mapMarkerData.data[i+1];
+                resultImageData.data[i+2] = mapMarkerData.data[i+2];
+                resultImageData.data[i+3] = mapMarkerData.data[i+3];
             }
         }
 
-        return [rCoords, rectangleImageData];
+        // Filter still-covered parts
+        const filterImageData = this.getVeilContext().getImageData(x, y, w, h);
+        for (var i = 3, len = filterImageData.data.length; i < len; i += 4) {
+            if (filterImageData.data[i]) {
+                resultImageData.data[i-3] = 0;
+                resultImageData.data[i-2] = 0;
+                resultImageData.data[i-1] = 0;
+            }
+        }
+
+        return resultImageData;
     }
 
-    getContext() {
-        return this.overlayEl.getContext("2d");
+    getVeilContext() {
+        return this.veilEl.getContext("2d");
+    }
+
+    getMarkerContext() {
+        return this.markerEl.getContext("2d");
     }
 }

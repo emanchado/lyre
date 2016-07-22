@@ -1,5 +1,7 @@
 <testpage>
   <button onclick={ loadMap }>Load map</button>
 
-  <mapdiscoverer></mapdiscoverer>
+  <mapdiscoverer socket={ fakeSocket }></mapdiscoverer>
+
+  <canvas style="margin-top: 100px;" id="output"></canvas>
 </testpage>

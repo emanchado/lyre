@@ -1,18 +1,19 @@
-import {MapDiscovererTool, MapOperation, PenProperties} from "./MapDiscovererTool";
+import {MapDiscovererTool, MapOperation, MapToolProperties} from "./MapDiscovererTool";
 
 export default class PencilTool implements MapDiscovererTool {
+    private static title: string = "Pencil";
+    private static img: string = "pencil.png";
+    private static accessKey: string = "p";
+
     private started: boolean;
     private lastX: number;
     private lastY: number;
-    private static title: string = "Pencil Tool";
-    private static img: string = "pencil.png";
-    private static accessKey: string = "p";
 
     constructor() {
         this.started = false;
     }
 
-    onStart({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
+    onStart({offsetX, offsetY}, props: MapToolProperties): Array<MapOperation> {
         this.started = true;
 
         this.lastX = offsetX;
@@ -28,7 +29,7 @@ export default class PencilTool implements MapDiscovererTool {
         ];
     }
 
-    onMove({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
+    onMove({offsetX, offsetY}, props: MapToolProperties): Array<MapOperation> {
         if (!this.started) {
             return [
                 {op: "clear", layer: "ui"},
@@ -53,7 +54,7 @@ export default class PencilTool implements MapDiscovererTool {
         ];
     }
 
-    onStop({offsetX, offsetY}, props: PenProperties): Array<MapOperation> {
+    onStop({offsetX, offsetY}, props: MapToolProperties): Array<MapOperation> {
         this.started = false;
 
         return [
@@ -61,6 +62,12 @@ export default class PencilTool implements MapDiscovererTool {
              layer: "ui",
              center: [offsetX, offsetY],
              diameter: props.penSize}
+        ];
+    }
+
+    onCancel({offsetX, offsetY}, props: MapToolProperties): Array<MapOperation> {
+        return [
+            {op: "clear", layer: "ui"}
         ];
     }
 }

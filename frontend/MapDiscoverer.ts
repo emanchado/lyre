@@ -2,19 +2,24 @@
 
 import PencilTool from "./tools/PencilTool";
 import RectangleTool from "./tools/RectangleTool";
+import MarkerTool from "./tools/MarkerTool";
+import MoveMarkerTool from "./tools/MoveMarkerTool";
 import DiscoverableMap from "./DiscoverableMap";
-import { MapDiscovererTool, MapOperation, ClearOperation, CircleOperation, LineOperation, RectangleOperation } from "./tools/MapDiscovererTool";
+import { MapDiscovererTool, MapOperation, ClearOperation, CircleOperation, LineOperation, RectangleOperation, ImageOperation, ClearMarkerOperation, CoordinateEvent, MapToolProperties } from "./tools/MapDiscovererTool";
+import { Marker } from "./MapMarkers";
 
-const DISPATCHERS = {
-    clear: function clear(operation: ClearOperation, layers) {
-        const layer = layers[operation.layer],
+type OperationDispatcher = (Operation, MapToolProperties) => void;
+
+const DISPATCHERS: { [actionName: string]: OperationDispatcher } = {
+    clear: function clear(operation: ClearOperation, props) {
+        const layer = props[operation.layer],
               { width, height } = layer.canvas;
 
         layer.clearRect(0, 0, width, height);
     },
 
-    circle: function circle(operation: CircleOperation, layers) {
-        const layer = layers[operation.layer];
+    circle: function circle(operation: CircleOperation, props) {
+        const layer = props[operation.layer];
 
         layer.strokeStyle = operation.strokeStyle;
         layer.fillStyle = operation.fillStyle;
@@ -30,8 +35,8 @@ const DISPATCHERS = {
         layer.closePath();
     },
 
-    line: function line(operation: LineOperation, layers) {
-        const layer = layers[operation.layer];
+    line: function line(operation: LineOperation, props) {
+        const layer = props[operation.layer];
 
         layer.strokeStyle = operation.strokeStyle;
         layer.fillStyle = operation.fillStyle;
@@ -44,8 +49,8 @@ const DISPATCHERS = {
         layer.closePath();
     },
 
-    rect: function rect(operation: RectangleOperation, layers) {
-        const layer = layers[operation.layer];
+    rect: function rect(operation: RectangleOperation, props) {
+        const layer = props[operation.layer];
 
         layer.strokeStyle = operation.strokeStyle || "transparent";
         layer.fillStyle = operation.fillStyle || "transparent";
@@ -56,6 +61,25 @@ const DISPATCHERS = {
                    operation.end[0], operation.end[1]);
         layer.stroke();
         layer.fill();
+    },
+
+    image: function image(operation: ImageOperation, props) {
+        if (operation.layer === "markers") {
+            props.markers.push({url: operation.src,
+                                x: operation.center[0],
+                                y: operation.center[1]});
+        } else {
+            const layer = props[operation.layer];
+
+            let tmp = document.createElement("img");
+            tmp.src = operation.src;
+            layer.drawImage(tmp, operation.center[0], operation.center[1]);
+            tmp = null;
+        }
+    },
+
+    clearMarker: function clearMarker(operation: ClearMarkerOperation, props) {
+        props.marker = null;
     }
 };
 
@@ -70,8 +94,13 @@ export default class MapDiscovererApp extends Riot.Element
     private mapContainer: HTMLElement;
     private paintMode: string;
     private paintTools: Array<MapDiscovererTool>;
+    private markerTools: Array<MarkerTool>;
+    private moveMarkerTool: MoveMarkerTool;
+    private showMarkerToolsDropdown: boolean;
     private currentPaintTool: MapDiscovererTool;
-    private penSize: number;
+    private selectedPaintTool: MapDiscovererTool;
+    private lastUsedMarker: MarkerTool;
+    private toolProperties: MapToolProperties;
 
     constructor(opts) {
         super();
@@ -82,11 +111,24 @@ export default class MapDiscovererApp extends Riot.Element
         this.currentMapUrl = null;
         this.paintMode = "uncover";
         this.paintTools = [new PencilTool(), new RectangleTool()];
-        this.currentPaintTool = this.paintTools[0];
-        this.penSize = 40;
+        this.markerTools = [new MarkerTool("/img/markers/ranger.png"),
+                            new MarkerTool("/img/markers/warrior.png"),
+                            new MarkerTool("/img/markers/healer.png"),
+                            new MarkerTool("/img/markers/ninja.png"),
+                            new MarkerTool("/img/markers/mage.png"),
+                            new MarkerTool("/img/markers/townfolk_f.png"),
+                            new MarkerTool("/img/markers/townfolk_m.png")];
+        this.moveMarkerTool = new MoveMarkerTool();
+        this.showMarkerToolsDropdown = false;
+        this.currentPaintTool = this.selectedPaintTool = this.paintTools[0];
+        this.lastUsedMarker = this.markerTools[0];
+        this.toolProperties = { penSize: 40, marker: null };
 
         this.paintToolClass = this.paintToolClass.bind(this);
         this.onPaintToolClickHandler = this.onPaintToolClickHandler.bind(this);
+        this.onMarkerToolClickHandler = this.onMarkerToolClickHandler.bind(this);
+        this.onMarkerToolsHover = this.onMarkerToolsHover.bind(this);
+        this.onMarkerToolsOut = this.onMarkerToolsOut.bind(this);
     }
 
     mounted() {
@@ -126,13 +168,13 @@ export default class MapDiscovererApp extends Riot.Element
     }
 
     sendToAudience(evt) {
-        let [coords, imageData] = this.loadedMaps[this.currentMapUrl].calculateDiscoveredMapArea();
+        const imageData = this.loadedMaps[this.currentMapUrl].calculateDiscoveredMapArea();
 
         if (this.socket && imageData) {
             this.socket.send(JSON.stringify({
                 type: "map-metadata",
-                width: coords[2] - coords[0],
-                height: coords[3] - coords[1]
+                width: imageData.width,
+                height: imageData.height
             }));
 
             const binary = new Uint8Array(imageData.data.length);
@@ -148,10 +190,10 @@ export default class MapDiscovererApp extends Riot.Element
     }
 
     changePenSize(evt) {
-        this.penSize = parseInt(evt.target.value, 10);
+        this.toolProperties.penSize = parseInt(evt.target.value, 10);
     }
 
-    private dispatchOperation(operation: MapOperation, layers) {
+    private dispatchOperation(operation: MapOperation, ctx) {
         const dispatcher = DISPATCHERS[operation.op];
 
         if (!dispatcher) {
@@ -159,33 +201,47 @@ export default class MapDiscovererApp extends Riot.Element
             return;
         }
 
-        dispatcher(operation, layers);
+        dispatcher(operation, ctx);
     }
 
-    private dispatchAction(aType, evt) {
+    private dispatchAction(aType: String, evt: CoordinateEvent) {
         if (!this.currentMapUrl) {
             return;
         }
 
         const methodName = "on" + aType[0].toUpperCase() + aType.slice(1);
 
-        this.withPencil((layers, props) => {
+        this.withPencil((ctx, props) => {
             const operations = this.currentPaintTool[methodName](evt, props);
             if (!operations) {
                 return;
             }
 
             operations.forEach(operation => this.dispatchOperation(operation,
-                                                                   layers));
+                                                                   ctx));
         });
     }
 
     onmousedown(evt) {
+        // Special case for moving a marker: if the cursor is on top
+        // of one, switch the tool temporarily to moveMarkerTool
+        const markerOnCursor =
+            this.loadedMaps[this.currentMapUrl].markers.remove(evt.offsetX,
+                                                               evt.offsetY);
+        if (markerOnCursor) {
+            this.toolProperties.marker = markerOnCursor;
+            this.currentPaintTool = this.moveMarkerTool;
+        }
+
         this.dispatchAction("start", evt);
     }
 
     onmouseup(evt) {
         this.dispatchAction("stop", evt);
+        // Normally this assignment will be a no-op, but when we
+        // switch to the move tool and finish moving, we have to turn
+        // back to the tool selected by the user.
+        this.currentPaintTool = this.selectedPaintTool;
         // Take a snapshot of the map for undo purposes
         this.loadedMaps[this.currentMapUrl].saveCheckpoint();
     }
@@ -195,17 +251,35 @@ export default class MapDiscovererApp extends Riot.Element
     }
 
     onmouseout(evt) {
-        const uiHintsCtx = this.uiHints.getContext("2d");
-        uiHintsCtx.clearRect(0, 0, this.uiHints.width, this.uiHints.height);
+        this.dispatchAction("cancel", evt);
+        // Normally this assignment will be a no-op, but when we
+        // switch to the move tool and finish moving, we have to turn
+        // back to the tool selected by the user.
+        this.currentPaintTool = this.selectedPaintTool;
     }
 
     paintToolClass(tool) {
         return this.currentPaintTool === tool ? "active" : "";
     }
 
+    onMarkerToolsHover(e) {
+        this.showMarkerToolsDropdown = true;
+    }
+
+    onMarkerToolsOut(e) {
+        this.showMarkerToolsDropdown = false;
+    }
+
     onPaintToolClickHandler(tool) {
         return e => {
-            this.currentPaintTool = tool;
+            this.currentPaintTool = this.selectedPaintTool = tool;
+        };
+    }
+
+    onMarkerToolClickHandler(tool) {
+        return e => {
+            this.currentPaintTool = this.selectedPaintTool =
+                this.lastUsedMarker = tool;
         };
     }
 
@@ -214,14 +288,15 @@ export default class MapDiscovererApp extends Riot.Element
     }
 
     private withPencil(operation) {
-        const ctx = this.loadedMaps[this.currentMapUrl].getContext(),
+        const veilCtx = this.loadedMaps[this.currentMapUrl].getVeilContext(),
               uiHintsCtx = this.uiHints.getContext("2d"),
-              layers = {veil: ctx, ui: uiHintsCtx, markers: null};
+              markers = this.loadedMaps[this.currentMapUrl].markers,
+              layers = {veil: veilCtx, ui: uiHintsCtx, markers: markers};
 
-        ctx.save();
-        ctx.globalCompositeOperation =
+        veilCtx.save();
+        veilCtx.globalCompositeOperation =
             this.paintMode === "uncover" ? "destination-out" : "source-over";
-        operation(layers, {penSize: this.penSize});
-        ctx.restore();
+        operation(layers, this.toolProperties);
+        veilCtx.restore();
     }
 }

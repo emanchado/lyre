@@ -49,17 +49,11 @@ passphrase, at:
 TODO
 ----
 
-* Map markers for characters?
-    * Use mouseover and mousemove and such, not drag and drop
-    * Treat it as a tool, probably with a dropdown of characters to
-      choose from
-    * Deleting is a challenge, look into it (special tool for
-      deleting characters?)
-    * How do we tell apart adding in a position and moving an existing
-      character around?
 * Allow sharing of text bits? How would that work? Would that be saved
   for the session, so it can be sent again?
 * Allow pasting or dropping an image to share right away, without preparation
+* Change pen size with control + drag
+* Allow narrators to customise the markers per story
 * Highlight unsent map bits?
 * Maybe add security to the narrator WebSocket interaction
 * Find the reordering bug (big deal for playlists!)
@@ -71,6 +65,7 @@ Credits
 * Concept, code, and logo by Esteban Manchado Velázquez
 * Compass icon by [jhnri4](https://openclipart.org/detail/87583/compass-symbol)
 * Most other icons from flaticon.com
+* [Map markers](http://opengameart.org/content/antifareas-rpg-sprite-set-1-enlarged-w-transparent-background) by [Antifarea](http://antifarea.deviantart.com/), downloaded from [opengameart.org](http://opengameart.org/)
 
 You can assume the good parts of the UI come from the initial
 sketches, and the bad parts were introduced by Esteban :-)

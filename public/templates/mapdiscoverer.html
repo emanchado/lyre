@@ -14,6 +14,14 @@
       background-color: rgba(0, 0, 0, 0.3);
     }
 
+    .misc-tools {
+      display: flex;
+    }
+
+    .paint-tools {
+      display: flex;
+    }
+
     .tool {
       display: inline-block;
 
@@ -23,7 +31,7 @@
 
       margin: 3px;
       border: 0;
-      padding: 10px 20px;
+      padding: 10px 15px;
 
       background-color: #22c064;
 
@@ -32,6 +40,22 @@
       line-height: 30px;
 
       cursor: pointer;
+    }
+
+    .marker-tools {
+      display: inline-block;
+    }
+
+    .marker-tool {
+      min-width: 40px;
+      padding: 10px;
+    }
+
+    .marker-tools-dropdown {
+      position: absolute;
+    }
+    .marker-tools-dropdown button {
+      display: block;
     }
 
     .tool.active {
@@ -54,7 +78,6 @@
     }
 
     button img {
-      display: none;
       vertical-align: middle;
     }
 
@@ -93,18 +116,18 @@
 
   <div class="toolbox">
     <button class="tool tool-publish" accesskey="s" onclick={ sendToAudience }>
-      <img src="/img/projector.png" /> Publish
+      Publish
     </button>
 
     <div class="misc-tools">
       <button class="tool" accesskey="z" onclick={ undo }>
-        <img src="/img/undo.png" /> Undo
+        Undo
       </button>
       <button class="tool" accesskey="y" onclick={ redo }>
-        <img src="/img/redo.png" /> Redo
+        Redo
       </button>
       <button class="tool { paintMode === "cover" ? "active" : "" }" accesskey="c" onclick={ coverUncover }>
-        <img src="/img/eraser.png" /> { paintMode === "cover" ? "Cover" : "Uncover" }
+        { paintMode === "cover" ? "Cover" : "Uncover" }
       </button>
     </div>
 
@@ -112,9 +135,9 @@
       <div class="tool tool-pen-size">
         <input type="range"
                min="5" max="95" step="15"
-               value={ penSize }
+               value={ toolProperties.penSize }
                onchange={ changePenSize } />
-        <span class="pen-size">{ penSize }</span>
+        <span class="pen-size">{ toolProperties.penSize }</span>
       </div>
 
       <!-- Paint tools -->
@@ -122,8 +145,26 @@
               class="tool { paintToolClass(paintTool) }"
               accesskey={ paintTool.constructor.accessKey }
               onclick={ onPaintToolClickHandler(paintTool) }>
-        <img src="/img/{ paintTool.constructor.img }" /> { paintTool.constructor.title }
+        { paintTool.constructor.title }
       </button>
+
+      <!-- Markers -->
+      <div class="marker-tools"
+           onmouseover="{ onMarkerToolsHover }"
+           onmouseout="{ onMarkerToolsOut }">
+        <button class="tool marker-tool { paintToolClass(lastUsedMarker) }"
+                onclick={ onMarkerToolClickHandler(lastUsedMarker) }>
+          <img src="{ lastUsedMarker.markerImageUrl }" />
+        </button>
+        <div class="marker-tools-dropdown" show={ showMarkerToolsDropdown }>
+          <button each={ markerTool in markerTools }
+                  show={ markerTool !== lastUsedMarker }
+                  class="tool marker-tool"
+                  onclick={ onMarkerToolClickHandler(markerTool) }>
+            <img src="{ markerTool.markerImageUrl }" />
+          </button>
+        </div>
+      </div>
     </div>
 
     <button class="tool" onclick={ onClose }>Close</button>
