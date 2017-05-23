@@ -111,13 +111,14 @@ export default class MapDiscovererApp extends Riot.Element
         this.currentMapUrl = null;
         this.paintMode = "uncover";
         this.paintTools = [new PencilTool(), new RectangleTool()];
-        this.markerTools = [new MarkerTool("/img/markers/ranger.png"),
-                            new MarkerTool("/img/markers/warrior.png"),
-                            new MarkerTool("/img/markers/healer.png"),
-                            new MarkerTool("/img/markers/ninja.png"),
-                            new MarkerTool("/img/markers/mage.png"),
-                            new MarkerTool("/img/markers/townfolk_f.png"),
-                            new MarkerTool("/img/markers/townfolk_m.png")];
+        const usedMarkers = opts.markerpool.filter(
+            m => opts.storymarkers.indexOf(m.id) !== -1
+        );
+        this.markerTools = usedMarkers.length > 0 ?
+            usedMarkers.map(
+                m => new MarkerTool(m.title, "/stories/markers/" + m.url)
+            ) :
+            [new MarkerTool("pin", "/img/generic-marker.png")];
         this.moveMarkerTool = new MoveMarkerTool();
         this.showMarkerToolsDropdown = false;
         this.currentPaintTool = this.selectedPaintTool = this.paintTools[0];

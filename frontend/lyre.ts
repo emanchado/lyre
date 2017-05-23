@@ -1,22 +1,29 @@
 /// <reference path="riot-ts.d.ts" />
 
 export default function mountAll(storyId) {
-    let xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.addEventListener("load", function() {
-        let data = JSON.parse(this.responseText);
+        const storyData = JSON.parse(this.responseText);
 
-        riot.mount('audienceview-app', {storyid: data.id});
-        riot.mount('playlist-app', {playlists: data.playlists});
-        riot.mount('filelister-app', {storyid: data.id,
-                                      scenes: data.scenes});
-        riot.mount('story-editor', {storyid: data.id,
-                                    storytitle: data.title,
-                                    scenes: data.scenes,
-                                    playlists: data.playlists});
-        // riot.mount('playlist-editor', {storyId: data.id,
-        //                                playlists: data.playlists});
-        // riot.mount('filelist-editor', {storyId: data.id,
-        //                                scenes: data.scenes});
+        const markerXhr = new XMLHttpRequest();
+        markerXhr.addEventListener("load", function() {
+            const markerPool = JSON.parse(this.responseText).markers;
+
+            riot.mount('audienceview-app', {storyid: storyData.id});
+            riot.mount('playlist-app', {playlists: storyData.playlists});
+            riot.mount('filelister-app', {storyid: storyData.id,
+                                          scenes: storyData.scenes,
+                                          storymarkers: storyData.markerIds,
+                                          markerpool: markerPool});
+            riot.mount('story-editor', {storyid: storyData.id,
+                                        storytitle: storyData.title,
+                                        scenes: storyData.scenes,
+                                        playlists: storyData.playlists,
+                                        storymarkers: storyData.markerIds,
+                                        markerpool: markerPool});
+        });
+        markerXhr.open("GET", "/api/markers");
+        markerXhr.send();
     });
     xhr.open("GET", "/api/stories/" + storyId);
     xhr.send();

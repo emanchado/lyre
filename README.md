@@ -64,8 +64,8 @@ Credits
 * Initial UI sketches by Henrik Johnsen
 * Concept, code, and logo by Esteban Manchado Velázquez
 * Compass icon by [jhnri4](https://openclipart.org/detail/87583/compass-symbol)
+* [Map marker](http://www.flaticon.com/free-icon/placeholder_149060) by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver)
 * Most other icons from flaticon.com
-* [Map markers](http://opengameart.org/content/antifareas-rpg-sprite-set-1-enlarged-w-transparent-background) by [Antifarea](http://antifarea.deviantart.com/), downloaded from [opengameart.org](http://opengameart.org/)
 
 You can assume the good parts of the UI come from the initial
 sketches, and the bad parts were introduced by Esteban :-)

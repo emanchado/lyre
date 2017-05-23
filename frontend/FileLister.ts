@@ -12,7 +12,9 @@ type FileListerAppModes = "filelist" | "map";
 export default class FileListerApp extends Riot.Element
 {
     private storyId: number;
-    private scenes;
+    private scenes: Array<any>;
+    private storyMarkers: Array<number>;
+    private markerPool: Array<any>;
     private socket: ReconnectingWebSocket;
     private mode: FileListerAppModes;
     private mappingApp;
@@ -22,6 +24,8 @@ export default class FileListerApp extends Riot.Element
 
         this.storyId = this.opts.storyid;
         this.scenes = this.opts.scenes;
+        this.storyMarkers = this.opts.storymarkers;
+        this.markerPool = this.opts.markerpool;
 
         this.mappingApp = this.tags.mapdiscoverer;
         this.mode = "filelist";

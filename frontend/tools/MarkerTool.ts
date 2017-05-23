@@ -4,7 +4,7 @@ import { processImage } from "../ImageProcessing";
 export default class MarkerTool implements MapDiscovererTool {
     private blueMarkerUrl: string;
 
-    constructor(private markerImageUrl: string) {
+    constructor(private markerTitle: string, private markerImageUrl: string) {
         processImage(this.markerImageUrl, (r, g, b, a) => {
             const sum = r + g + b;
             return sum ?

@@ -161,13 +161,20 @@ class StoryStore {
                     "ON p.id = T.playlist_id WHERE story_id = ? " +
                     "ORDER BY P.position, T.position",
                 storyId
+            ),
+            Q.ninvoke(
+                this.db,
+                "all",
+                "SELECT marker_id AS id FROM story_markers WHERE story_id = ?",
+                storyId
             )
-        ]).spread((basicInfo, scenes, playlists) => {
+        ]).spread((basicInfo, scenes, playlists, markers) => {
             return {
                 id: basicInfo.id,
                 title: basicInfo.title,
                 scenes: sceneFileInfo(basicInfo.id, scenes),
-                playlists: playlistTrackInfo(basicInfo.id, playlists)
+                playlists: playlistTrackInfo(basicInfo.id, playlists),
+                markerIds: markers.map(m => m.id)
             };
         });
     }
@@ -432,6 +439,12 @@ class StoryStore {
         }).then(() => {
             return Q.nfcall(fse.mkdirp, audioDir);
         });
+    }
+
+    ensureDirForMarkers() {
+        const markerDir = path.join(this.storyDir, "markers");
+
+        return Q.nfcall(fse.mkdirp, markerDir);
     }
 
     addFile(sceneId, fileProps) {
@@ -939,6 +952,65 @@ class StoryStore {
                 return Q.nfcall(fse.unlink, filePath);
             });
         });
+    }
+
+    getMarkers() {
+        return Q.ninvoke(
+            this.db,
+            "all",
+            "SELECT * FROM markers"
+        );
+    }
+
+    addMarker(filename, tmpPath) {
+        const originalExtension = filename.replace(/.*\./, ""),
+              finalFilename = poorMansUuid() + "." + originalExtension,
+              finalPath = path.join(this.storyDir, "markers", finalFilename);
+
+        return this.ensureDirForMarkers().then(() => {
+            return Q.nfcall(fse.move, tmpPath, finalPath);
+        }).then(() => {
+            const deferred = Q.defer();
+
+            this.db.run(
+                "INSERT INTO markers (title, url) VALUES (?, ?)",
+                [filename, finalFilename],
+                function(err/*, result*/) {
+                    if (err) {
+                        deferred.reject(err);
+                        return;
+                    }
+
+                    deferred.resolve({
+                        id: this.lastID,
+                        title: filename,
+                        url: finalFilename
+                    });
+                }
+            );
+
+            return deferred.promise;
+        });
+    }
+
+    addStoryMarker(storyId, markerId) {
+        return Q.ninvoke(
+            this.db,
+            "run",
+            "INSERT OR REPLACE INTO story_markers (story_id, marker_id) " +
+                "VALUES (?, ?)",
+            [storyId, markerId]
+        );
+    }
+
+    deleteStoryMarker(storyId, markerId) {
+        return Q.ninvoke(
+            this.db,
+            "run",
+            "DELETE FROM story_markers " +
+                "WHERE story_id = ? AND marker_id = ?",
+            [storyId, markerId]
+        );
     }
 }
 

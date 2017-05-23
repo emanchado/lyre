@@ -153,15 +153,19 @@
            onmouseover="{ onMarkerToolsHover }"
            onmouseout="{ onMarkerToolsOut }">
         <button class="tool marker-tool { paintToolClass(lastUsedMarker) }"
+                title="{ lastUsedMarker.markerTitle }"
                 onclick={ onMarkerToolClickHandler(lastUsedMarker) }>
-          <img src="{ lastUsedMarker.markerImageUrl }" />
+          <img src="{ lastUsedMarker.markerImageUrl }"
+               alt="{ lastUsedMarker.markerTitle }" />
         </button>
         <div class="marker-tools-dropdown" show={ showMarkerToolsDropdown }>
           <button each={ markerTool in markerTools }
                   show={ markerTool !== lastUsedMarker }
                   class="tool marker-tool"
+                  title="{ markerTool.markerTitle }"
                   onclick={ onMarkerToolClickHandler(markerTool) }>
-            <img src="{ markerTool.markerImageUrl }" />
+            <img src="{ markerTool.markerImageUrl }"
+                 alt="{ markerTool.markerTitle }" />
           </button>
         </div>
       </div>

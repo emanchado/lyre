@@ -1,0 +1,75 @@
+<marker-editor>
+  <style scoped>
+    h2 {
+      font-variant: small-caps;
+      font-weight: normal;
+    }
+
+    ul.marker-list {
+      display: block;
+    }
+
+    ul.marker-list li {
+      display: inline-block;
+      margin: 3px;
+      width: 64px;
+      height: 64px;
+      line-height: 64px;
+      background-image: url("/img/checkers.jpg");
+      text-align: center;
+      vertical-align: middle;
+    }
+    ul.marker-list li.selected {
+      border: 5px solid #22c064;
+      margin: -2px;
+    }
+    ul.marker-list li img {
+      vertical-align: middle;
+      max-width: 64px;
+      max-height: 64px;
+    }
+
+    li.new {
+      border: 2px solid #555;
+      border-radius: 5px;
+      background-image: none;
+    }
+    li.new img {
+      width: 64px;
+      height: 64px;
+    }
+  </style>
+
+  <h2>Markers for this story</h2>
+  <ul class="marker-list">
+    <li each={ marker in storyMarkers() }
+        class={ isSelected(marker.id) ? "selected" : "" }
+        onclick={ onStoryMarkerClick }
+        data-id={ marker.id }>
+      <img src={ "/stories/markers/" + marker.url }
+           alt={ marker.title }
+           title={ marker.title } />
+    </li><li class="new"
+        onclick={ onAddMarkerClickHandler }>
+      <img src="/img/new-image.png"
+           alt="New marker"
+           title="New marker" />
+    </li>
+  </ul>
+  <input type="file"
+         id="new-marker"
+         style="display: none"
+         onChange={ onNewMarkerChanged.bind(this) } />
+
+  <h2>Other available markers</h2>
+  <ul class="marker-list">
+    <li each={ marker in availableMarkers() }
+        class={ isSelected(marker.id) ? "selected" : "" }
+        onclick={ onMarkerClick }
+        data-id={ marker.id }>
+      <img src={ "/stories/markers/" + marker.url }
+           alt={ marker.title }
+           title={ marker.title } />
+    </li>
+  </ul>
+</marker-editor>

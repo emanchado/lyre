@@ -29,7 +29,17 @@
     <div class="row">
       <div class="col-md-12">
         <div class="story-title">{ storyTitle }</div>
-        <filelist-editor storyId={ opts.storyid }
+        <marker-editor show={ showMarkerDialog }
+                       storyId={ opts.storyid }
+                       storyMarkerIds={ storyMarkers }
+                       markerPool={ markerPool }
+                       selectedItem={ selectedItem }
+                       onStoryMarkerSelect={ onStoryMarkerSelect }
+                       onMarkerSelect={ onMarkerSelect }
+                       onMarkerUpload={ onMarkerUpload } />
+
+        <filelist-editor show={ !showMarkerDialog }
+                         storyId={ opts.storyid }
                          scenes={ scenes }
                          selectedItem={ selectedItem }
                          onSceneSelect={ onSceneSelect }
@@ -42,43 +52,66 @@
     </div>
   </div>
 
-  <!-- Menu when a scene is selected -->
-  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "scene" }>
-    <div class="tool tool-danger"
-         onclick={ onDeleteSceneClick }>Delete</div>
-    <div class="tool"
-         onclick={ onRenameSceneClick }>Rename</div>
+  <!-- Menus for the regular UI (no marker dialog) -->
+  <div show={ !showMarkerDialog }>
+    <!-- Menu when a scene is selected -->
+    <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "scene" }>
+      <div class="tool tool-danger"
+           onclick={ onDeleteSceneClick }>Delete</div>
+      <div class="tool"
+           onclick={ onRenameSceneClick }>Rename</div>
+    </div>
+
+    <!-- Menu when a file is selected -->
+    <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "file" }>
+      <div class="tool tool-danger"
+           onclick={ onDeleteFileClick }>Delete</div>
+      <div class="tool"
+           onclick={ onToggleFileTypeClick }>Toggle Type</div>
+    </div>
+
+    <!-- Menu when a playlist is selected -->
+    <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "playlist" }>
+      <div class="tool tool-danger"
+           onclick={ onDeletePlaylistClick }>Delete</div>
+      <div class="tool"
+           onclick={ onTracksPlaylistClick }>See Tracks</div>
+      <div class="tool"
+           onclick={ onRenamePlaylistClick }>Rename</div>
+    </div>
+
+    <!-- Menu when a track is selected -->
+    <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "track" }>
+      <div class="tool tool-danger"
+           onclick={ onDeleteTrackClick }>Delete</div>
+    </div>
+
+    <!-- Menu when there's nothing selected -->
+    <div class="floating-toolbox" show={ !selectedItem.id }>
+      <div class="tool" onclick={ onMarkersClick }>Markers</div>
+      <div class="tool" onclick={ onSceneCreateClick }>New Scene</div>
+      <div class="tool" onclick={ onPlaylistCreateClick }>New Playlist</div>
+      <div class="tool" onclick={ onRenameStoryClick }>Rename Story</div>
+      <a class="tool tool-danger" href="/">Close</a>
+    </div>
   </div>
 
-  <!-- Menu when a file is selected -->
-  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "file" }>
-    <div class="tool tool-danger"
-         onclick={ onDeleteFileClick }>Delete</div>
-    <div class="tool"
-         onclick={ onToggleFileTypeClick }>Toggle Type</div>
-  </div>
 
-  <!-- Menu when a playlist is selected -->
-  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "playlist" }>
-    <div class="tool tool-danger"
-         onclick={ onDeletePlaylistClick }>Delete</div>
-    <div class="tool"
-         onclick={ onTracksPlaylistClick }>See Tracks</div>
-    <div class="tool"
-         onclick={ onRenamePlaylistClick }>Rename</div>
-  </div>
+  <!-- Menus for the marker dialog -->
+  <div show={ showMarkerDialog }>
+    <!-- Menu when there's a marker selected -->
+    <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "storyMarker" }>
+      <a class="tool" onclick={ onDropMarkerClick }>Drop Marker</a>
+    </div>
 
-  <!-- Menu when a track is selected -->
-  <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "track" }>
-    <div class="tool tool-danger"
-         onclick={ onDeleteTrackClick }>Delete</div>
-  </div>
+    <div class="floating-toolbox" show={ selectedItem.id && selectedItem._type === "marker" }>
+      <a class="tool" onclick={ onUseMarkerClick }>Use Marker</a>
+    </div>
 
-  <!-- Menu when there's something selected -->
-  <div class="floating-toolbox" show={ !selectedItem.id }>
-    <div class="tool" onclick={ onSceneCreateClick }>New Scene</div>
-    <div class="tool" onclick={ onPlaylistCreateClick }>New Playlist</div>
-    <div class="tool" onclick={ onRenameStoryClick }>Rename Story</div>
-    <a class="tool tool-danger" href="/">Close</a>
+    <!-- Menu when there's nothing selected -->
+    <div class="floating-toolbox" show={ !selectedItem.id }>
+      <a class="tool" onclick={ onUseAllMarkersClick }>Use all</a>
+      <a class="tool tool-danger" onclick={ onMarkersCloseClick }>Close</a>
+    </div>
   </div>
 </story-editor>

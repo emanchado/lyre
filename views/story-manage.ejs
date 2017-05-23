@@ -9,7 +9,7 @@
  // MapDiscoverer importing tools as external modules and thus turning
  // itself into a module, we have to load all the dependencies
  // explicitly and in order so that all this works.
- require(["PlaylistEditor", "FileListEditor", "StoryEditor", "lyre"], function(pleditor, fleditor, storyeditor, lyre) {
+ require(["PlaylistEditor", "FileListEditor", "MarkerEditor", "StoryEditor", "lyre"], function(pleditor, fleditor, meditor, storyeditor, lyre) {
      lyre.default(<%= id %>);
  });
 </script>

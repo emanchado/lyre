@@ -1,5 +1,18 @@
 import Q from "q";
 
+function statementsToMigrationPromise(db, statements) {
+    const promise = Q(true);
+
+    db.serialize();
+    statements.forEach(stmt => {
+        promise.then(() => {
+            Q.ninvoke(db, "exec", stmt);
+        });
+    });
+
+    return promise;
+}
+
 const MIGRATIONS = [
     function createInitialTables(db) {
         const tableCreationStatements = [
@@ -27,16 +40,21 @@ const MIGRATIONS = [
                                   original_name text,
                                   path text)`
         ];
-        const promise = Q(true);
 
-        db.serialize();
-        tableCreationStatements.forEach(stmt => {
-            promise.then(() => {
-                Q.ninvoke(db, "exec", stmt);
-            });
-        });
+        return statementsToMigrationPromise(db, tableCreationStatements);
+    },
 
-        return promise;
+    function createMarkerTables(db) {
+        const tableCreationStatements = [
+            `CREATE TABLE markers (id integer primary key,
+                                   title text,
+                                   url text)`,
+            `CREATE TABLE story_markers (marker_id integer,
+                                         story_id integer,
+                                         PRIMARY KEY (marker_id, story_id))`
+        ];
+
+        return statementsToMigrationPromise(db, tableCreationStatements);
     }
 ];
 

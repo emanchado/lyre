@@ -62,6 +62,11 @@ app.delete("/api/playlists/:id", endpoints.apiDeletePlaylist);
 app.post("/api/playlists/:id/tracks", endpoints.apiPostPlaylistTrack);
 app.put("/api/stories/:id/tracks/:trackId", endpoints.apiPutStoryTrack);
 app.delete("/api/tracks/:id", endpoints.apiDeleteTrack);
+app.get("/api/markers", endpoints.apiGetMarkers);
+app.post("/api/markers", endpoints.apiPostMarkers);
+app.post("/api/stories/:id/markers/all", endpoints.apiPostStoryAllMarkers);
+app.post("/api/stories/:id/markers/:markerId", endpoints.apiPostStoryMarker);
+app.delete("/api/stories/:id/markers/:markerId", endpoints.apiDeleteStoryMarker);
 
 wsServer.on("connection", wsEndpoints.wsConnection);
 

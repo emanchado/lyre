@@ -5,7 +5,7 @@ interface SelectedItem {
     _type: string
 }
 
-type SelectionType = "scene" | "file" | "playlist" | "track";
+type SelectionType = "scene" | "file" | "playlist" | "track" | "storyMarker" | "marker";
 
 function readProp(obj, propName) {
     return obj[propName];
@@ -20,6 +20,9 @@ export default class StoryEditor extends Riot.Element
     private playlists: Array<any>;
     private selectedItem: SelectedItem;
     private zoomedPlaylist;
+    private showMarkerDialog: boolean;
+    private storyMarkers: Array<number>;
+    private markerPool: Array<any>;
 
     constructor() {
         super();
@@ -28,15 +31,19 @@ export default class StoryEditor extends Riot.Element
         this.storyTitle = this.opts.storytitle;
         this.scenes = this.opts.scenes;
         this.playlists = this.opts.playlists;
+        this.storyMarkers = this.opts.storymarkers;
+        this.markerPool = this.opts.markerpool;
 
         this.selectedItem = { id: null, _type: null };
         this.zoomedPlaylist = null;
+        this.showMarkerDialog = false;
 
         // Bind event handler methods so that they can be safely
         // passed around
         this.onRenameStoryClick = this.onRenameStoryClick.bind(this);
         this.onStoryRename = this.onStoryRename.bind(this);
         // Scene-related
+        this.onMarkersClick = this.onMarkersClick.bind(this);
         this.onSceneCreateClick = this.onSceneCreateClick.bind(this);
         this.onSceneCreate = this.onSceneCreate.bind(this);
         this.onSceneSelect = this.onSceneSelect.bind(this);
@@ -54,6 +61,12 @@ export default class StoryEditor extends Riot.Element
         this.onPlaylistMoved = this.onPlaylistMoved.bind(this);
         this.unzoomPlaylist = this.unzoomPlaylist.bind(this);
         this.onTrackMoved = this.onTrackMoved.bind(this);
+        // Marker-related
+        this.onStoryMarkerSelect = this.onStoryMarkerSelect.bind(this);
+        this.onMarkerSelect = this.onMarkerSelect.bind(this);
+        this.onMarkerUpload = this.onMarkerUpload.bind(this);
+        this.onUseAllMarkersClick = this.onUseAllMarkersClick.bind(this);
+        this.onMarkersCloseClick = this.onMarkersCloseClick.bind(this);
     }
 
     onRenameStoryClick(e) {
@@ -81,6 +94,80 @@ export default class StoryEditor extends Riot.Element
             self.update();
         });
         xhr.send(JSON.stringify({"title": newStoryTitle}));
+    }
+
+    onMarkersClick(e) {
+        this.showMarkerDialog = true;
+    }
+
+    addStoryMarker(storyId, markerId) {
+        const self = this;
+
+        const xhr = new XMLHttpRequest();
+        const url = "/api/stories/" + storyId + "/markers/" + markerId;
+        xhr.open("POST", url);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not import markers: " + response.errorMessage);
+                return;
+            }
+
+            self.storyMarkers.push(markerId);
+            self.selectedItem.id = null;
+            self.update();
+        });
+        xhr.send();
+    }
+
+    onUseMarkerClick(e) {
+        this.addStoryMarker(this.storyId, this.selectedItem.id);
+    }
+
+    onDropMarkerClick(e) {
+        const self = this;
+
+        const xhr = new XMLHttpRequest();
+        const markerId = this.selectedItem.id;
+        const url = "/api/stories/" + this.storyId + "/markers/" + markerId;
+        xhr.open("DELETE", url);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not import all markers: " + response.errorMessage);
+                return;
+            }
+
+            self.storyMarkers = self.storyMarkers.filter(m => m !== markerId);
+            self.selectedItem.id = null;
+            self.update();
+        });
+        xhr.send();
+    }
+
+    onUseAllMarkersClick(e) {
+        const self = this;
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "/api/stories/" + this.storyId + "/markers/all");
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.addEventListener("load", function() {
+            if (this.status >= 400) {
+                const response = JSON.parse(this.responseText);
+                alert("Could not import all markers: " + response.errorMessage);
+                return;
+            }
+
+            self.storyMarkers = self.markerPool.map(m => m.id);
+            self.update();
+        });
+        xhr.send();
+    }
+
+    onMarkersCloseClick(e) {
+        this.showMarkerDialog = false;
     }
 
     onSceneCreateClick(e) {
@@ -512,5 +599,38 @@ export default class StoryEditor extends Riot.Element
             self.update();
         });
         xhr.send();
+    }
+
+    onStoryMarkerSelect(markerId: number) {
+        this.select("storyMarker", markerId);
+    }
+
+    onMarkerSelect(markerId: number) {
+        this.select("marker", markerId);
+    }
+
+    onMarkerUpload(fileData) {
+        const xhr = new XMLHttpRequest(),
+        formData = new FormData(),
+        self = this;
+
+        xhr.open("POST", "/api/markers");
+        xhr.addEventListener("load", function() {
+            const response = JSON.parse(this.responseText);
+
+            if (this.status >= 400) {
+                alert("Could not upload marker: " + response.errorMessage);
+                return;
+            }
+
+            self.markerPool.push(response);
+            self.storyMarkers.push(response.id);
+            // Implicit self.update() call in addStoryMarker
+            self.addStoryMarker(self.storyId, response.id);
+        });
+
+        formData.append("file", fileData);
+        formData.append("type", "image");
+        xhr.send(formData);
     }
 }

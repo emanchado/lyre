@@ -379,6 +379,77 @@ function apiDeleteTrack(req, res) {
     });
 }
 
+function apiGetMarkers(req, res) {
+    return store.getMarkers().then(markers => {
+        res.json({markers: markers});
+    }).catch(error => {
+        res.statusCode = 500;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
+function apiPostMarkers(req, res) {
+    const form = new formidable.IncomingForm();
+    form.uploadDir = config.tmpPath;
+
+    Q.ninvoke(form, "parse", req).spread(function(fields, files) {
+        var uploadedFileInfo = files.file,
+            filename = path.basename(uploadedFileInfo.name),
+            tmpPath = uploadedFileInfo.path;
+
+        return store.addMarker(filename, tmpPath).then(({id, title, url}) => {
+            res.json({
+                id: id,
+                title: title,
+                url: url
+            });
+        });
+    }).catch(error => {
+        res.statusCode = 400;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
+function apiPostStoryMarker(req, res) {
+    const storyId = req.params.id,
+          markerId = req.params.markerId;
+
+    return store.addStoryMarker(storyId, markerId).then(() => {
+        res.json({success: true});
+    }).catch(error => {
+        res.statusCode = 500;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
+function apiDeleteStoryMarker(req, res) {
+    const storyId = req.params.id,
+          markerId = req.params.markerId;
+
+    return store.deleteStoryMarker(storyId, markerId).then(() => {
+        res.statusCode = 204;
+        res.end();
+    }).catch(error => {
+        res.statusCode = 500;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
+function apiPostStoryAllMarkers(req, res) {
+    const storyId = req.params.id;
+
+    return store.getMarkers().then(markers => (
+        Q.all(
+            markers.map(m => store.addStoryMarker(storyId, m.id))
+        )
+    )).then(() => {
+        res.json({success: true});
+    }).catch(error => {
+        res.statusCode = 500;
+        res.json({success: false, errorMessage: error.toString()});
+    });
+}
+
 export { index, storyNew, storyCreate, storyConfirmDelete,
          storyDelete, storyManage, storyNarrateInstructions,
          storyNarrate, storyListen,
@@ -387,4 +458,7 @@ export { index, storyNew, storyCreate, storyConfirmDelete,
          apiPostStoryScene, apiPostSceneFile, apiDeleteStoryFile,
          apiDeleteScene, apiPutPlaylist, apiPostPlaylist,
          apiDeletePlaylist, apiPostPlaylistTrack, apiPutStoryTrack,
-         apiDeleteTrack };
+         apiDeleteTrack,
+
+         apiGetMarkers, apiPostMarkers, apiPostStoryMarker,
+         apiDeleteStoryMarker, apiPostStoryAllMarkers };
