@@ -13,7 +13,7 @@ device. There's also special support for maps, which the narrator will
 be able to uncover bit by bit and send only the uncovered parts to the
 audience.
 
-See https://emanchado.github.io/lyre for more information and
+See http://HardcoreNarrativist.org/lyre/ for more information and
 examples.
 
 Running Lyre
