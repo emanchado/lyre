@@ -346,7 +346,7 @@ export default class StoryEditor extends Riot.Element
         xhr.addEventListener("load", function() {
             if (this.status >= 400) {
                 const response = JSON.parse(this.responseText);
-                alert("Could not rename scene: " + response.errorMessage);
+                alert("Could not delete file: " + response.errorMessage);
                 return;
             }
 
