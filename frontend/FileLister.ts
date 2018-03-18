@@ -17,6 +17,7 @@ export default class FileListerApp extends Riot.Element
     private markerPool: Array<any>;
     private socket: ReconnectingWebSocket;
     private mode: FileListerAppModes;
+    private randomImageUrl: string;
     private mappingApp;
 
     constructor() {
@@ -29,6 +30,7 @@ export default class FileListerApp extends Riot.Element
 
         this.mappingApp = this.tags.mapdiscoverer;
         this.mode = "filelist";
+        this.randomImageUrl = "";
 
         const wsUrl = WEBSOCKET_URL + "/" + this.storyId;
         this.socket = new ReconnectingWebSocket(wsUrl);
@@ -37,6 +39,8 @@ export default class FileListerApp extends Riot.Element
 
         this.switchToFileListMode = this.switchToFileListMode.bind(this);
         this.onImageClickHandler = this.onImageClickHandler.bind(this);
+        this.onRandomImageUrlUpdate = this.onRandomImageUrlUpdate.bind(this);
+        this.onRandomImageSend = this.onRandomImageSend.bind(this);
     }
 
     isOnline(): boolean {
@@ -71,5 +75,17 @@ export default class FileListerApp extends Riot.Element
                 this.mappingApp.loadMap(imageProps.url);
             };
         }
+    }
+
+    onRandomImageUrlUpdate(e) {
+        this.randomImageUrl = e.target.value;
+    }
+
+    onRandomImageSend() {
+        this.socket.send(JSON.stringify({
+            type: "pictures",
+            pictures: [{originalUrl: this.randomImageUrl,
+                        thumbnailUrl: this.randomImageUrl}]
+        }));
     }
 }

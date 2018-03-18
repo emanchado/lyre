@@ -18,6 +18,14 @@
       top: 5px;
       right: 5px;
     }
+
+    .random-images {
+      margin-bottom: 40px;
+    }
+
+    .random-image-sender {
+      padding-left: 40px;
+    }
   </style>
 
   <div id="offline" show={ !isOnline() }>Offline</div>
@@ -34,6 +42,24 @@
           <img src={ file.thumbnailUrl } alt={ file.title } title={ file.title } />
         </li>
       </ul>
+    </div>
+
+    <div class="random-images">
+      <sceneheader id="random" title="Random images" />
+
+      <form class="random-image-sender" onsubmit={ onRandomImageSend }>
+        Send a random image:
+        <input
+          type="text"
+          name="random-image-url"
+          placeholder="Image URL to send"
+          size="40"
+          value={ randomImageUrl }
+          oninput={ onRandomImageUrlUpdate } />
+        <button onclick={ onRandomImageSend }>
+          Send
+        </button>
+      </form>
     </div>
   </div>
 
