@@ -185,4 +185,9 @@ label.big {
 .audience-url {
     text-align: center;
     font-size: 18px;
+    color: #ddd;
+}
+
+a.dark-bg {
+    color: #66f;
 }

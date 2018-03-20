@@ -19,7 +19,7 @@
     interface to uncover the parts you want, and send the uncovered
     area to the audience.</p>
 
-  <p><a href="https://en.wikipedia.org/wiki/Break_a_leg">Break a leg!</a></p>
+  <p><a class="dark-bg" href="https://en.wikipedia.org/wiki/Break_a_leg">Break a leg!</a></p>
 </div>
 
 <div class="floating-toolbox">
@@ -31,7 +31,7 @@
  var audienceUrlBox = document.getElementById("audience-url"),
      storyId = <%= id %>;
 
- audienceUrlBox.value = location.protocol + location.host +
+ audienceUrlBox.value = location.protocol + "//" + location.host +
                         "/stories/listen/" + storyId;
  audienceUrlBox.select();
 </script>
