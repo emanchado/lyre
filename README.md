@@ -66,6 +66,7 @@ Credits
 * Compass icon by [jhnri4](https://openclipart.org/detail/87583/compass-symbol)
 * [Map marker](http://www.flaticon.com/free-icon/placeholder_149060) by [Madebyoliver](http://www.flaticon.com/authors/madebyoliver)
 * Most other icons from flaticon.com
+* QRCode.js distributed under the MIT license, made by davidshimjs
 
 You can assume the good parts of the UI come from the initial
 sketches, and the bad parts were introduced by Esteban :-)

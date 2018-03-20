@@ -191,3 +191,8 @@ label.big {
 a.dark-bg {
     color: #66f;
 }
+
+#qrcode {
+    width: 256px;
+    margin: 10px auto;
+}

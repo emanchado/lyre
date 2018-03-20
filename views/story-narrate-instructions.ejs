@@ -11,6 +11,8 @@
            readonly
            size="50"
            value="/stories/listen/<%= id %>" />
+
+    <div id="qrcode"></div>
   </div>
 
   <p>Then press "Start", below. From that moment on you can click on
@@ -34,4 +36,6 @@
  audienceUrlBox.value = location.protocol + "//" + location.host +
                         "/stories/listen/" + storyId;
  audienceUrlBox.select();
+
+ new QRCode(document.getElementById("qrcode"), audienceUrlBox.value);
 </script>
