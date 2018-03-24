@@ -194,5 +194,6 @@ a.dark-bg {
 
 #qrcode {
     width: 256px;
+    border: 15px solid #fff;
     margin: 10px auto;
 }
