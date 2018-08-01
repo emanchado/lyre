@@ -51,8 +51,8 @@ function dispatchWsConnection(ws, url) {
     }
 }
 
-function wsConnection(ws) {
-    const location = url.parse(ws.upgradeReq.url, true);
+function wsConnection(ws, request) {
+    const location = url.parse(request.url, true);
 
     dispatchWsConnection(ws, location.path);
 }

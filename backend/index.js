@@ -12,7 +12,7 @@ import {Server as WebSocketServer} from "ws";
 
 let app = express(),
     httpServer = http.Server(app),
-    wsServer = WebSocketServer({server: httpServer});
+    wsServer = new WebSocketServer({server: httpServer});
 
 if (!config.secretPassphrase) {
     throw new Error("Misconfigured app, no secret passphrase");
