@@ -20,7 +20,7 @@
     "express": "^4.13.4",
     "express-layout": "^0.1.0",
     "express-session": "^1.13.0",
-    "formidable": "^1.0.17",
+    "formidable": "^3.2.4",
     "fs-extra": "^0.30.0",
     "nodemon": "^1.9.1",
     "q": "^1.4.1",
